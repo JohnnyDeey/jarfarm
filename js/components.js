@@ -5,8 +5,7 @@ function renderNav(active = '') {
   document.getElementById('nav-placeholder').innerHTML = `
   <nav class="navbar">
     <a href="${base}index.html" class="nav-logo">
-      <div class="nav-logo-icon">J</div>
-      <span class="nav-logo-text">JAR<span>Farm</span></span>
+      <img src="${base}logo.png" alt="JAR Farm" style="height:48px;width:auto;"/>
     </a>
     <ul class="nav-links">
       <li><a href="${base}index.html" class="${active==='home'?'active':''}">Home</a></li>
@@ -33,8 +32,7 @@ function renderFooter() {
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="nav-logo" style="margin-bottom:12px">
-          <div class="nav-logo-icon">J</div>
-          <span class="nav-logo-text">JAR<span>Farm</span></span>
+          <img src="${base}logo.png" alt="JAR Farm" style="height:48px;width:auto;"/>
         </div>
         <p>Connecting Rwanda's finest growers to global markets. Premium produce, fair pay, planet-aware.</p>
         <div style="margin-top:24px">
