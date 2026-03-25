@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JAR Farm — Farmers. Fresh. Forward.</title>
+  <meta name="description" content="Connecting Rwanda's finest growers to global markets. Premium chilies, French beans, avocados and fresh produce."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      background: linear-gradient(135deg, #0a2618 0%, var(--forest) 45%, var(--mid-green) 100%);
+      position: relative; overflow: hidden; padding: 100px 5% 80px;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1400&q=80') center/cover;
+      opacity: 0.12;
+    }
+    .hero-blob {
+      position: absolute; width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,0.2) 0%, transparent 70%);
+      right: -100px; top: -100px; pointer-events: none;
+    }
+    .hero-content { position: relative; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(82,183,136,0.15); border: 1px solid rgba(82,183,136,0.3);
+      color: var(--fresh); padding: 7px 16px; border-radius: 100px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-tag span { width: 8px; height: 8px; background: var(--fresh); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+    .hero h1 { color: white; max-width: 680px; margin-bottom: 24px; }
+    .hero h1 em { font-style: italic; color: var(--gold-light); }
+    .hero p { color: rgba(255,255,255,0.7); font-size: 1.15rem; max-width: 520px; margin-bottom: 40px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-markets {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .market-badge {
+      background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+      padding: 14px 20px; color: white; display: flex; align-items: center; gap: 12px;
+      font-size: 0.85rem; font-weight: 500;
+    }
+    .market-flag { font-size: 1.3rem; }
+    .hero-scroll { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.4); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent); animation: scrollAnim 1.8s ease-in-out infinite; }
+    @keyframes scrollAnim { 0%,100%{opacity:0.4;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(0.6)} }
+
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 20px 5%;
+    }
+    .trust-items { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-mid); }
+    .trust-icon { width: 32px; height: 32px; background: var(--mint); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--forest); }
+    .trust-divider { width: 1px; height: 32px; background: var(--border); }
+
+    /* ── ABOUT STRIP ── */
+    .about-strip { background: white; }
+    .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-img-wrap { position: relative; }
+    .about-img {
+      width: 100%; height: 460px; object-fit: cover; border-radius: var(--radius-lg);
+      background: url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80') center/cover;
+    }
+    .about-badge {
+      position: absolute; bottom: 24px; left: 24px;
+      background: var(--forest); color: white; padding: 16px 20px; border-radius: var(--radius);
+    }
+    .about-badge .num { font-family: 'Cormorant Garamond',serif; font-size: 2rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+    .about-badge .lbl { font-size: 0.75rem; opacity: 0.75; margin-top: 2px; }
+
+    /* ── PRODUCE GRID ── */
+    .produce-section { background: var(--cream); }
+    .produce-grid { max-width: 1200px; margin: 48px auto 0; display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .produce-card {
+      background: white; border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow); transition: transform 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+    }
+    .produce-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .produce-card-img { height: 200px; background-size: cover; background-position: center; position: relative; }
+    .produce-card-img .badge { position: absolute; top: 12px; right: 12px; }
+    .produce-card-body { padding: 20px; }
+    .produce-card-body h4 { font-family: 'Cormorant Garamond',serif; font-size: 1.3rem; margin-bottom: 6px; }
+    .produce-card-body p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 12px; }
+    .produce-price { font-weight: 700; color: var(--forest); font-size: 1.05rem; }
+
+    /* ── HOW IT WORKS ── */
+    .how-section { background: white; }
+    .steps-grid { max-width: 1200px; margin: 48px auto 0; display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; position: relative; }
+    .steps-grid::before {
+      content: ''; position: absolute; top: 32px; left: 12%; right: 12%;
+      height: 2px; background: linear-gradient(to right, var(--mint), var(--leaf), var(--mint));
+      z-index: 0;
+    }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step-num {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--forest); color: var(--gold-light);
+      font-family: 'Cormorant Garamond',serif; font-size: 1.6rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; box-shadow: 0 0 0 8px var(--mint);
+    }
+    .step h4 { margin-bottom: 8px; }
+    .step p { font-size: 0.85rem; }
+
+    /* ── STATS ── */
+    .stats-section { background: var(--forest); }
+    .stats-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); }
+    .stat-item { text-align: center; padding: 48px 24px; border-right: 1px solid rgba(255,255,255,0.1); }
+    .stat-item:last-child { border-right: none; }
+    .stat-item .num { font-family: 'Cormorant Garamond',serif; font-size: 3.5rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+    .stat-item .lbl { color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--gold) 0%, #c49010 100%);
+      padding: 64px 5%; text-align: center;
+    }
+    .cta-banner h2 { color: white; margin-bottom: 16px; }
+    .cta-banner p { color: rgba(255,255,255,0.85); max-width: 520px; margin: 0 auto 32px; }
+
+    @media (max-width: 900px) {
+      .hero-markets { display: none; }
+      .about-inner { grid-template-columns: 1fr; }
+      .produce-grid { grid-template-columns: 1fr 1fr; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+      .steps-grid::before { display: none; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    }
+    @media (max-width: 600px) {
+      .produce-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="nav-placeholder"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-blob"></div>
+  <div class="hero-content">
+    <div class="hero-tag"><span></span>Rwanda's Premier Agri-Exporter</div>
+    <h1>Farmers. Fresh.<br/><em>Forward.</em></h1>
+    <p>We connect Rwanda's finest growers with global markets — premium chilies, French beans, avocados and fresh produce that travel well and taste even better.</p>
+    <div class="hero-actions">
+      <a href="products.html" class="btn btn-gold">Browse Our Produce</a>
+      <a href="contact.html#partner" class="btn btn-secondary" style="color:white;border-color:rgba(255,255,255,0.4)">Partner With Us</a>
+    </div>
+  </div>
+  <div class="hero-markets">
+    <div class="market-badge"><span class="market-flag">🇪🇺</span><div><div style="font-weight:600">EU Markets</div><div style="opacity:.6;font-size:.75rem">Germany · Netherlands · France</div></div></div>
+    <div class="market-badge"><span class="market-flag">🇦🇪</span><div><div style="font-weight:600">UAE Markets</div><div style="opacity:.6;font-size:.75rem">Dubai · Abu Dhabi</div></div></div>
+    <div class="market-badge"><span class="market-flag">🇬🇧</span><div><div style="font-weight:600">UK Markets</div><div style="opacity:.6;font-size:.75rem">London · Manchester</div></div></div>
+    <div class="market-badge"><span class="market-flag">🇷🇼</span><div><div style="font-weight:600">Local Markets</div><div style="opacity:.6;font-size:.75rem">Kigali · Regional</div></div></div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-items">
+    <div class="trust-item">
+      <div class="trust-icon">✓</div>
+      NAEB Certified Export
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">❄</div>
+      Cold Chain Logistics
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">🌱</div>
+      GAP Compliant Farming
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">🤝</div>
+      50–100 Outgrower Network
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">📦</div>
+      Packhouse Ready
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT STRIP -->
+<section class="section about-strip">
+  <div class="about-inner container">
+    <div class="about-img-wrap fade-up">
+      <div class="about-img"></div>
+      <div class="about-badge">
+        <div class="num">10+</div>
+        <div class="lbl">Acres Own Farm</div>
+      </div>
+    </div>
+    <div class="fade-up">
+      <div class="section-label">About JAR Farm</div>
+      <h2>Built to lift Rwandan farmers into global markets</h2>
+      <div class="divider"></div>
+      <p>JAR is an export-focused agribusiness sourcing fresh chilies, French beans, avocados, tomatoes, pineapples and more from our own farms and a trusted outgrower network. Quality, traceability, and fair pay are at the heart of everything we do.</p>
+      <p style="margin-top:14px">From seed to shelf, we manage the full journey — GAP training for farmers, packhouse processing, cold chain logistics, and export certification.</p>
+      <div style="display:flex;gap:32px;margin-top:32px;flex-wrap:wrap">
+        <div><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--forest)">50–100</div><div style="font-size:.85rem;color:var(--text-light)">Outgrowers</div></div>
+        <div><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--forest)">4</div><div style="font-size:.85rem;color:var(--text-light)">Export Markets</div></div>
+        <div><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--forest)">12+</div><div style="font-size:.85rem;color:var(--text-light)">Produce Lines</div></div>
+      </div>
+      <div style="margin-top:32px;display:flex;gap:12px">
+        <a href="about.html" class="btn btn-primary">Our Full Story</a>
+        <a href="contact.html#farmer" class="btn btn-secondary">Join as a Farmer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCE -->
+<section class="section produce-section">
+  <div class="container" style="text-align:center">
+    <div class="section-label" style="justify-content:center">Fresh Produce</div>
+    <h2>From our farms to your markets</h2>
+    <p style="max-width:520px;margin:12px auto 0">Seasonal and year-round availability across a wide range of export-grade and local market produce.</p>
+  </div>
+  <div class="produce-grid container">
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('https://images.unsplash.com/photo-1596921800793-8c63703f9e6c?w=600&q=80')">
+        <span class="badge tag tag-green">Export Grade</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Fresh Chili Peppers</h4>
+        <p>Premium red & green chilies, export-certified with consistent heat profiles</p>
+        <div class="produce-price">RWF 1,000 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('https://images.unsplash.com/photo-1567306301408-9b74779a11af?w=600&q=80')">
+        <span class="badge tag tag-green">Export Grade</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>French Beans</h4>
+        <p>Fine beans sorted, washed and packhouse-processed for EU supermarkets</p>
+        <div class="produce-price">RWF 1,200 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=600&q=80')">
+        <span class="badge tag tag-green">Export Grade</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Avocados</h4>
+        <p>Hass and Fuerte varieties with full cold chain management to destination</p>
+        <div class="produce-price">RWF 2,400 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=600&q=80')">
+        <span class="badge tag tag-gold">Local Market</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Irish Potatoes</h4>
+        <p>Clean, washed potatoes in retail and bulk packaging for Kigali markets</p>
+        <div class="produce-price">RWF 600 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('https://images.unsplash.com/photo-1604171600260-76acb0bfbaa6?w=600&q=80')">
+        <span class="badge tag tag-gold">Local Market</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Pineapples & Mangoes</h4>
+        <p>Sweet tropical fruits for retail distribution and regional cross-border trade</p>
+        <div class="produce-price">From RWF 800 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;background:var(--mint);box-shadow:none">
+      <div style="font-size:2rem;margin-bottom:12px">🥬</div>
+      <h4>+8 More Products</h4>
+      <p style="font-size:.85rem;text-align:center;margin:8px 0 16px">Carrots, peas, tomatoes, eggplant, onions, passion fruit, bananas & more</p>
+      <a href="products.html" class="btn btn-primary btn-sm">View All Produce</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section">
+  <div class="container" style="text-align:center">
+    <div class="section-label" style="justify-content:center">How It Works</div>
+    <h2>From Rwanda's soil to your shelf</h2>
+  </div>
+  <div class="steps-grid container">
+    <div class="step fade-up">
+      <div class="step-num">1</div>
+      <h4>Farm & Harvest</h4>
+      <p>Our 10-acre farm plus 50–100 outgrowers grow GAP-certified produce with full traceability</p>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">2</div>
+      <h4>Pack & Grade</h4>
+      <p>Produce is sorted, washed and packhouse-processed at our Gikondo cold storage facility</p>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">3</div>
+      <h4>Certify & Ship</h4>
+      <p>NAEB export facilitation, phytosanitary certificates and freight partners handle delivery</p>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">4</div>
+      <h4>Arrive Fresh</h4>
+      <p>Cold chain maintained end-to-end. EU, UAE and UK buyers receive market-ready produce</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-inner">
+    <div class="stat-item fade-up"><div class="num">10+</div><div class="lbl">Acres Own Farm</div></div>
+    <div class="stat-item fade-up"><div class="num">100</div><div class="lbl">Outgrower Partners</div></div>
+    <div class="stat-item fade-up"><div class="num">12+</div><div class="lbl">Produce Varieties</div></div>
+    <div class="stat-item fade-up"><div class="num">4</div><div class="lbl">Export Destinations</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <h2>Ready to source premium Rwandan produce?</h2>
+  <p>Whether you're a buyer in the EU, a regional distributor or a farmer looking to join our network — we'd love to hear from you.</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <a href="contact.html#partner" class="btn btn-primary">Get In Touch</a>
+    <a href="products.html" class="btn" style="background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.4)">Browse Products</a>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/components.js"></script>
+<script src="js/main.js"></script>
+<script>
+  renderNav('home');
+  renderFooter();
+</script>
+</body>
+</html>

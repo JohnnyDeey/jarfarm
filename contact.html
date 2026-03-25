@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — JAR Farm</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .contact-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:64px; max-width:1200px; margin:0 auto; align-items:start; }
+    .tab-bar { display:flex; gap:4px; background:var(--mint); border-radius:12px; padding:4px; margin-bottom:32px; }
+    .tab { flex:1; padding:10px; border:none; background:transparent; border-radius:9px; font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:600; cursor:pointer; transition:all .2s; color:var(--text-mid); }
+    .tab.active { background:white; color:var(--forest); box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .form-panel { display:none; }
+    .form-panel.active { display:block; animation:fadeIn .3s ease; }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .info-card { background:var(--forest); color:white; border-radius:var(--radius-lg); padding:32px; margin-bottom:20px; }
+    .info-card h3 { color:white; margin-bottom:8px; }
+    .info-card p { color:rgba(255,255,255,.7); font-size:.9rem; }
+    .contact-detail { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.1); font-size:.9rem; color:rgba(255,255,255,.8); }
+    .contact-detail:last-child{border-bottom:none}
+    .contact-detail svg { flex-shrink:0; opacity:.7; }
+    @media(max-width:768px){.contact-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="page-hero">
+  <div class="section-label" style="justify-content:center;color:var(--fresh)">Get In Touch</div>
+  <h1>Contact JAR Farm</h1>
+  <p>Buyers, farmers, partners — we respond within 48 hours to all enquiries.</p>
+</div>
+
+<section class="section">
+  <div class="contact-grid">
+    <!-- LEFT: INFO -->
+    <div>
+      <div class="info-card">
+        <h3>Our Details</h3>
+        <div style="margin-top:16px">
+          <div class="contact-detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Kigali, Rwanda
+          </div>
+          <div class="contact-detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            hello@jar.rw
+          </div>
+          <div class="contact-detail">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.12 2 2 0 0 1 3.07 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+            +250 78 844 5049
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <h4 style="margin-bottom:8px">🌍 Export Buyers</h4>
+        <p style="font-size:.85rem">We supply EU, UAE and UK markets. Minimum order quantities apply. Contact us to discuss volumes, pricing and delivery schedules.</p>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <h4 style="margin-bottom:8px">🌱 Outgrower Farmers</h4>
+        <p style="font-size:.85rem">Join our network of 50–100 contracted farmers. We provide seeds, training and guaranteed offtake at fair prices.</p>
+      </div>
+      <div class="card">
+        <h4 style="margin-bottom:8px">🏪 Local Buyers</h4>
+        <p style="font-size:.85rem">Supermarkets and retail stores in Kigali — we currently supply several stores. Contact us to arrange a wholesale agreement.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: FORMS -->
+    <div class="card" style="padding:36px" id="order">
+      <div class="tab-bar">
+        <button class="tab active" data-tab="general">General</button>
+        <button class="tab" data-tab="order">Place Order</button>
+        <button class="tab" data-tab="partner">Partner</button>
+        <button class="tab" data-tab="farmer">Join as Farmer</button>
+      </div>
+
+      <!-- GENERAL -->
+      <div class="form-panel active" id="panel-general">
+        <h3 style="margin-bottom:4px">Send Us a Message</h3>
+        <p style="font-size:.85rem;margin-bottom:24px">We'll reply within 48 hours.</p>
+        <form onsubmit="submitForm(event,'general')">
+          <div class="grid-2" style="gap:16px">
+            <div class="form-group"><label>First Name *</label><input type="text" required placeholder="Your first name"/></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Your last name"/></div>
+          </div>
+          <div class="form-group"><label>Email Address *</label><input type="email" required placeholder="you@example.com"/></div>
+          <div class="form-group"><label>Country</label><input type="text" placeholder="Where are you based?"/></div>
+          <div class="form-group"><label>Message *</label><textarea required placeholder="How can we help you?"></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Send Message</button>
+        </form>
+      </div>
+
+      <!-- ORDER -->
+      <div class="form-panel" id="panel-order">
+        <h3 style="margin-bottom:4px">Request a Quote</h3>
+        <p style="font-size:.85rem;margin-bottom:24px">Tell us what you need and we'll get back to you with pricing and availability.</p>
+        <form onsubmit="submitForm(event,'order')">
+          <div class="form-group"><label>Company / Name *</label><input type="text" required placeholder="Company or personal name"/></div>
+          <div class="form-group"><label>Email *</label><input type="email" required placeholder="you@example.com"/></div>
+          <div class="form-group"><label>Produce Required *</label>
+            <select required id="product-select">
+              <option value="">Select produce...</option>
+              <option>Fresh Chili Peppers</option>
+              <option>French Beans</option>
+              <option>Avocados</option>
+              <option>Irish Potatoes</option>
+              <option>Garden Peas</option>
+              <option>Carrots</option>
+              <option>Tomatoes</option>
+              <option>Pineapples</option>
+              <option>Mangoes & Bananas</option>
+              <option>Mixed / Multiple</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Quantity (kg or crates)</label><input type="text" placeholder="e.g. 500 kg or 20 crates"/></div>
+          <div class="form-group"><label>Delivery Destination</label><input type="text" placeholder="City, Country"/></div>
+          <div class="form-group"><label>Notes</label><textarea placeholder="Frequency, certifications needed, packaging preferences..." style="min-height:80px"></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Request Quote</button>
+        </form>
+      </div>
+
+      <!-- PARTNER -->
+      <div class="form-panel" id="panel-partner">
+        <h3 style="margin-bottom:4px">Partner With JAR Farm</h3>
+        <p style="font-size:.85rem;margin-bottom:24px">Distributors, logistics partners, investors and buyers — tell us about your interest.</p>
+        <form onsubmit="submitForm(event,'partner')">
+          <div class="form-group"><label>Name / Organisation *</label><input type="text" required placeholder="Your name or organisation"/></div>
+          <div class="form-group"><label>Email *</label><input type="email" required placeholder="you@example.com"/></div>
+          <div class="form-group"><label>Partnership Type *</label>
+            <select required>
+              <option value="">Select type...</option>
+              <option>Export Buyer (EU/UAE/UK)</option>
+              <option>Regional Distributor</option>
+              <option>Logistics / Cold Chain</option>
+              <option>Investor / Funding</option>
+              <option>Technology / Systems</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Tell Us About Your Interest *</label><textarea required placeholder="What are you looking to achieve with JAR Farm?"></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Submit Interest</button>
+        </form>
+      </div>
+
+      <!-- FARMER -->
+      <div class="form-panel" id="panel-farmer">
+        <h3 style="margin-bottom:4px">Join Our Outgrower Network</h3>
+        <p style="font-size:.85rem;margin-bottom:24px">We're looking for dedicated farmers in Rwanda. We provide seeds, training and guaranteed offtake.</p>
+        <form onsubmit="submitForm(event,'farmer')">
+          <div class="form-group"><label>Full Name *</label><input type="text" required placeholder="Your full name"/></div>
+          <div class="form-group"><label>Phone Number *</label><input type="tel" required placeholder="+250 ..."/></div>
+          <div class="form-group"><label>Location / District *</label><input type="text" required placeholder="Your district in Rwanda"/></div>
+          <div class="form-group"><label>Land Available (acres)</label><input type="number" placeholder="Approximate acreage available"/></div>
+          <div class="form-group"><label>Current Crops Grown</label><input type="text" placeholder="e.g. beans, maize, vegetables"/></div>
+          <div class="form-group"><label>Additional Notes</label><textarea placeholder="Any other information..." style="min-height:80px"></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Apply to Join</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="js/components.js"></script>
+<script src="js/main.js"></script>
+<script>
+  renderNav('contact');
+  renderFooter();
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Open correct tab from URL hash or query param
+  const hash = window.location.hash.replace('#','');
+  const product = new URLSearchParams(window.location.search).get('product');
+  if (product) {
+    document.querySelector('[data-tab="order"]').click();
+    setTimeout(() => {
+      const sel = document.getElementById('product-select');
+      for (let o of sel.options) { if (o.value === product) { sel.value = product; break; } }
+    }, 100);
+  } else if (['partner','farmer','order'].includes(hash)) {
+    document.querySelector(`[data-tab="${hash}"]`)?.click();
+  }
+
+  function submitForm(e, type) {
+    e.preventDefault();
+    const msgs = {
+      general: 'Message sent! We\'ll reply within 48 hours.',
+      order: 'Quote request sent! We\'ll get back to you with pricing and availability.',
+      partner: 'Partnership interest submitted! Our team will be in touch.',
+      farmer: 'Application submitted! Our field team will contact you shortly.'
+    };
+    showToast(msgs[type]);
+    e.target.reset();
+  }
+</script>
+</body>
+</html>

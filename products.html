@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products — JAR Farm</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .filter-bar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 16px 5%; position: sticky; top: 72px; z-index: 100;
+    }
+    .filter-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 8px 20px; border-radius: 100px; border: 1.5px solid var(--border);
+      background: white; font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; color: var(--text-mid);
+    }
+    .filter-btn.active, .filter-btn:hover { background: var(--forest); color: white; border-color: var(--forest); }
+
+    .products-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 28px;
+    }
+    .product-card {
+      background: white; border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+    .product-card.hidden { display: none; }
+    .product-img { height: 220px; background-size: cover; background-position: center; position: relative; }
+    .product-img .badges { position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .product-body { padding: 22px; }
+    .product-body h3 { font-size: 1.25rem; margin-bottom: 6px; }
+    .product-body p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px; line-height: 1.6; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border); }
+    .price { font-weight: 700; color: var(--forest); font-size: 1.05rem; }
+    .avail { font-size: 0.75rem; color: var(--leaf); font-weight: 600; }
+    .order-btn {
+      padding: 8px 18px; background: var(--forest); color: white;
+      border-radius: 100px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; border: none; font-family: 'Outfit', sans-serif;
+      transition: all 0.2s;
+    }
+    .order-btn:hover { background: var(--mid-green); transform: translateY(-1px); }
+
+    @media(max-width:900px){ .products-grid{grid-template-columns:1fr 1fr;} }
+    @media(max-width:600px){ .products-grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="page-hero">
+  <div class="section-label" style="justify-content:center;color:var(--fresh)">Our Produce</div>
+  <h1>Fresh from Rwanda's Soil</h1>
+  <p>Export-grade and locally sourced produce — all traceable, GAP-certified and packhouse-ready.</p>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-inner">
+    <span style="font-size:.85rem;font-weight:600;color:var(--text-mid);margin-right:4px">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All Products</button>
+    <button class="filter-btn" data-filter="export">Export Grade</button>
+    <button class="filter-btn" data-filter="local">Local Market</button>
+    <button class="filter-btn" data-filter="fruit">Fruits</button>
+    <button class="filter-btn" data-filter="veg">Vegetables</button>
+  </div>
+</div>
+
+<section class="section">
+  <div class="products-grid" id="products-grid">
+
+    <div class="product-card fade-up" data-cat="export veg">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1596921800793-8c63703f9e6c?w=600&q=80')">
+        <div class="badges"><span class="tag tag-green">Export</span><span class="tag tag-gray">Year-round</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Fresh Chili Peppers</h3>
+        <p>Red and green chili varieties grown to export specifications. Consistent Scoville rating, sorted and graded at our packhouse.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 1,000 / kg</div><div class="avail">● In Season</div></div>
+          <button class="order-btn" onclick="orderProduct('Fresh Chili Peppers')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="export veg">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1567306301408-9b74779a11af?w=600&q=80')">
+        <div class="badges"><span class="tag tag-green">Export</span></div>
+      </div>
+      <div class="product-body">
+        <h3>French Beans</h3>
+        <p>Fine beans meeting EU MRL standards. Cold-chain handled from packhouse to destination. Perfect for UK and European supermarkets.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 1,200 / kg</div><div class="avail">● In Season</div></div>
+          <button class="order-btn" onclick="orderProduct('French Beans')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="export fruit">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=600&q=80')">
+        <div class="badges"><span class="tag tag-green">Export</span><span class="tag tag-gray">Hass & Fuerte</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Avocados</h3>
+        <p>Hass and Fuerte varieties. Full cold-chain managed. NAEB certified for export. In high demand across EU and Middle East markets.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 2,400 / kg</div><div class="avail">● In Season</div></div>
+          <button class="order-btn" onclick="orderProduct('Avocados')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="local veg">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=600&q=80')">
+        <div class="badges"><span class="tag tag-gold">Local</span><span class="tag tag-gray">Bulk Available</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Irish Potatoes</h3>
+        <p>Clean, washed potatoes in retail and bulk packaging. Sourced from highland farms for best quality. Kigali supermarket favourite.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 600 / kg</div><div class="avail">● Available Now</div></div>
+          <button class="order-btn" onclick="orderProduct('Irish Potatoes')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="local veg">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80')">
+        <div class="badges"><span class="tag tag-gold">Local</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Garden Peas</h3>
+        <p>Fresh garden peas sourced weekly. Perfect for retail and restaurant supply in Kigali and surrounding areas.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 1,500 / kg</div><div class="avail">● Available Now</div></div>
+          <button class="order-btn" onclick="orderProduct('Garden Peas')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="local veg">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=600&q=80')">
+        <div class="badges"><span class="tag tag-gold">Local</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Carrots</h3>
+        <p>Fresh carrots, well-washed and sized for retail. Consistent supply year-round from our contracted highland farms.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 900 / kg</div><div class="avail">● Available Now</div></div>
+          <button class="order-btn" onclick="orderProduct('Carrots')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="local veg export">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1607305387299-a3d9611cd469?w=600&q=80')">
+        <div class="badges"><span class="tag tag-green">Export</span><span class="tag tag-gold">Local</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Tomatoes</h3>
+        <p>Roma and cherry tomato varieties for both local market and export. Available in retail punnet and bulk box formats.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 800 / kg</div><div class="avail">● In Season</div></div>
+          <button class="order-btn" onclick="orderProduct('Tomatoes')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="local fruit">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1604171600260-76acb0bfbaa6?w=600&q=80')">
+        <div class="badges"><span class="tag tag-gold">Local</span><span class="tag tag-gray">Seasonal</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Pineapples</h3>
+        <p>Sweet Rwandan pineapples, available whole and halved for retail. Distributed to Kigali markets and regional cross-border trade.</p>
+        <div class="product-footer">
+          <div><div class="price">RWF 1,200 / kg</div><div class="avail">● Seasonal</div></div>
+          <button class="order-btn" onclick="orderProduct('Pineapples')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card fade-up" data-cat="local fruit">
+      <div class="product-img" style="background-image:url('https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80')">
+        <div class="badges"><span class="tag tag-gold">Local</span></div>
+      </div>
+      <div class="product-body">
+        <h3>Mangoes & Bananas</h3>
+        <p>Premium tropical fruits for Kigali retail and regional distribution. Available in consumer bags and bulk crates.</p>
+        <div class="product-footer">
+          <div><div class="price">From RWF 700 / kg</div><div class="avail">● Available Now</div></div>
+          <button class="order-btn" onclick="orderProduct('Mangoes & Bananas')">Order Now</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Bulk Order Banner -->
+<section class="section-sm" style="background:var(--forest);text-align:center">
+  <h2 style="color:white">Need bulk or export quantities?</h2>
+  <p style="color:rgba(255,255,255,.7);max-width:480px;margin:12px auto 28px">We supply supermarket chains, regional distributors and international buyers. Contact us to discuss volumes, pricing and delivery schedules.</p>
+  <a href="contact.html#order" class="btn btn-gold">Request a Quote</a>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="js/components.js"></script>
+<script src="js/main.js"></script>
+<script>
+  renderNav('products');
+  renderFooter();
+
+  // Filter
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.product-card').forEach(card => {
+        if (filter === 'all' || card.dataset.cat.includes(filter)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  function orderProduct(name) {
+    window.location.href = `contact.html?product=${encodeURIComponent(name)}#order`;
+  }
+</script>
+</body>
+</html>
