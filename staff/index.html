@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Login — JAR Farm</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background: linear-gradient(135deg, #0a2618 0%, var(--forest) 60%, var(--mid-green) 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .login-box { background:white; border-radius:24px; padding:48px; width:100%; max-width:420px; box-shadow:0 32px 80px rgba(0,0,0,.3); }
+    .login-logo { display:flex; align-items:center; gap:10px; margin-bottom:32px; }
+    .login-logo-icon { width:48px; height:48px; background:var(--forest); border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; color:var(--gold); font-size:1.5rem; font-weight:700; }
+    .login-logo-text { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:700; color:var(--forest); }
+    .login-logo-text span { color:var(--gold); }
+    .staff-badge { background:var(--mint); color:var(--forest); font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:4px 10px; border-radius:100px; display:inline-block; margin-bottom:20px; }
+    .login-box h2 { font-size:1.6rem; margin-bottom:4px; }
+    .login-box p { font-size:.9rem; color:var(--text-light); margin-bottom:28px; }
+    .role-select { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
+    .role-btn { padding:10px; border:2px solid var(--border); border-radius:10px; background:white; cursor:pointer; transition:all .2s; text-align:center; }
+    .role-btn.active { border-color:var(--leaf); background:var(--mint); }
+    .role-btn .role-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+    .role-btn .role-name { font-size:.8rem; font-weight:600; color:var(--forest); display:block; }
+    .back-link { display:block; text-align:center; margin-top:20px; color:rgba(255,255,255,.6); font-size:.85rem; }
+    .back-link:hover { color:white; }
+    .demo-note { background:var(--mint); border-radius:10px; padding:12px 16px; font-size:.8rem; color:var(--forest); margin-top:16px; }
+  </style>
+</head>
+<body>
+
+<div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">J</div>
+      <span class="login-logo-text">JAR<span>Farm</span></span>
+    </div>
+    <span class="staff-badge">Staff Portal</span>
+    <h2>Welcome Back</h2>
+    <p>Sign in to access the JAR Farm management system</p>
+
+    <div class="form-group"><label>Select Your Role</label></div>
+    <div class="role-select">
+      <div class="role-btn active" data-role="manager" onclick="selectRole(this)">
+        <span class="role-icon">👨‍💼</span>
+        <span class="role-name">Manager</span>
+      </div>
+      <div class="role-btn" data-role="field" onclick="selectRole(this)">
+        <span class="role-icon">🌾</span>
+        <span class="role-name">Field Staff</span>
+      </div>
+      <div class="role-btn" data-role="packhouse" onclick="selectRole(this)">
+        <span class="role-icon">📦</span>
+        <span class="role-name">Packhouse</span>
+      </div>
+      <div class="role-btn" data-role="driver" onclick="selectRole(this)">
+        <span class="role-icon">🚛</span>
+        <span class="role-name">Driver / Logistics</span>
+      </div>
+    </div>
+
+    <form onsubmit="doLogin(event)">
+      <div class="form-group"><label>Staff ID / Username *</label><input type="text" id="username" required placeholder="e.g. MGR-001 or your name"/></div>
+      <div class="form-group"><label>Password *</label><input type="password" id="password" required placeholder="Your password"/></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px">Sign In to Portal</button>
+    </form>
+
+    <div class="demo-note">
+      💡 <strong>Demo:</strong> Use any username & password "jar2025" to enter the demo portal.
+    </div>
+  </div>
+  <a href="../index.html" class="back-link">← Back to JAR Farm website</a>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  let selectedRole = 'manager';
+  function selectRole(el) {
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedRole = el.dataset.role;
+  }
+
+  function doLogin(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    if (!user) { showToast('Please enter your Staff ID', 'error'); return; }
+    if (pass !== 'jar2025' && pass.length < 4) { showToast('Incorrect password', 'error'); return; }
+    localStorage.setItem('jar_user', JSON.stringify({ name: user, role: selectedRole, loginTime: new Date().toISOString() }));
+    showToast('Welcome back! Loading dashboard...');
+    setTimeout(() => window.location.href = 'dashboard.html', 1200);
+  }
+</script>
+</body>
+</html>

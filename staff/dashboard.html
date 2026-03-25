@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard — JAR Farm</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:#F0F4F0; font-family:'Outfit',sans-serif; }
+
+    /* LAYOUT */
+    .portal { display:flex; min-height:100vh; }
+    .sidebar {
+      width:240px; background:var(--forest); flex-shrink:0;
+      display:flex; flex-direction:column; position:fixed; top:0; bottom:0; left:0;
+      overflow-y:auto; z-index:200;
+    }
+    .sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(255,255,255,.1); }
+    .sidebar-logo .nav-logo-icon { background:rgba(255,255,255,.1); color:var(--gold-light); }
+    .sidebar-logo .nav-logo-text { color:white; }
+    .sidebar-badge { font-size:.7rem; background:rgba(82,183,136,.3); color:var(--fresh); padding:3px 8px; border-radius:100px; letter-spacing:.06em; font-weight:700; text-transform:uppercase; margin-top:6px; display:inline-block; }
+
+    .sidebar-nav { padding:16px 12px; flex:1; }
+    .nav-section-title { font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.35); padding:12px 8px 6px; font-weight:700; }
+    .nav-item {
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+      color:rgba(255,255,255,.65); font-size:.88rem; font-weight:500; cursor:pointer;
+      transition:all .2s; margin-bottom:2px; border:none; background:none; width:100%; text-align:left;
+    }
+    .nav-item:hover { background:rgba(255,255,255,.08); color:white; }
+    .nav-item.active { background:rgba(82,183,136,.25); color:var(--fresh); }
+    .nav-item .icon { font-size:1.1rem; width:20px; text-align:center; }
+    .nav-item .badge-count { background:var(--gold); color:white; font-size:.65rem; font-weight:700; padding:2px 6px; border-radius:100px; margin-left:auto; }
+
+    .sidebar-user { padding:16px 20px; border-top:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px; }
+    .user-avatar { width:36px; height:36px; background:var(--leaf); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:.9rem; }
+    .user-info .name { color:white; font-size:.85rem; font-weight:600; }
+    .user-info .role { color:rgba(255,255,255,.5); font-size:.75rem; text-transform:capitalize; }
+
+    /* MAIN */
+    .main { margin-left:240px; flex:1; }
+    .topbar { background:white; padding:16px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+    .topbar-title { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:700; color:var(--forest); }
+    .topbar-right { display:flex; align-items:center; gap:16px; }
+    .topbar-date { font-size:.82rem; color:var(--text-light); }
+    .notif-btn { width:36px; height:36px; background:var(--mint); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; position:relative; }
+    .notif-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; background:var(--gold); border-radius:50%; }
+
+    .content { padding:28px; }
+
+    /* PANELS */
+    .panel { display:none; }
+    .panel.active { display:block; animation:fadeIn .3s ease; }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    /* DASHBOARD OVERVIEW */
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+    .kpi-card { background:white; border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
+    .kpi-label { font-size:.75rem; color:var(--text-light); text-transform:uppercase; letter-spacing:.07em; font-weight:600; margin-bottom:8px; }
+    .kpi-value { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:700; color:var(--forest); line-height:1; }
+    .kpi-change { font-size:.8rem; margin-top:6px; font-weight:500; }
+    .kpi-change.up { color:#16A34A; }
+    .kpi-change.down { color:#DC2626; }
+    .kpi-icon { font-size:1.8rem; float:right; opacity:.25; }
+
+    .dash-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:20px; }
+    .dash-card { background:white; border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); }
+    .dash-card h4 { margin-bottom:16px; display:flex; align-items:center; gap:8px; font-size:1rem; }
+
+    .activity-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+    .activity-item:last-child{border-bottom:none}
+    .activity-dot { width:8px; height:8px; border-radius:50%; background:var(--leaf); flex-shrink:0; margin-top:6px; }
+    .activity-text { font-size:.85rem; color:var(--text-mid); flex:1; }
+    .activity-time { font-size:.75rem; color:var(--text-light); }
+
+    /* TABLE */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.88rem; }
+    th { background:var(--mint); color:var(--forest); padding:10px 14px; text-align:left; font-weight:700; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; }
+    td { padding:12px 14px; border-bottom:1px solid var(--border); color:var(--text-mid); }
+    tr:hover td { background:#F9FAFB; }
+    .status-pill { padding:3px 10px; border-radius:100px; font-size:.75rem; font-weight:700; display:inline-block; }
+    .status-active { background:#DCFCE7; color:#166534; }
+    .status-pending { background:#FEF9C3; color:#854D0E; }
+    .status-low { background:#FEE2E2; color:#991B1B; }
+    .status-transit { background:#DBEAFE; color:#1E40AF; }
+
+    /* CHAT */
+    .chat-wrap { display:flex; flex-direction:column; height:520px; }
+    .chat-messages { flex:1; overflow-y:auto; padding:16px; background:#F9FBF9; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:16px; }
+    .chat-msg { margin-bottom:14px; }
+    .chat-msg-header { display:flex; align-items:baseline; gap:8px; margin-bottom:4px; }
+    .chat-msg-author { font-size:.8rem; font-weight:700; color:var(--forest); }
+    .chat-msg-time { font-size:.72rem; color:var(--text-light); }
+    .chat-msg-body { background:white; padding:10px 14px; border-radius:0 12px 12px 12px; font-size:.88rem; color:var(--text-dark); box-shadow:0 1px 4px rgba(0,0,0,.06); max-width:80%; display:inline-block; }
+    .chat-msg.mine .chat-msg-body { background:var(--forest); color:white; border-radius:12px 0 12px 12px; }
+    .chat-msg.mine { text-align:right; }
+    .chat-msg.mine .chat-msg-header { flex-direction:row-reverse; }
+    .chat-input-row { display:flex; gap:10px; }
+    .chat-input-row input { flex:1; padding:11px 16px; border:1.5px solid var(--border); border-radius:100px; font-family:'Outfit',sans-serif; font-size:.9rem; outline:none; }
+    .chat-input-row input:focus { border-color:var(--leaf); }
+    .chat-send-btn { background:var(--forest); color:white; border:none; border-radius:100px; padding:10px 22px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; font-size:.88rem; transition:background .2s; }
+    .chat-send-btn:hover { background:var(--mid-green); }
+
+    /* REPORTS */
+    .report-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+    .report-type-card { border:2px solid var(--border); border-radius:var(--radius); padding:16px; cursor:pointer; transition:all .2s; text-align:center; }
+    .report-type-card.selected { border-color:var(--leaf); background:var(--mint); }
+    .report-type-card .icon { font-size:1.8rem; display:block; margin-bottom:6px; }
+    .report-type-card .name { font-size:.82rem; font-weight:600; color:var(--forest); }
+
+    @media(max-width:768px){
+      .sidebar{width:100%;position:relative;flex-direction:row;flex-wrap:wrap;}
+      .main{margin-left:0;}
+      .kpi-grid{grid-template-columns:1fr 1fr;}
+      .dash-grid{grid-template-columns:1fr;}
+      .report-type-grid{grid-template-columns:1fr 1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="portal">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo">
+        <div class="nav-logo-icon">J</div>
+        <span class="nav-logo-text">JAR<span style="color:var(--gold-light)">Farm</span></span>
+      </div>
+      <div class="sidebar-badge">Staff Portal</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Overview</div>
+      <button class="nav-item active" onclick="showPanel('dashboard',this)"><span class="icon">📊</span> Dashboard</button>
+
+      <div class="nav-section-title">Operations</div>
+      <button class="nav-item" onclick="showPanel('inventory',this)"><span class="icon">📦</span> Inventory<span class="badge-count" id="low-badge">2</span></button>
+      <button class="nav-item" onclick="showPanel('orders',this)"><span class="icon">🛒</span> Orders & Sales</button>
+      <button class="nav-item" onclick="showPanel('farmers',this)"><span class="icon">🌾</span> Outgrowers</button>
+
+      <div class="nav-section-title">Communication</div>
+      <button class="nav-item" onclick="showPanel('chat',this)"><span class="icon">💬</span> Team Chat<span class="badge-count" id="chat-badge">3</span></button>
+      <button class="nav-item" onclick="showPanel('reports',this)"><span class="icon">📋</span> Reports & Logs</button>
+
+      <div class="nav-section-title">Account</div>
+      <button class="nav-item" onclick="window.location.href='../index.html'"><span class="icon">🌐</span> Public Website</button>
+      <button class="nav-item" onclick="logout()"><span class="icon">🚪</span> Sign Out</button>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-info">
+        <div class="name" id="user-name">Loading...</div>
+        <div class="role" id="user-role">—</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="panel-title">Dashboard</span>
+      <div class="topbar-right">
+        <span class="topbar-date" id="today-date"></span>
+        <button class="notif-btn" onclick="showPanel('chat',document.querySelector('[onclick*=chat]'))">💬<span class="notif-dot"></span></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon">📦</div><div class="kpi-label">Total Stock (kg)</div><div class="kpi-value">3,240</div><div class="kpi-change up">↑ +12% this week</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🛒</div><div class="kpi-label">Orders This Month</div><div class="kpi-value">24</div><div class="kpi-change up">↑ +4 from last month</div></div>
+          <div class="kpi-card"><div class="kpi-icon">💰</div><div class="kpi-label">Revenue (RWF)</div><div class="kpi-value">2.1M</div><div class="kpi-change up">↑ Growing</div></div>
+          <div class="kpi-card"><div class="kpi-icon">🌾</div><div class="kpi-label">Active Outgrowers</div><div class="kpi-value">18</div><div class="kpi-change">Target: 50–100</div></div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h4>📋 Recent Activity</h4>
+            <div id="activity-feed">
+              <div class="activity-item"><div class="activity-dot"></div><div class="activity-text">New order received — Nakumatt Supermarket (50kg carrots)</div><div class="activity-time">2h ago</div></div>
+              <div class="activity-item"><div class="activity-dot" style="background:var(--gold)"></div><div class="activity-text">⚠ Low stock alert — Garden Peas (8kg remaining)</div><div class="activity-time">5h ago</div></div>
+              <div class="activity-item"><div class="activity-dot"></div><div class="activity-text">Outgrower Jean-Pierre submitted harvest log (120kg beans)</div><div class="activity-time">Yesterday</div></div>
+              <div class="activity-item"><div class="activity-dot"></div><div class="activity-text">Monthly sales report submitted by Manager</div><div class="activity-time">2 days ago</div></div>
+              <div class="activity-item"><div class="activity-dot" style="background:var(--gold)"></div><div class="activity-text">⚠ Low stock alert — Fresh Chili (12kg remaining)</div><div class="activity-time">2 days ago</div></div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <h4>📦 Stock Overview</h4>
+            <div id="quick-stock"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div class="panel" id="panel-inventory">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary btn-sm" onclick="addStockPrompt()">+ Add / Update Stock</button>
+        </div>
+        <div class="dash-card">
+          <div class="table-wrap">
+            <table id="inventory-table">
+              <thead><tr><th>Produce</th><th>Stock (kg)</th><th>Price/kg (RWF)</th><th>Last Updated</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="inventory-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="panel" id="panel-orders">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary btn-sm" onclick="addOrderPrompt()">+ Log New Order</button>
+        </div>
+        <div class="dash-card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Order ID</th><th>Customer</th><th>Produce</th><th>Qty (kg)</th><th>Value (RWF)</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="orders-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FARMERS -->
+      <div class="panel" id="panel-farmers">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary btn-sm" onclick="addFarmerPrompt()">+ Add Outgrower</button>
+        </div>
+        <div class="dash-card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Acres</th><th>Last Delivery (kg)</th><th>Status</th></tr></thead>
+              <tbody id="farmers-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT -->
+      <div class="panel" id="panel-chat">
+        <div class="dash-card" style="max-width:720px">
+          <h4 style="margin-bottom:4px">💬 JAR Farm Team Chat</h4>
+          <p style="font-size:.8rem;color:var(--text-light);margin-bottom:16px">All staff see these messages. Use for updates, alerts and coordination.</p>
+          <div class="chat-wrap">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-row">
+              <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendChat()"/>
+              <button class="chat-send-btn" onclick="sendChat()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="panel" id="panel-reports">
+        <div class="dash-card" style="max-width:760px">
+          <h4 style="margin-bottom:4px">📋 Submit Report or Log</h4>
+          <p style="font-size:.8rem;color:var(--text-light);margin-bottom:20px">Reports are logged here and emailed to JAR Farm management.</p>
+
+          <div class="report-type-grid" id="report-types">
+            <div class="report-type-card selected" onclick="selectReport(this,'daily')"><span class="icon">📅</span><span class="name">Daily Activity</span></div>
+            <div class="report-type-card" onclick="selectReport(this,'harvest')"><span class="icon">🌾</span><span class="name">Harvest Log</span></div>
+            <div class="report-type-card" onclick="selectReport(this,'sale')"><span class="icon">🛒</span><span class="name">Sales Record</span></div>
+            <div class="report-type-card" onclick="selectReport(this,'expense')"><span class="icon">💰</span><span class="name">Expense / Receipt</span></div>
+            <div class="report-type-card" onclick="selectReport(this,'incident')"><span class="icon">⚠️</span><span class="name">Incident Report</span></div>
+            <div class="report-type-card" onclick="selectReport(this,'other')"><span class="icon">📄</span><span class="name">Other Log</span></div>
+          </div>
+
+          <form onsubmit="submitReport(event)">
+            <div class="grid-2" style="gap:16px">
+              <div class="form-group"><label>Date *</label><input type="date" id="rpt-date" required/></div>
+              <div class="form-group"><label>Your Name *</label><input type="text" id="rpt-name" required placeholder="Your name"/></div>
+            </div>
+            <div class="form-group"><label>Subject / Title *</label><input type="text" id="rpt-subject" required placeholder="e.g. Daily harvest summary — 25 June"/></div>
+            <div class="form-group"><label>Details *</label><textarea id="rpt-body" required placeholder="Provide full details of your report or log entry..." style="min-height:140px"></textarea></div>
+            <div class="form-group">
+              <label>Amount (RWF) — for expense reports</label>
+              <input type="number" id="rpt-amount" placeholder="Leave blank if not applicable"/>
+            </div>
+            <div class="form-group"><label>Attach Receipt / Photo (optional)</label><input type="file" accept="image/*,.pdf" style="padding:8px"/></div>
+            <div style="display:flex;gap:12px">
+              <button type="submit" class="btn btn-primary">Submit Report</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="emailReport()">📧 Email to Management</button>
+            </div>
+          </form>
+
+          <div style="margin-top:32px">
+            <h4 style="margin-bottom:12px">📂 Recent Submissions</h4>
+            <div id="report-log"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /portal -->
+
+<script src="../js/main.js"></script>
+<script>
+// ── USER ──
+let currentUser = { name: 'Staff', role: 'field' };
+try {
+  const stored = localStorage.getItem('jar_user');
+  if (stored) currentUser = JSON.parse(stored);
+  else window.location.href = 'index.html';
+} catch(e) { window.location.href = 'index.html'; }
+
+document.getElementById('user-name').textContent = currentUser.name;
+document.getElementById('user-role').textContent = currentUser.role;
+document.getElementById('user-avatar').textContent = currentUser.name[0].toUpperCase();
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// Set today in report date
+document.getElementById('rpt-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('rpt-name').value = currentUser.name;
+
+// ── NAVIGATION ──
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = {dashboard:'Dashboard Overview',inventory:'Inventory Management',orders:'Orders & Sales',farmers:'Outgrower Network',chat:'Team Chat',reports:'Reports & Logs'};
+  document.getElementById('panel-title').textContent = titles[id] || id;
+  if (id === 'chat') { document.getElementById('chat-badge').style.display='none'; renderChat(); }
+  if (id === 'inventory') renderInventory();
+  if (id === 'orders') renderOrders();
+  if (id === 'farmers') renderFarmers();
+  if (id === 'reports') renderReportLog();
+}
+
+// ── INVENTORY DATA ──
+let inventory = JSON.parse(localStorage.getItem('jar_inventory') || 'null') || [
+  { id:1, name:'Fresh Chili Peppers', stock:12, price:1000, updated:'Today', status:'low' },
+  { id:2, name:'French Beans', stock:280, price:1200, updated:'Yesterday', status:'active' },
+  { id:3, name:'Avocados', stock:150, price:2400, updated:'2 days ago', status:'active' },
+  { id:4, name:'Irish Potatoes', stock:820, price:600, updated:'Today', status:'active' },
+  { id:5, name:'Garden Peas', stock:8, price:1500, updated:'Today', status:'low' },
+  { id:6, name:'Carrots', stock:340, price:900, updated:'Yesterday', status:'active' },
+  { id:7, name:'Tomatoes', stock:95, price:800, updated:'2 days ago', status:'active' },
+  { id:8, name:'Pineapples', stock:220, price:1200, updated:'3 days ago', status:'active' },
+];
+
+function saveInventory() { localStorage.setItem('jar_inventory', JSON.stringify(inventory)); }
+
+function renderInventory() {
+  const body = document.getElementById('inventory-body');
+  body.innerHTML = inventory.map(item => `
+    <tr>
+      <td><strong>${item.name}</strong></td>
+      <td>${item.stock.toLocaleString()} kg</td>
+      <td>RWF ${item.price.toLocaleString()}</td>
+      <td>${item.updated}</td>
+      <td><span class="status-pill ${item.stock<20?'status-low':'status-active'}">${item.stock<20?'⚠ Low':'● OK'}</span></td>
+      <td><button class="btn btn-sm" style="padding:6px 14px;background:var(--mint);color:var(--forest);border-radius:100px;border:none;font-family:'Outfit',sans-serif;cursor:pointer;font-weight:600;font-size:.78rem" onclick="updateStock(${item.id})">Update</button></td>
+    </tr>`).join('');
+  renderQuickStock();
+}
+
+function renderQuickStock() {
+  const el = document.getElementById('quick-stock');
+  if (!el) return;
+  el.innerHTML = inventory.slice(0,6).map(item => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:.85rem;font-weight:500">${item.name}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.85rem;color:var(--text-light)">${item.stock} kg</span>
+        <span class="status-pill ${item.stock<20?'status-low':'status-active'}" style="font-size:.7rem">${item.stock<20?'Low':'OK'}</span>
+      </div>
+    </div>`).join('');
+}
+
+function updateStock(id) {
+  const item = inventory.find(i => i.id===id);
+  if (!item) return;
+  const newVal = prompt(`Update stock for ${item.name}.\nCurrent: ${item.stock} kg\nEnter new quantity (kg):`);
+  if (newVal !== null && !isNaN(+newVal)) {
+    item.stock = +newVal; item.updated = 'Just now';
+    saveInventory(); renderInventory();
+    showToast(`${item.name} stock updated to ${newVal} kg`);
+    addActivity(`Stock updated — ${item.name}: ${newVal} kg`);
+  }
+}
+
+function addStockPrompt() {
+  const name = prompt('Produce name:'); if (!name) return;
+  const stock = +prompt('Quantity (kg):'); if (isNaN(stock)) return;
+  const price = +prompt('Price per kg (RWF):'); if (isNaN(price)) return;
+  inventory.push({ id: Date.now(), name, stock, price, updated:'Just now', status:'active' });
+  saveInventory(); renderInventory();
+  showToast(`${name} added to inventory`);
+}
+
+// ── ORDERS ──
+let orders = JSON.parse(localStorage.getItem('jar_orders') || 'null') || [
+  { id:'ORD-001', customer:'Nakumatt Supermarket', produce:'Carrots', qty:50, value:45000, date:'Today', status:'pending' },
+  { id:'ORD-002', customer:'Simba Supermarket', produce:'Irish Potatoes', qty:200, value:120000, date:'Yesterday', status:'active' },
+  { id:'ORD-003', customer:'Restaurant Le Gourmet', produce:'French Beans', qty:20, value:24000, date:'2 days ago', status:'transit' },
+  { id:'ORD-004', customer:'Kigali Fresh Market', produce:'Tomatoes', qty:80, value:64000, date:'3 days ago', status:'active' },
+];
+
+function saveOrders(){ localStorage.setItem('jar_orders', JSON.stringify(orders)); }
+
+function renderOrders() {
+  document.getElementById('orders-body').innerHTML = orders.map(o => `
+    <tr>
+      <td><strong>${o.id}</strong></td><td>${o.customer}</td><td>${o.produce}</td>
+      <td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td>
+      <td><span class="status-pill status-${o.status}">${o.status==='active'?'● Delivered':o.status==='pending'?'⏳ Pending':'🚚 In Transit'}</span></td>
+    </tr>`).join('');
+}
+
+function addOrderPrompt() {
+  const customer = prompt('Customer name:'); if (!customer) return;
+  const produce = prompt('Produce type:'); if (!produce) return;
+  const qty = +prompt('Quantity (kg):'); if (isNaN(qty)) return;
+  const price = +prompt('Total value (RWF):'); if (isNaN(price)) return;
+  const id = 'ORD-' + String(orders.length+1).padStart(3,'0');
+  orders.unshift({ id, customer, produce, qty, value:price, date:'Today', status:'pending' });
+  saveOrders(); renderOrders();
+  showToast(`Order ${id} logged`);
+  addActivity(`New order logged — ${customer}: ${qty}kg ${produce}`);
+}
+
+// ── FARMERS ──
+let farmers = JSON.parse(localStorage.getItem('jar_farmers') || 'null') || [
+  { name:'Jean-Pierre Nkurunziza', district:'Huye', crops:'French Beans, Peas', acres:2.5, lastDelivery:120, status:'active' },
+  { name:'Marie Uwimana', district:'Musanze', crops:'Carrots, Tomatoes', acres:1.8, lastDelivery:85, status:'active' },
+  { name:'Emmanuel Habimana', district:'Nyamagabe', crops:'Avocados', acres:3, lastDelivery:200, status:'active' },
+  { name:'Consolée Ingabire', district:'Huye', crops:'Chilies', acres:1.2, lastDelivery:45, status:'pending' },
+  { name:'Théogène Bizimana', district:'Rubavu', crops:'Pineapples, Bananas', acres:2, lastDelivery:180, status:'active' },
+];
+
+function saveFarmers(){ localStorage.setItem('jar_farmers', JSON.stringify(farmers)); }
+
+function renderFarmers() {
+  document.getElementById('farmers-body').innerHTML = farmers.map(f => `
+    <tr>
+      <td><strong>${f.name}</strong></td><td>${f.district}</td><td>${f.crops}</td>
+      <td>${f.acres} ac</td><td>${f.lastDelivery} kg</td>
+      <td><span class="status-pill status-${f.status}">${f.status==='active'?'● Active':'⏳ Onboarding'}</span></td>
+    </tr>`).join('');
+}
+
+function addFarmerPrompt() {
+  const name = prompt('Farmer full name:'); if (!name) return;
+  const district = prompt('District:'); if (!district) return;
+  const crops = prompt('Crops grown:'); if (!crops) return;
+  const acres = +prompt('Acres available:') || 1;
+  farmers.push({ name, district, crops, acres, lastDelivery:0, status:'pending' });
+  saveFarmers(); renderFarmers();
+  showToast(`${name} added to outgrower network`);
+}
+
+// ── ACTIVITY ──
+let activities = JSON.parse(localStorage.getItem('jar_activities') || '[]');
+function addActivity(text) {
+  activities.unshift({ text, time:'Just now' });
+  if (activities.length > 20) activities.pop();
+  localStorage.setItem('jar_activities', JSON.stringify(activities));
+  renderActivity();
+}
+function renderActivity() {
+  const feed = document.getElementById('activity-feed');
+  if (!feed) return;
+  const allAct = [
+    { text:'New order received — Nakumatt Supermarket (50kg carrots)', time:'2h ago' },
+    { text:'⚠ Low stock alert — Garden Peas (8kg remaining)', time:'5h ago' },
+    { text:'Outgrower Jean-Pierre submitted harvest log (120kg beans)', time:'Yesterday' },
+    { text:'Monthly sales report submitted by Manager', time:'2 days ago' },
+    { text:'⚠ Low stock alert — Fresh Chili (12kg remaining)', time:'2 days ago' },
+    ...activities
+  ].slice(0,8);
+  feed.innerHTML = allAct.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.text.includes('⚠')?'var(--gold)':'var(--leaf)'}"></div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>`).join('');
+}
+
+// ── CHAT ──
+const SEED_CHATS = [
+  { author:'Manager', role:'manager', text:'Good morning team! 🌱 Today we need to restock chilies and follow up on the Nakumatt delivery.', time:'08:02' },
+  { author:'Field Staff', role:'field', text:'Morning! I\'ll check the chili harvest today and update inventory by noon.', time:'08:15' },
+  { author:'Manager', role:'manager', text:'Great. Also reminder — all harvest logs must be submitted by 5pm daily. Thank you!', time:'08:17' },
+];
+
+function getChats() {
+  const stored = localStorage.getItem('jar_chats');
+  return stored ? JSON.parse(stored) : SEED_CHATS;
+}
+
+function saveChats(chats) { localStorage.setItem('jar_chats', JSON.stringify(chats)); }
+
+function renderChat() {
+  const chats = getChats();
+  const container = document.getElementById('chat-messages');
+  container.innerHTML = chats.map(m => {
+    const mine = m.author === currentUser.name;
+    return `<div class="chat-msg ${mine?'mine':''}">
+      <div class="chat-msg-header">
+        <span class="chat-msg-author">${m.author}</span>
+        <span class="chat-msg-time">${m.time}</span>
+      </div>
+      <div class="chat-msg-body">${m.text}</div>
+    </div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const chats = getChats();
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  chats.push({ author: currentUser.name, role: currentUser.role, text, time });
+  saveChats(chats);
+  input.value = '';
+  renderChat();
+}
+
+// ── REPORTS ──
+let selectedReportType = 'daily';
+function selectReport(el, type) {
+  document.querySelectorAll('.report-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedReportType = type;
+}
+
+let reportLogs = JSON.parse(localStorage.getItem('jar_reports') || '[]');
+
+function renderReportLog() {
+  const el = document.getElementById('report-log');
+  if (!el) return;
+  const all = [...reportLogs].slice(0,10);
+  if (!all.length) { el.innerHTML = '<p style="font-size:.85rem;color:var(--text-light)">No reports submitted yet.</p>'; return; }
+  el.innerHTML = all.map(r => `
+    <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;background:var(--cream)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <strong style="font-size:.88rem;color:var(--forest)">${r.subject}</strong>
+        <span class="tag tag-gray" style="font-size:.72rem">${r.type}</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--text-light)">${r.name} · ${r.date}</div>
+      <div style="font-size:.85rem;color:var(--text-mid);margin-top:6px">${r.body.substring(0,120)}${r.body.length>120?'…':''}</div>
+    </div>`).join('');
+}
+
+function submitReport(e) {
+  e.preventDefault();
+  const report = {
+    type: selectedReportType,
+    date: document.getElementById('rpt-date').value,
+    name: document.getElementById('rpt-name').value,
+    subject: document.getElementById('rpt-subject').value,
+    body: document.getElementById('rpt-body').value,
+    amount: document.getElementById('rpt-amount').value,
+    submitted: new Date().toISOString()
+  };
+  reportLogs.unshift(report);
+  localStorage.setItem('jar_reports', JSON.stringify(reportLogs));
+  showToast('Report submitted successfully!');
+  addActivity(`Report submitted: "${report.subject}" by ${report.name}`);
+  e.target.reset();
+  document.getElementById('rpt-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('rpt-name').value = currentUser.name;
+  renderReportLog();
+}
+
+function emailReport() {
+  const subject = document.getElementById('rpt-subject').value || 'JAR Farm Report';
+  const body = document.getElementById('rpt-body').value || '';
+  const name = document.getElementById('rpt-name').value || currentUser.name;
+  const mailto = `mailto:hello@jar.rw?subject=${encodeURIComponent('[JAR Report] '+subject)}&body=${encodeURIComponent('From: '+name+'\n\n'+body)}`;
+  window.open(mailto);
+}
+
+function logout() {
+  localStorage.removeItem('jar_user');
+  window.location.href = 'index.html';
+}
+
+// Init
+renderInventory();
+renderActivity();
+renderQuickStock();
+</script>
+</body>
+</html>
