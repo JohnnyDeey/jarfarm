@@ -5,7 +5,7 @@ function renderNav(active = '') {
   document.getElementById('nav-placeholder').innerHTML = `
   <nav class="navbar">
     <a href="${base}index.html" class="nav-logo">
-      <img src="${base}logo.png" alt="JAR Farm" style="height:48px;width:auto;"/>
+      <img src="${base}logo.png" alt="JohnnyRose Agrospring Rwanda Limited" style="height:48px;width:auto;"/>
     </a>
     <ul class="nav-links">
       <li><a href="${base}index.html" class="${active==='home'?'active':''}">Home</a></li>
@@ -31,21 +31,36 @@ function renderFooter() {
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="nav-logo" style="margin-bottom:12px">
-          <img src="${base}logo.png" alt="JAR Farm" style="height:48px;width:auto;"/>
+        <div style="margin-bottom:14px">
+          <img src="${base}logo.png" alt="JAR Farm" style="height:56px;width:auto;"/>
         </div>
-        <p>Connecting Rwanda's finest growers to global markets. Premium produce, fair pay, planet-aware.</p>
-        <div style="margin-top:24px">
-          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Kigali, Rwanda</div>
-          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> hello@jar.rw</div>
-          <div class="footer-contact-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.12 2 2 0 0 1 3.07 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16.92z"/></svg> +250 78 844 5049</div>
+        <div style="margin-bottom:4px">
+          <span style="color:white;font-weight:700;font-size:1rem">JohnnyRose Agrospring Rwanda Limited</span>
+        </div>
+        <p style="margin-bottom:4px;font-size:.82rem">Trading as <strong style="color:rgba(255,255,255,.85)">JAR Farm</strong></p>
+        <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:16px">
+          COI: 147136187 &nbsp;|&nbsp; S. No.: 1627463
+        </p>
+        <div style="margin-top:8px">
+          <div class="footer-contact-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            KK711 Street, Kigarama, Kicukiro, Kigali, Rwanda
+          </div>
+          <div class="footer-contact-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            johndamilola328@gmail.com
+          </div>
+          <div class="footer-contact-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.08 3.12 2 2 0 0 1 3.07 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+            +250 793 594 038
+          </div>
         </div>
       </div>
       <div class="footer-col">
         <h5>Company</h5>
         <ul>
           <li><a href="${base}index.html">Home</a></li>
-          <li><a href="${base}about.html">About JAR</a></li>
+          <li><a href="${base}about.html">About JAR Farm</a></li>
           <li><a href="${base}about.html#mission">Our Mission</a></li>
           <li><a href="${base}about.html#team">Our Team</a></li>
         </ul>
@@ -70,7 +85,7 @@ function renderFooter() {
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 JAR Farm Ltd. Kigali, Rwanda. All rights reserved.</span>
+      <span>© 2025 JohnnyRose Agrospring Rwanda Limited. All rights reserved.</span>
       <span>Built with 🌿 for Rwandan farmers</span>
     </div>
   </footer>`;
