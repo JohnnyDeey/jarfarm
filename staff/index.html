@@ -3,116 +3,162 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Staff Login — JAR Farm</title>
+  <title>JAR Farm — Staff Login</title>
   <link rel="icon" type="image/png" href="../logo.png"/>
-  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <style>
-    body { background: linear-gradient(135deg, #0a2618 0%, var(--forest) 60%, var(--mid-green) 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
-    .login-box { background:white; border-radius:24px; padding:48px; width:100%; max-width:420px; box-shadow:0 32px 80px rgba(0,0,0,.3); }
-    .login-logo { display:flex; align-items:center; gap:10px; margin-bottom:32px; }
-    .staff-badge { background:var(--mint); color:var(--forest); font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:4px 10px; border-radius:100px; display:inline-block; margin-bottom:20px; }
-    .login-box h2 { font-size:1.6rem; margin-bottom:4px; }
-    .login-box p { font-size:.9rem; color:var(--text-light); margin-bottom:28px; }
-    .role-select { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
-    .role-btn { padding:10px; border:2px solid var(--border); border-radius:10px; background:white; cursor:pointer; transition:all .2s; text-align:center; }
-    .role-btn.active { border-color:var(--leaf); background:var(--mint); }
-    .role-btn .role-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
-    .role-btn .role-name { font-size:.8rem; font-weight:600; color:var(--forest); display:block; }
-    .back-link { display:block; text-align:center; margin-top:20px; color:rgba(255,255,255,.6); font-size:.85rem; }
-    .back-link:hover { color:white; }
-    .demo-note { background:var(--mint); border-radius:10px; padding:12px 16px; font-size:.8rem; color:var(--forest); margin-top:16px; }
-    .error-msg { background:#FEE2E2; color:#991B1B; padding:10px 14px; border-radius:10px; font-size:.85rem; margin-bottom:16px; display:none; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'DM Sans',sans-serif;
+      min-height:100vh;
+      background:linear-gradient(145deg,#0a1f10 0%,#1a5c2e 60%,#0f2818 100%);
+      display:flex;align-items:center;justify-content:center;padding:2rem;
+    }
+    .card{
+      background:#fff;border-radius:16px;width:100%;max-width:420px;
+      box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden;
+    }
+    .card-top{
+      background:linear-gradient(135deg,#0f2818,#1a5c2e);
+      padding:2rem 2rem 1.5rem;text-align:center;
+    }
+    .logo-wrap{width:64px;height:64px;background:rgba(255,255,255,.12);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;overflow:hidden}
+    .logo-wrap img{width:52px;height:52px;object-fit:contain}
+    .card-top h1{font-family:'Playfair Display',serif;color:#fff;font-size:1.4rem;margin-bottom:.3rem}
+    .card-top p{color:rgba(255,255,255,.6);font-size:.82rem}
+    .card-body{padding:2rem}
+    .form-group{margin-bottom:1.2rem}
+    label{display:block;font-size:.8rem;font-weight:600;color:#444;margin-bottom:.4rem;letter-spacing:.04em;text-transform:uppercase}
+    input,select{
+      width:100%;padding:.75rem 1rem;border:1.5px solid #e0e0e0;border-radius:8px;
+      font-family:inherit;font-size:.95rem;color:#222;outline:none;
+      transition:border-color .2s,box-shadow .2s;background:#fff;
+    }
+    input:focus,select:focus{border-color:#1a5c2e;box-shadow:0 0 0 3px rgba(26,92,46,.1)}
+    select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:2rem}
+    .error-msg{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:.7rem 1rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;display:none}
+    .btn-login{
+      width:100%;padding:.85rem;background:linear-gradient(135deg,#1a5c2e,#2d7a45);
+      color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:1rem;
+      font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.02em;
+    }
+    .btn-login:hover{opacity:.92}
+    .btn-login:active{transform:scale(.99)}
+    .card-footer{border-top:1px solid #f0f0f0;padding:1rem 2rem;text-align:center}
+    .card-footer a{color:#1a5c2e;text-decoration:none;font-size:.82rem;font-weight:500}
+    .card-footer a:hover{text-decoration:underline}
+    /* loading spinner */
+    .spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
-<div>
-  <div class="login-box">
-    <div class="login-logo">
-      <img src="../logo.png" alt="JAR Farm" style="height:52px;width:auto;"/>
+
+<div class="card">
+  <div class="card-top">
+    <div class="logo-wrap">
+      <img src="../logo.png" alt="JAR Farm" onerror="this.parentElement.innerHTML='🌿'"/>
     </div>
-    <span class="staff-badge">Staff Portal</span>
-    <h2>Welcome Back</h2>
-    <p>Sign in to access the JAR Farm management system</p>
-
-    <div class="form-group"><label>Select Your Role</label></div>
-    <div class="role-select">
-      <div class="role-btn active" data-role="manager" onclick="selectRole(this)">
-        <span class="role-icon">👑</span>
-        <span class="role-name">MD / Manager</span>
-      </div>
-      <div class="role-btn" data-role="field" onclick="selectRole(this)">
-        <span class="role-icon">🌾</span>
-        <span class="role-name">Field Staff</span>
-      </div>
-      <div class="role-btn" data-role="packhouse" onclick="selectRole(this)">
-        <span class="role-icon">📦</span>
-        <span class="role-name">Packhouse</span>
-      </div>
-      <div class="role-btn" data-role="driver" onclick="selectRole(this)">
-        <span class="role-icon">🚛</span>
-        <span class="role-name">Driver / Logistics</span>
-      </div>
-    </div>
-
-    <div class="error-msg" id="error-msg">Incorrect password. Please try again.</div>
-
-    <form onsubmit="doLogin(event)">
-      <div class="form-group"><label>Your Name *</label><input type="text" id="username" required placeholder="Enter your full name"/></div>
-      <div class="form-group">
-        <label>Password *</label>
-        <input type="password" id="password" required placeholder="Enter your password"/>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px">Sign In to Portal</button>
-    </form>
-
-    <div class="demo-note">
-      💡 Default password is <strong>jar2025</strong> — you can change it after logging in under Settings.
-    </div>
+    <h1>JAR Farm Portal</h1>
+    <p>Staff &amp; Management Access</p>
   </div>
-  <a href="../index.html" class="back-link">← Back to JAR Farm website</a>
+
+  <div class="card-body">
+    <div class="error-msg" id="errorMsg">Incorrect username or password. Please try again.</div>
+
+    <div class="form-group">
+      <label for="roleSelect">Your Role</label>
+      <select id="roleSelect">
+        <option value="">— Select your role —</option>
+        <option value="md">Managing Director</option>
+        <option value="manager">Operations Manager</option>
+        <option value="field">Field Staff</option>
+        <option value="packhouse">Packhouse Staff</option>
+        <option value="driver">Driver</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="username">Full Name</label>
+      <input type="text" id="username" placeholder="Enter your full name" autocomplete="name"/>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"/>
+    </div>
+
+    <button class="btn-login" onclick="handleLogin()">
+      <span id="btnText">Sign In</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+  </div>
+
+  <div class="card-footer">
+    <a href="../index.html">← Back to JAR Farm Website</a>
+  </div>
 </div>
 
-<script src="../js/main.js"></script>
 <script>
-  let selectedRole = 'manager';
+  // ── CREDENTIALS ──────────────────────────────────────────────────────────────
+  // To change any password: update the value below, then commit to GitHub.
+  // Never share this file publicly. The password is stored here as plain text
+  // for simplicity — suitable for an internal staff portal.
+  const CREDENTIALS = {
+    md:         { password: 'jar2025' },   // ← change after first login
+    manager:    { password: 'jar2025' },   // ← staff should change via Settings
+    field:      { password: 'jar2025' },
+    packhouse:  { password: 'jar2025' },
+    driver:     { password: 'jar2025' },
+  };
+  // ─────────────────────────────────────────────────────────────────────────────
 
-  function selectRole(el) {
-    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    selectedRole = el.dataset.role;
-  }
+  const ROLE_LABELS = {
+    md: 'Managing Director',
+    manager: 'Operations Manager',
+    field: 'Field Staff',
+    packhouse: 'Packhouse Staff',
+    driver: 'Driver',
+  };
 
-  function doLogin(e) {
-    e.preventDefault();
-    const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value;
-    const errorEl = document.getElementById('error-msg');
+  function handleLogin(){
+    const role     = document.getElementById('roleSelect').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const error    = document.getElementById('errorMsg');
+    const btnText  = document.getElementById('btnText');
+    const spinner  = document.getElementById('spinner');
 
-    // Get saved password or use default
-    const savedPassword = localStorage.getItem('jar_password') || 'jar2025';
+    error.style.display = 'none';
 
-    if (!user) {
-      errorEl.textContent = 'Please enter your name.';
-      errorEl.style.display = 'block';
+    if(!role){ error.textContent = 'Please select your role.'; error.style.display='block'; return; }
+    if(!username){ error.textContent = 'Please enter your full name.'; error.style.display='block'; return; }
+    if(!password){ error.textContent = 'Please enter your password.'; error.style.display='block'; return; }
+
+    const cred = CREDENTIALS[role];
+    if(!cred || password !== cred.password){
+      error.textContent = 'Incorrect password. Please try again or contact your manager.';
+      error.style.display = 'block';
       return;
     }
 
-    if (pass !== savedPassword) {
-      errorEl.textContent = 'Incorrect password. Please try again.';
-      errorEl.style.display = 'block';
-      document.getElementById('password').value = '';
-      return;
-    }
+    // Show loading
+    btnText.style.display = 'none';
+    spinner.style.display = 'block';
 
-    errorEl.style.display = 'none';
-    localStorage.setItem('jar_user', JSON.stringify({
-      name: user,
-      role: selectedRole,
-      loginTime: new Date().toISOString()
-    }));
-    showToast('Welcome ' + user + '! Loading dashboard...');
-    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+    // Store session
+    sessionStorage.setItem('jar_role',     role);
+    sessionStorage.setItem('jar_name',     username);
+    sessionStorage.setItem('jar_roleLabel',ROLE_LABELS[role]);
+
+    setTimeout(()=>{ window.location.href = 'dashboard.html'; }, 600);
   }
+
+  // Allow Enter key
+  document.addEventListener('keydown', e => { if(e.key === 'Enter') handleLogin(); });
 </script>
+
 </body>
 </html>
