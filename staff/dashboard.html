@@ -3,515 +3,778 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Staff Dashboard — JAR Farm</title>
+  <title>JAR Farm Dashboard</title>
   <link rel="icon" type="image/png" href="../logo.png"/>
-  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
   <style>
-    body { background:#F0F4F0; font-family:'Outfit',sans-serif; }
-    .portal { display:flex; min-height:100vh; }
-    .sidebar { width:240px; background:var(--forest); flex-shrink:0; display:flex; flex-direction:column; position:fixed; top:0; bottom:0; left:0; overflow-y:auto; z-index:200; }
-    .sidebar-logo { padding:20px 16px; border-bottom:1px solid rgba(255,255,255,.1); }
-    .sidebar-badge { font-size:.7rem; padding:3px 8px; border-radius:100px; letter-spacing:.06em; font-weight:700; text-transform:uppercase; margin-top:6px; display:inline-block; background:rgba(82,183,136,.3); color:var(--fresh); }
-    .md-badge-pill { background:rgba(212,160,23,.3) !important; color:var(--gold-light) !important; }
-    .sidebar-nav { padding:12px 10px; flex:1; }
-    .nav-section-title { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.35); padding:10px 8px 4px; font-weight:700; }
-    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:rgba(255,255,255,.65); font-size:.87rem; font-weight:500; cursor:pointer; transition:all .2s; margin-bottom:2px; border:none; background:none; width:100%; text-align:left; }
-    .nav-item:hover { background:rgba(255,255,255,.09); color:white; }
-    .nav-item.active { background:rgba(82,183,136,.25); color:var(--fresh); }
-    .nav-item.md-active { background:rgba(212,160,23,.2) !important; color:var(--gold-light) !important; }
-    .nav-item .icon { font-size:1rem; width:20px; text-align:center; flex-shrink:0; }
-    .badge-count { background:var(--gold); color:white; font-size:.65rem; font-weight:700; padding:2px 6px; border-radius:100px; margin-left:auto; }
-    .sidebar-user { padding:14px 16px; border-top:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px; }
-    .user-avatar { width:36px; height:36px; background:var(--leaf); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:.9rem; flex-shrink:0; }
-    .user-avatar.md { background:var(--gold); }
-    .user-info .uname { color:white; font-size:.85rem; font-weight:600; }
-    .user-info .urole { color:rgba(255,255,255,.5); font-size:.73rem; }
-    .main { margin-left:240px; flex:1; min-width:0; }
-    .topbar { background:white; padding:14px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-    .topbar-title { font-family:'Cormorant Garamond',serif; font-size:1.35rem; font-weight:700; color:var(--forest); }
-    .topbar-right { display:flex; align-items:center; gap:12px; }
-    .topbar-date { font-size:.8rem; color:var(--text-light); }
-    .icon-btn { width:36px; height:36px; background:var(--mint); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; font-size:1rem; position:relative; transition:background .2s; }
-    .icon-btn:hover { background:var(--leaf); }
-    .notif-dot { position:absolute; top:5px; right:5px; width:8px; height:8px; background:var(--gold); border-radius:50%; }
-    .content { padding:24px; }
-    .panel { display:none; }
-    .panel.active { display:block; animation:fadeIn .25s ease; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    .md-hero { background:linear-gradient(135deg, var(--forest), var(--mid-green)); border-radius:var(--radius-lg); padding:24px 28px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
-    .md-hero h2 { color:white; margin-bottom:4px; font-size:1.5rem; }
-    .md-hero p { color:rgba(255,255,255,.7); font-size:.88rem; }
-    .md-clock { color:var(--gold-light); font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:700; line-height:1; text-align:right; }
-    .md-clock-label { color:rgba(255,255,255,.5); font-size:.75rem; margin-top:2px; text-align:right; }
-    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
-    .kpi-card { background:white; border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); border-top:3px solid var(--leaf); }
-    .kpi-card.alert { border-top-color:#DC2626; }
-    .kpi-card.gold { border-top-color:var(--gold); }
-    .kpi-label { font-size:.73rem; color:var(--text-light); text-transform:uppercase; letter-spacing:.07em; font-weight:600; margin-bottom:6px; }
-    .kpi-value { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:700; color:var(--forest); line-height:1; }
-    .kpi-sub { font-size:.78rem; margin-top:5px; font-weight:500; color:var(--text-light); }
-    .kpi-sub.up { color:#16A34A; }
-    .kpi-sub.down { color:#DC2626; }
-    .bc-box { background:linear-gradient(135deg,#1a3a2a,var(--forest)); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; border:1px solid rgba(212,160,23,.3); }
-    .bc-box h4 { color:var(--gold-light); margin-bottom:4px; }
-    .bc-box p { color:rgba(255,255,255,.6); font-size:.83rem; margin-bottom:16px; }
-    .bc-textarea { width:100%; padding:12px 16px; border-radius:var(--radius); border:1.5px solid rgba(255,255,255,.15); background:rgba(255,255,255,.09); color:white; font-family:'Outfit',sans-serif; font-size:.9rem; outline:none; resize:vertical; min-height:80px; box-sizing:border-box; }
-    .bc-textarea::placeholder { color:rgba(255,255,255,.35); }
-    .bc-textarea:focus { border-color:var(--gold); }
-    .quick-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-    .quick-btn { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.75); padding:6px 12px; border-radius:100px; font-size:.77rem; cursor:pointer; font-family:'Outfit',sans-serif; transition:all .2s; }
-    .quick-btn:hover { background:rgba(212,160,23,.2); border-color:var(--gold); color:var(--gold-light); }
-    .dash-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:18px; }
-    .dash-card { background:white; border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
-    .dash-card h4 { margin-bottom:14px; font-size:.95rem; }
-    .act-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
-    .act-item:last-child { border-bottom:none; }
-    .act-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
-    .act-text { font-size:.83rem; color:var(--text-mid); flex:1; }
-    .act-time { font-size:.73rem; color:var(--text-light); white-space:nowrap; }
-    .staff-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .staff-card { background:var(--cream); border-radius:var(--radius); padding:12px 14px; display:flex; align-items:center; gap:10px; }
-    .s-avatar { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:.88rem; flex-shrink:0; }
-    .s-name { font-weight:600; font-size:.83rem; color:var(--forest); }
-    .s-role { font-size:.73rem; color:var(--text-light); }
-    .s-dot { width:8px; height:8px; border-radius:50%; margin-left:auto; flex-shrink:0; }
-    .s-on { background:#16A34A; }
-    .s-off { background:#D1D5DB; }
-    .table-wrap { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; font-size:.86rem; }
-    th { background:var(--mint); color:var(--forest); padding:9px 12px; text-align:left; font-weight:700; font-size:.76rem; text-transform:uppercase; letter-spacing:.05em; }
-    td { padding:11px 12px; border-bottom:1px solid var(--border); color:var(--text-mid); }
-    tr:hover td { background:#F9FAFB; }
-    .pill { padding:3px 9px; border-radius:100px; font-size:.73rem; font-weight:700; display:inline-block; }
-    .p-green { background:#DCFCE7; color:#166534; }
-    .p-yellow { background:#FEF9C3; color:#854D0E; }
-    .p-red { background:#FEE2E2; color:#991B1B; }
-    .p-blue { background:#DBEAFE; color:#1E40AF; }
-    .chat-wrap { display:flex; flex-direction:column; height:460px; }
-    .chat-msgs { flex:1; overflow-y:auto; padding:14px; background:#F9FBF9; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:12px; }
-    .chat-msg { margin-bottom:12px; }
-    .chat-hdr { display:flex; align-items:baseline; gap:6px; margin-bottom:3px; }
-    .chat-author { font-size:.78rem; font-weight:700; color:var(--forest); }
-    .chat-time { font-size:.7rem; color:var(--text-light); }
-    .chat-body { background:white; padding:9px 13px; border-radius:0 10px 10px 10px; font-size:.86rem; color:var(--text-dark); box-shadow:0 1px 3px rgba(0,0,0,.06); max-width:80%; display:inline-block; }
-    .chat-msg.mine { text-align:right; }
-    .chat-msg.mine .chat-hdr { flex-direction:row-reverse; }
-    .chat-msg.mine .chat-body { background:var(--forest); color:white; border-radius:10px 0 10px 10px; }
-    .chat-msg.bc .chat-body { background:linear-gradient(135deg,var(--forest),var(--mid-green)); color:white; border-radius:10px; border:2px solid var(--gold); }
-    .chat-msg.bc .chat-author { color:var(--gold); }
-    .chat-row { display:flex; gap:8px; }
-    .chat-row input { flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:100px; font-family:'Outfit',sans-serif; font-size:.88rem; outline:none; }
-    .chat-row input:focus { border-color:var(--leaf); }
-    .send-btn { background:var(--forest); color:white; border:none; border-radius:100px; padding:10px 20px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; font-size:.86rem; }
-    .send-btn:hover { background:var(--mid-green); }
-    .rpt-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
-    .rpt-card { border:2px solid var(--border); border-radius:var(--radius); padding:14px; cursor:pointer; transition:all .2s; text-align:center; }
-    .rpt-card.sel { border-color:var(--leaf); background:var(--mint); }
-    .rpt-icon { font-size:1.6rem; display:block; margin-bottom:4px; }
-    .rpt-name { font-size:.8rem; font-weight:600; color:var(--forest); }
-    .inbox-item { background:white; border-radius:var(--radius); padding:16px 18px; margin-bottom:10px; box-shadow:var(--shadow); border-left:4px solid var(--leaf); cursor:pointer; transition:all .2s; }
-    .inbox-item:hover { transform:translateX(3px); }
-    .inbox-item.unread { border-left-color:var(--gold); }
-    .inbox-title { font-weight:700; color:var(--forest); font-size:.9rem; margin-bottom:4px; }
-    .inbox-meta { font-size:.76rem; color:var(--text-light); margin-bottom:6px; }
-    .inbox-preview { font-size:.83rem; color:var(--text-mid); }
-    .settings-card { background:white; border-radius:var(--radius-lg); padding:28px; margin-bottom:18px; box-shadow:var(--shadow); max-width:520px; }
-    .settings-card h4 { margin-bottom:4px; }
-    .settings-card > p { font-size:.85rem; color:var(--text-light); margin-bottom:18px; }
-    .pw-bar { height:4px; border-radius:2px; margin-top:6px; width:0; transition:all .3s; }
-    @media(max-width:900px){ .kpi-grid{grid-template-columns:1fr 1fr;} .dash-grid{grid-template-columns:1fr;} .staff-grid{grid-template-columns:1fr;} }
-    @media(max-width:640px){ .sidebar{width:200px;} .main{margin-left:200px;} .rpt-grid{grid-template-columns:1fr 1fr;} }
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --green:#1a5c2e;--green-mid:#2d7a45;--green-light:#e8f5ec;
+      --gold:#c8961e;--dark:#0f2818;--text:#2a3d30;--sidebar:240px;
+    }
+    body{font-family:'DM Sans',sans-serif;background:#f4f6f4;color:var(--text);display:flex;min-height:100vh}
+
+    /* ── SIDEBAR ── */
+    .sidebar{
+      width:var(--sidebar);min-height:100vh;background:var(--dark);
+      display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50;
+      transition:transform .3s;
+    }
+    .sidebar-brand{padding:1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.7rem}
+    .sidebar-brand img{width:36px;height:36px;object-fit:contain;border-radius:4px}
+    .sidebar-brand span{color:#fff;font-weight:600;font-size:.95rem}
+    .sidebar-user{padding:.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08)}
+    .sidebar-user .name{color:#fff;font-weight:600;font-size:.88rem}
+    .sidebar-user .role-tag{
+      display:inline-block;margin-top:.3rem;padding:.15rem .6rem;border-radius:20px;
+      font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    }
+    .role-md    .role-tag{background:rgba(200,150,30,.25);color:#f0c060}
+    .role-staff .role-tag{background:rgba(45,122,69,.35);color:#7dd9a0}
+    nav.sidebar-nav{flex:1;padding:.8rem 0;overflow-y:auto}
+    .nav-section{padding:.5rem 1.2rem .2rem;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
+    .nav-item{
+      display:flex;align-items:center;gap:.75rem;padding:.65rem 1.2rem;
+      color:rgba(255,255,255,.65);text-decoration:none;font-size:.88rem;cursor:pointer;
+      border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s;
+      border-left:3px solid transparent;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+    .nav-item.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--gold)}
+    .nav-item .icon{font-size:1rem;width:20px;text-align:center}
+    .sidebar-bottom{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.08)}
+    .btn-logout{
+      width:100%;padding:.6rem;background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.12);border-radius:6px;font-family:inherit;
+      font-size:.82rem;cursor:pointer;transition:all .2s;
+    }
+    .btn-logout:hover{background:rgba(220,50,50,.2);color:#ff9999;border-color:rgba(220,50,50,.3)}
+
+    /* ── MAIN ── */
+    .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{
+      background:#fff;border-bottom:1px solid #e5ebe5;padding:.85rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;
+    }
+    .topbar-left{display:flex;align-items:center;gap:.8rem}
+    .menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:4px;font-size:1.3rem}
+    .page-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark)}
+    .topbar-right{display:flex;align-items:center;gap:1rem}
+    .date-chip{font-size:.78rem;color:#888;background:#f4f4f4;padding:.3rem .7rem;border-radius:20px}
+
+    /* ── PANELS ── */
+    .panel{display:none;padding:2rem;animation:fadeIn .2s ease}
+    .panel.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* KPI CARDS */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;margin-bottom:2rem}
+    .kpi{background:#fff;border-radius:10px;padding:1.4rem;border:1px solid #e5ebe5}
+    .kpi-label{font-size:.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+    .kpi-val{font-size:1.8rem;font-weight:700;color:var(--dark);font-family:'Playfair Display',serif}
+    .kpi-sub{font-size:.75rem;color:#aaa;margin-top:.3rem}
+    .kpi-green .kpi-val{color:var(--green)}
+    .kpi-gold .kpi-val{color:var(--gold)}
+
+    /* SECTION CARDS */
+    .card{background:#fff;border-radius:10px;border:1px solid #e5ebe5;margin-bottom:1.5rem}
+    .card-head{padding:1.2rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+    .card-head h3{font-size:1rem;color:var(--dark);font-weight:600}
+    .card-body{padding:1.5rem}
+    table{width:100%;border-collapse:collapse;font-size:.88rem}
+    th{text-align:left;padding:.6rem .8rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#999;border-bottom:2px solid #f0f0f0}
+    td{padding:.65rem .8rem;border-bottom:1px solid #f8f8f8;color:var(--text)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fafcfa}
+    .badge{display:inline-block;padding:.2rem .6rem;border-radius:20px;font-size:.7rem;font-weight:700}
+    .badge-green{background:#dcfce7;color:#166534}
+    .badge-yellow{background:#fef9c3;color:#854d0e}
+    .badge-red{background:#fee2e2;color:#991b1b}
+    .badge-blue{background:#dbeafe;color:#1e40af}
+    .badge-gold{background:#fef3c7;color:#92400e}
+
+    /* FORM ELEMENTS */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-size:.78rem;font-weight:600;color:#555;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
+    .form-group input,.form-group select,.form-group textarea{
+      width:100%;padding:.65rem .9rem;border:1.5px solid #e0e0e0;border-radius:7px;
+      font-family:inherit;font-size:.9rem;outline:none;transition:border-color .2s;
+    }
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green)}
+    .form-group textarea{min-height:90px;resize:vertical}
+    .btn{padding:.6rem 1.2rem;border-radius:6px;border:none;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{opacity:.88}
+    .btn-gold{background:var(--gold);color:#fff}
+    .btn-gold:hover{opacity:.88}
+    .btn-sm{padding:.35rem .8rem;font-size:.78rem}
+    .btn-ghost{background:#f4f4f4;color:#444;border:1px solid #e0e0e0}
+    .btn-ghost:hover{background:#eee}
+
+    /* SETTINGS / PASSWORD */
+    .settings-section{margin-bottom:2rem}
+    .settings-section h4{font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--green-light)}
+    .pw-strength{height:4px;border-radius:2px;margin-top:.4rem;transition:all .3s}
+    .pw-hint{font-size:.73rem;color:#999;margin-top:.3rem}
+
+    /* ACTIVITY FEED */
+    .feed{list-style:none}
+    .feed li{display:flex;gap:.8rem;padding:.7rem 0;border-bottom:1px solid #f0f0f0;align-items:flex-start}
+    .feed li:last-child{border-bottom:none}
+    .feed-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:.35rem;flex-shrink:0}
+    .feed-text{font-size:.85rem;line-height:1.5}
+    .feed-time{font-size:.72rem;color:#aaa;margin-top:.1rem}
+
+    /* REPORTS INBOX (MD only) */
+    .inbox-item{padding:1rem;border:1px solid #e5ebe5;border-radius:8px;margin-bottom:.8rem;cursor:pointer;transition:border-color .2s}
+    .inbox-item:hover{border-color:var(--green)}
+    .inbox-item.unread{border-left:3px solid var(--gold)}
+    .inbox-from{font-weight:600;font-size:.88rem;color:var(--dark)}
+    .inbox-subject{font-size:.82rem;color:#555;margin:.2rem 0}
+    .inbox-preview{font-size:.78rem;color:#aaa}
+    .inbox-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.4rem}
+
+    /* BROADCAST */
+    .broadcast-box{background:linear-gradient(135deg,var(--dark),var(--green));border-radius:10px;padding:1.5rem;color:#fff;margin-bottom:1.5rem}
+    .broadcast-box h4{font-size:1rem;margin-bottom:.5rem}
+    .broadcast-box p{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:1rem}
+    .broadcast-box textarea{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;width:100%;padding:.7rem;border-radius:6px;font-family:inherit;font-size:.88rem;min-height:70px;resize:none;outline:none}
+    .broadcast-box textarea::placeholder{color:rgba(255,255,255,.45)}
+
+    /* CHAT */
+    .chat-wrap{display:flex;flex-direction:column;height:400px}
+    .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem}
+    .msg{max-width:80%}
+    .msg.mine{align-self:flex-end}
+    .msg.other{align-self:flex-start}
+    .msg-bubble{padding:.6rem .9rem;border-radius:12px;font-size:.86rem;line-height:1.5}
+    .msg.mine .msg-bubble{background:var(--green);color:#fff;border-bottom-right-radius:3px}
+    .msg.other .msg-bubble{background:#f0f4f0;color:var(--text);border-bottom-left-radius:3px}
+    .msg-meta{font-size:.68rem;color:#aaa;margin-top:.2rem}
+    .msg.mine .msg-meta{text-align:right}
+    .chat-input-row{display:flex;gap:.6rem;padding:1rem;border-top:1px solid #f0f0f0}
+    .chat-input-row input{flex:1;padding:.6rem .9rem;border:1.5px solid #e0e0e0;border-radius:20px;font-family:inherit;font-size:.88rem;outline:none}
+    .chat-input-row input:focus{border-color:var(--green)}
+    .chat-send{background:var(--green);color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
+
+    /* OVERLAY */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:1rem}
+    .overlay.open{display:flex}
+    .modal{background:#fff;border-radius:12px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+    .modal-head{padding:1.2rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+    .modal-head h3{font-size:1rem;font-weight:700;color:var(--dark)}
+    .modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1}
+    .modal-body{padding:1.5rem}
+
+    /* MOBILE */
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%)}
+      .sidebar.open{transform:translateX(0)}
+      .main{margin-left:0}
+      .menu-toggle{display:block}
+      .topbar{padding:.85rem 1rem}
+      .panel{padding:1rem}
+      .kpi-grid{grid-template-columns:1fr 1fr}
+      .form-row{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-<div class="portal">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <img src="../logo.png" alt="JAR Farm" style="height:38px;width:auto;display:block;margin-bottom:8px"/>
-      <div class="sidebar-badge" id="portal-badge">Staff Portal</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="../logo.png" alt="JAR" onerror="this.style.display='none'"/>
+    <span>JAR Farm</span>
+  </div>
+  <div class="sidebar-user" id="sidebarUser">
+    <div class="name" id="sidebarName">—</div>
+    <span class="role-tag" id="sidebarRoleTag">—</span>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav"></nav>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="page-title" id="topbarTitle">Dashboard</div>
     </div>
-    <nav class="sidebar-nav" id="sidebar-nav"></nav>
-    <div class="sidebar-user">
-      <div class="user-avatar" id="user-avatar">?</div>
-      <div class="user-info">
-        <div class="uname" id="user-name">Loading...</div>
-        <div class="urole" id="user-role">—</div>
-      </div>
+    <div class="topbar-right">
+      <div class="date-chip" id="dateChip"></div>
     </div>
-  </aside>
+  </div>
 
-  <div class="main">
-    <div class="topbar">
-      <span class="topbar-title" id="panel-title">Dashboard</span>
-      <div class="topbar-right">
-        <span class="topbar-date" id="today-date"></span>
-        <button class="icon-btn" id="btn-inbox" title="Reports Inbox">📥<span class="notif-dot" id="notif-dot"></span></button>
-        <button class="icon-btn" id="btn-chat" title="Team Chat">💬</button>
-        <button class="icon-btn" id="btn-settings" title="Settings">⚙️</button>
+  <div id="panels">
+    <!-- panels injected by JS -->
+  </div>
+</div>
+
+<!-- ADD STOCK MODAL -->
+<div class="overlay" id="addStockModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add / Update Stock</h3><button class="modal-close" onclick="closeModal('addStockModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Produce Name</label><input id="stockName" placeholder="e.g. French Beans"/></div>
+        <div class="form-group"><label>Quantity (kg)</label><input id="stockQty" type="number" placeholder="500"/></div>
       </div>
-    </div>
-    <div class="content">
-
-      <!-- MD DASHBOARD -->
-      <div class="panel" id="panel-md">
-        <div class="md-hero">
-          <div>
-            <h2>Good day, Managing Director 👑</h2>
-            <p>JohnnyRose Agrospring Rwanda Limited — your business at a glance.</p>
-          </div>
-          <div>
-            <div style="color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:2px;text-align:right">🇪🇸 Spain &nbsp;·&nbsp; 🇷🇼 Kigali Time</div>
-            <div class="md-clock" id="md-clock">--:--</div>
-            <div class="md-clock-label">Central Africa Time (CAT)</div>
-          </div>
+      <div class="form-row">
+        <div class="form-group"><label>Category</label>
+          <select id="stockCat"><option>Export Grade</option><option>Local Market</option><option>Fruits</option></select>
         </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">📦 Total Stock</div><div class="kpi-value">3,240 kg</div><div class="kpi-sub up">↑ +12% this week</div></div>
-          <div class="kpi-card gold"><div class="kpi-label">🛒 Orders This Month</div><div class="kpi-value">24</div><div class="kpi-sub up">↑ +4 vs last month</div></div>
-          <div class="kpi-card"><div class="kpi-label">💰 Revenue (RWF)</div><div class="kpi-value">2.1M</div><div class="kpi-sub up">↑ Growing</div></div>
-          <div class="kpi-card alert"><div class="kpi-label">⚠️ Low Stock Alerts</div><div class="kpi-value">2</div><div class="kpi-sub down">Chili &amp; Peas low</div></div>
-        </div>
-        <div class="dash-grid">
-          <div>
-            <div class="bc-box" style="margin-bottom:18px">
-              <h4>📢 Send Message to All Staff</h4>
-              <p>Your message goes to Team Chat as an MD Announcement highlighted in gold.</p>
-              <textarea class="bc-textarea" id="md-bc-input" placeholder="Type your message to all staff in Rwanda..."></textarea>
-              <div style="margin-top:12px"><button class="btn btn-gold btn-sm" onclick="sendBC('md-bc-input')">📢 Send to All Staff</button></div>
-              <div class="quick-btns">
-                <button class="quick-btn" onclick="setQ('md-bc-input','Great work team! Keep pushing forward 💪🌱')">✅ Well done</button>
-                <button class="quick-btn" onclick="setQ('md-bc-input','Please submit your daily report by 5pm today.')">📋 Reminder</button>
-                <button class="quick-btn" onclick="setQ('md-bc-input','⚠️ Low stock alert — please restock today.')">⚠️ Stock alert</button>
-                <button class="quick-btn" onclick="setQ('md-bc-input','New targets set for this month. Let us go! 🚀')">🎯 New target</button>
-              </div>
-            </div>
-            <div class="dash-card"><h4>📋 Latest Activity from Rwanda</h4><div id="md-activity"></div></div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:18px">
-            <div class="dash-card">
-              <h4>👥 Staff Status</h4>
-              <div class="staff-grid">
-                <div class="staff-card"><div class="s-avatar" style="background:var(--gold)">M</div><div><div class="s-name">Manager</div><div class="s-role">Operations</div></div><div class="s-dot s-on"></div></div>
-                <div class="staff-card"><div class="s-avatar" style="background:var(--leaf)">F</div><div><div class="s-name">Field Staff</div><div class="s-role">Field Ops</div></div><div class="s-dot s-on"></div></div>
-                <div class="staff-card"><div class="s-avatar" style="background:var(--mid-green)">P</div><div><div class="s-name">Packhouse</div><div class="s-role">QC &amp; Pack</div></div><div class="s-dot s-off"></div></div>
-                <div class="staff-card"><div class="s-avatar" style="background:#78716C">D</div><div><div class="s-name">Driver</div><div class="s-role">Logistics</div></div><div class="s-dot s-off"></div></div>
-              </div>
-            </div>
-            <div class="dash-card">
-              <h4>📥 Recent Reports</h4>
-              <div id="md-reports-preview"></div>
-              <button class="btn btn-primary btn-sm" style="margin-top:14px;width:100%;justify-content:center" id="view-all-reports-btn">View All Reports →</button>
-            </div>
-          </div>
+        <div class="form-group"><label>Status</label>
+          <select id="stockStatus"><option>In Stock</option><option>Low</option><option>Out of Stock</option></select>
         </div>
       </div>
-
-      <!-- BROADCAST -->
-      <div class="panel" id="panel-broadcast">
-        <div class="dash-card" style="max-width:660px">
-          <h3 style="margin-bottom:4px">📢 Broadcast Message</h3>
-          <p style="font-size:.85rem;color:var(--text-light);margin-bottom:20px">Send announcement to ALL staff instantly. Appears in Team Chat highlighted in gold.</p>
-          <div class="quick-btns" style="margin-bottom:16px">
-            <button class="quick-btn" style="background:var(--mint);border-color:var(--leaf);color:var(--forest)" onclick="setQ('bc-full','Great work this week team! Keep pushing forward 💪🌱')">✅ Well done</button>
-            <button class="quick-btn" style="background:var(--mint);border-color:var(--leaf);color:var(--forest)" onclick="setQ('bc-full','Reminder: Submit your daily report by 5pm today.')">📋 Reminder</button>
-            <button class="quick-btn" style="background:var(--mint);border-color:var(--leaf);color:var(--forest)" onclick="setQ('bc-full','⚠️ Stock alert: Prioritise restocking low items today.')">⚠️ Stock alert</button>
-            <button class="quick-btn" style="background:var(--mint);border-color:var(--leaf);color:var(--forest)" onclick="setQ('bc-full','All expenses must be submitted with receipts by end of month.')">💰 Expenses</button>
-          </div>
-          <div class="form-group"><label>Your Announcement *</label><textarea id="bc-full" rows="5" placeholder="Type your message to all staff..."></textarea></div>
-          <div style="background:var(--mint);border-radius:var(--radius);padding:12px;margin-bottom:16px;font-size:.82rem;color:var(--forest)">📌 Appears in Team Chat as <strong>📢 MD Announcement</strong> so all staff know it is from you.</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-gold" onclick="sendBC('bc-full')">📢 Send to All Staff</button>
-            <button class="btn btn-secondary btn-sm" onclick="emailBC()">📧 Also Email</button>
-          </div>
-          <div style="margin-top:24px"><h4 style="margin-bottom:12px">📂 Previous Announcements</h4><div id="bc-history"></div></div>
-        </div>
-      </div>
-
-      <!-- INBOX -->
-      <div class="panel" id="panel-inbox">
-        <div style="max-width:760px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <p style="font-size:.88rem;color:var(--text-light)">All reports submitted by staff in Rwanda appear here.</p>
-            <button class="btn btn-primary btn-sm" onclick="markAllRead()">Mark All Read</button>
-          </div>
-          <div id="inbox-list"></div>
-        </div>
-      </div>
-
-      <!-- GENERAL DASHBOARD -->
-      <div class="panel" id="panel-dashboard">
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">📦 Total Stock</div><div class="kpi-value">3,240 kg</div><div class="kpi-sub up">↑ +12% this week</div></div>
-          <div class="kpi-card gold"><div class="kpi-label">🛒 Orders This Month</div><div class="kpi-value">24</div><div class="kpi-sub up">↑ +4 vs last month</div></div>
-          <div class="kpi-card"><div class="kpi-label">💰 Revenue (RWF)</div><div class="kpi-value">2.1M</div><div class="kpi-sub up">↑ Growing</div></div>
-          <div class="kpi-card"><div class="kpi-label">🌾 Outgrowers</div><div class="kpi-value">18</div><div class="kpi-sub">Target: 50–100</div></div>
-        </div>
-        <div class="dash-grid">
-          <div class="dash-card"><h4>📋 Recent Activity</h4><div id="activity-feed"></div></div>
-          <div class="dash-card"><h4>📦 Stock Overview</h4><div id="quick-stock"></div></div>
-        </div>
-      </div>
-
-      <!-- INVENTORY -->
-      <div class="panel" id="panel-inventory">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-primary btn-sm" onclick="addStockPrompt()">+ Add Stock Item</button></div>
-        <div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Produce</th><th>Stock (kg)</th><th>Price/kg (RWF)</th><th>Updated</th><th>Status</th><th>Action</th></tr></thead><tbody id="inventory-body"></tbody></table></div></div>
-      </div>
-
-      <!-- ORDERS -->
-      <div class="panel" id="panel-orders">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-primary btn-sm" onclick="addOrderPrompt()">+ Log New Order</button></div>
-        <div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Produce</th><th>Qty (kg)</th><th>Value (RWF)</th><th>Date</th><th>Status</th></tr></thead><tbody id="orders-body"></tbody></table></div></div>
-      </div>
-
-      <!-- FARMERS -->
-      <div class="panel" id="panel-farmers">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-primary btn-sm" onclick="addFarmerPrompt()">+ Add Outgrower</button></div>
-        <div class="dash-card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Acres</th><th>Last Delivery</th><th>Status</th></tr></thead><tbody id="farmers-body"></tbody></table></div></div>
-      </div>
-
-      <!-- CHAT -->
-      <div class="panel" id="panel-chat">
-        <div class="dash-card" style="max-width:680px">
-          <h4 style="margin-bottom:4px">💬 JAR Farm Team Chat</h4>
-          <p style="font-size:.78rem;color:var(--text-light);margin-bottom:12px">All staff see these messages. MD announcements are highlighted in gold.</p>
-          <div class="chat-wrap">
-            <div class="chat-msgs" id="chat-messages"></div>
-            <div class="chat-row">
-              <input type="text" id="chat-input" placeholder="Type a message and press Enter..." onkeypress="if(event.key==='Enter')sendChat()"/>
-              <button class="send-btn" onclick="sendChat()">Send</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- REPORTS -->
-      <div class="panel" id="panel-reports">
-        <div class="dash-card" style="max-width:700px">
-          <h4 style="margin-bottom:4px">📋 Submit Report or Log</h4>
-          <p style="font-size:.8rem;color:var(--text-light);margin-bottom:16px">Reports are saved and emailed to <strong>johndamilola328@gmail.com</strong></p>
-          <div class="rpt-grid">
-            <div class="rpt-card sel" onclick="selRpt(this,'daily')"><span class="rpt-icon">📅</span><span class="rpt-name">Daily Activity</span></div>
-            <div class="rpt-card" onclick="selRpt(this,'harvest')"><span class="rpt-icon">🌾</span><span class="rpt-name">Harvest Log</span></div>
-            <div class="rpt-card" onclick="selRpt(this,'sale')"><span class="rpt-icon">🛒</span><span class="rpt-name">Sales Record</span></div>
-            <div class="rpt-card" onclick="selRpt(this,'expense')"><span class="rpt-icon">💰</span><span class="rpt-name">Expense</span></div>
-            <div class="rpt-card" onclick="selRpt(this,'incident')"><span class="rpt-icon">⚠️</span><span class="rpt-name">Incident</span></div>
-            <div class="rpt-card" onclick="selRpt(this,'other')"><span class="rpt-icon">📄</span><span class="rpt-name">Other</span></div>
-          </div>
-          <form onsubmit="submitReport(event)">
-            <div class="grid-2" style="gap:14px">
-              <div class="form-group"><label>Date *</label><input type="date" id="rpt-date" required/></div>
-              <div class="form-group"><label>Your Name *</label><input type="text" id="rpt-name" required/></div>
-            </div>
-            <div class="form-group"><label>Subject *</label><input type="text" id="rpt-subject" required placeholder="e.g. Harvest summary — 25 June"/></div>
-            <div class="form-group"><label>Details *</label><textarea id="rpt-body" required style="min-height:120px" placeholder="Full details..."></textarea></div>
-            <div class="form-group"><label>Amount (RWF) — expenses only</label><input type="number" id="rpt-amount" placeholder="Leave blank if not applicable"/></div>
-            <div class="form-group"><label>Attach Receipt / Photo</label><input type="file" accept="image/*,.pdf" style="padding:8px"/></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <button type="submit" class="btn btn-primary">Submit Report</button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="emailRpt()">📧 Email to MD</button>
-            </div>
-          </form>
-          <div style="margin-top:24px"><h4 style="margin-bottom:10px">📂 Recent Submissions</h4><div id="report-log"></div></div>
-        </div>
-      </div>
-
-      <!-- SETTINGS -->
-      <div class="panel" id="panel-settings">
-        <div style="max-width:520px">
-          <div class="settings-card">
-            <h4>🔒 Change Password</h4>
-            <p>Update the portal password. Tell your staff the new password after changing it.</p>
-            <form onsubmit="changePw(event)">
-              <div class="form-group"><label>Current Password *</label><input type="password" id="pw-cur" required placeholder="Current password"/></div>
-              <div class="form-group"><label>New Password *</label><input type="password" id="pw-new" required placeholder="New password (min 6 characters)" oninput="pwStrength(this.value)"/><div class="pw-bar" id="pw-bar"></div></div>
-              <div class="form-group"><label>Confirm New Password *</label><input type="password" id="pw-con" required placeholder="Confirm new password"/></div>
-              <button type="submit" class="btn btn-primary">Update Password</button>
-            </form>
-          </div>
-          <div class="settings-card">
-            <h4>👤 Currently Logged In As</h4>
-            <p>Your session details:</p>
-            <div style="background:var(--mint);border-radius:var(--radius);padding:16px">
-              <div style="font-weight:700;color:var(--forest)" id="s-name">—</div>
-              <div style="font-size:.85rem;color:var(--text-light);text-transform:capitalize" id="s-role">—</div>
-            </div>
-          </div>
-          <div class="settings-card">
-            <h4>🚪 Sign Out</h4>
-            <p>Sign out of the staff portal on this device.</p>
-            <button class="btn" style="background:#FEE2E2;color:#991B1B;border:2px solid #FCA5A5" onclick="logout()">Sign Out</button>
-          </div>
-        </div>
-      </div>
-
+      <button class="btn btn-green" onclick="saveStock()">Save Stock</button>
     </div>
   </div>
 </div>
 
-<script src="../js/main.js"></script>
+<!-- LOG ORDER MODAL -->
+<div class="overlay" id="addOrderModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Log New Order</h3><button class="modal-close" onclick="closeModal('addOrderModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Buyer / Customer</label><input id="orderBuyer" placeholder="e.g. Nakumatt Kigali"/></div>
+        <div class="form-group"><label>Produce</label><input id="orderProduce" placeholder="e.g. Chili Peppers"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Quantity (kg)</label><input id="orderQty" type="number" placeholder="200"/></div>
+        <div class="form-group"><label>Value (RWF)</label><input id="orderValue" type="number" placeholder="200000"/></div>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select id="orderStatus"><option>Pending</option><option>In Transit</option><option>Delivered</option></select>
+      </div>
+      <button class="btn btn-green" onclick="saveOrder()">Log Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FARMER MODAL -->
+<div class="overlay" id="addFarmerModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add Outgrower Farmer</h3><button class="modal-close" onclick="closeModal('addFarmerModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Full Name</label><input id="farmerName" placeholder="Farmer's full name"/></div>
+        <div class="form-group"><label>District</label><input id="farmerDistrict" placeholder="e.g. Musanze"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Crops</label><input id="farmerCrops" placeholder="e.g. Chili, Beans"/></div>
+        <div class="form-group"><label>Land (acres)</label><input id="farmerLand" type="number" placeholder="2"/></div>
+      </div>
+      <div class="form-group"><label>Phone</label><input id="farmerPhone" placeholder="+250 7xx xxx xxx"/></div>
+      <button class="btn btn-green" onclick="saveFarmer()">Add Farmer</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// USER
-let cu = {name:'Staff',role:'field'};
-try { const s=localStorage.getItem('jar_user'); if(s) cu=JSON.parse(s); else window.location.href='index.html'; } catch(e){ window.location.href='index.html'; }
-const isMD = cu.role==='manager';
-document.getElementById('user-name').textContent = cu.name;
-document.getElementById('user-role').textContent = isMD ? '👑 Managing Director' : cu.role;
-const av = document.getElementById('user-avatar'); av.textContent = cu.name[0].toUpperCase(); if(isMD) av.classList.add('md');
-if(isMD){ document.getElementById('portal-badge').textContent='👑 MD Portal'; document.getElementById('portal-badge').classList.add('md-badge-pill'); }
-document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-document.getElementById('rpt-date').value = new Date().toISOString().split('T')[0];
-document.getElementById('rpt-name').value = cu.name;
-document.getElementById('s-name').textContent = cu.name;
-document.getElementById('s-role').textContent = cu.role;
+// ══════════════════════════════════════════════════════════════════
+//  SESSION CHECK
+// ══════════════════════════════════════════════════════════════════
+const role      = sessionStorage.getItem('jar_role');
+const userName  = sessionStorage.getItem('jar_name');
+const roleLabel = sessionStorage.getItem('jar_roleLabel');
 
-// SIDEBAR
-function buildNav(){
-  const nav = document.getElementById('sidebar-nav');
-  let h='';
-  if(isMD){ h+=`<div class="nav-section-title" style="color:rgba(212,160,23,.5)">👑 MD Overview</div>
-    <button class="nav-item" data-p="md"><span class="icon">👑</span>MD Dashboard</button>
-    <button class="nav-item" data-p="broadcast"><span class="icon">📢</span>Broadcast</button>
-    <button class="nav-item" data-p="inbox"><span class="icon">📥</span>Reports Inbox<span class="badge-count">3</span></button>`; }
-  h+=`<div class="nav-section-title">Operations</div>
-    <button class="nav-item" data-p="dashboard"><span class="icon">📊</span>Dashboard</button>
-    <button class="nav-item" data-p="inventory"><span class="icon">📦</span>Inventory<span class="badge-count">2</span></button>
-    <button class="nav-item" data-p="orders"><span class="icon">🛒</span>Orders &amp; Sales</button>
-    <button class="nav-item" data-p="farmers"><span class="icon">🌾</span>Outgrowers</button>
-    <div class="nav-section-title">Communication</div>
-    <button class="nav-item" data-p="chat"><span class="icon">💬</span>Team Chat<span class="badge-count" id="chat-badge">3</span></button>
-    <button class="nav-item" data-p="reports"><span class="icon">📋</span>Reports &amp; Logs</button>
-    <div class="nav-section-title">Account</div>
-    <button class="nav-item" data-p="settings"><span class="icon">⚙️</span>Settings</button>
-    <button class="nav-item" onclick="window.location.href='../index.html'"><span class="icon">🌐</span>Public Website</button>
-    <button class="nav-item" onclick="logout()"><span class="icon">🚪</span>Sign Out</button>`;
-  nav.innerHTML = h;
-  nav.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>sp(b.dataset.p,b)));
-  document.getElementById('btn-inbox').onclick=()=>sp('inbox',nav.querySelector('[data-p="inbox"]'));
-  document.getElementById('btn-chat').onclick=()=>sp('chat',nav.querySelector('[data-p="chat"]'));
-  document.getElementById('btn-settings').onclick=()=>sp('settings',nav.querySelector('[data-p="settings"]'));
-  const vab=document.getElementById('view-all-reports-btn');
-  if(vab) vab.onclick=()=>sp('inbox',nav.querySelector('[data-p="inbox"]'));
-}
+if(!role || !userName){ window.location.href = 'index.html'; }
 
-// SHOW PANEL
-const titles={md:'👑 MD Dashboard',broadcast:'📢 Broadcast',inbox:'📥 Reports Inbox',dashboard:'Operations Dashboard',inventory:'Inventory',orders:'Orders & Sales',farmers:'Outgrowers',chat:'Team Chat',reports:'Reports & Logs',settings:'Settings'};
-function sp(id,btn){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item[data-p]').forEach(b=>{ b.classList.remove('active'); b.classList.remove('md-active'); });
-  const panel=document.getElementById('panel-'+id); if(!panel) return;
-  panel.classList.add('active');
-  if(btn){ btn.classList.add('active'); if(['md','broadcast','inbox'].includes(id)) btn.classList.add('md-active'); }
-  document.getElementById('panel-title').textContent = titles[id]||id;
-  if(id==='chat'){ const cb=document.getElementById('chat-badge'); if(cb) cb.style.display='none'; renderChat(); }
-  if(id==='inventory') renderInventory();
-  if(id==='orders') renderOrders();
-  if(id==='farmers') renderFarmers();
-  if(id==='reports') renderRptLog();
-  if(id==='dashboard'){ renderActivity(); renderQuickStock(); }
-  if(id==='md'){ renderMDAct(); renderMDRpts(); renderBCH(); }
-  if(id==='broadcast') renderBCH();
-  if(id==='inbox'){ renderInbox(); document.getElementById('notif-dot').style.display='none'; }
-}
+const isMD      = role === 'md';
+const isManager = role === 'manager';
 
-// CLOCK
-function tick(){ const el=document.getElementById('md-clock'); if(!el) return; const n=new Date(); const k=new Date(n.toLocaleString('en-US',{timeZone:'Africa/Kigali'})); el.textContent=k.getHours().toString().padStart(2,'0')+':'+k.getMinutes().toString().padStart(2,'0'); }
-tick(); setInterval(tick,30000);
+// Date chip
+document.getElementById('dateChip').textContent =
+  new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 
-// INVENTORY
-let inv=JSON.parse(localStorage.getItem('jar_inventory')||'null')||[
-  {id:1,name:'Fresh Chili Peppers',stock:12,price:1000,updated:'Today'},
-  {id:2,name:'French Beans',stock:280,price:1200,updated:'Yesterday'},
-  {id:3,name:'Avocados',stock:150,price:2400,updated:'2 days ago'},
-  {id:4,name:'Irish Potatoes',stock:820,price:600,updated:'Today'},
-  {id:5,name:'Garden Peas',stock:8,price:1500,updated:'Today'},
-  {id:6,name:'Carrots',stock:340,price:900,updated:'Yesterday'},
-  {id:7,name:'Tomatoes',stock:95,price:800,updated:'2 days ago'},
-  {id:8,name:'Pineapples',stock:220,price:1200,updated:'3 days ago'},
+// Sidebar user info
+document.getElementById('sidebarName').textContent = userName;
+document.getElementById('sidebarRoleTag').textContent = roleLabel;
+document.getElementById('sidebarUser').className =
+  'sidebar-user ' + (isMD ? 'role-md' : 'role-staff');
+
+// ══════════════════════════════════════════════════════════════════
+//  NAV DEFINITIONS — completely separate for MD vs Staff
+// ══════════════════════════════════════════════════════════════════
+const MD_NAV = [
+  { section: 'Overview' },
+  { id:'md-dashboard',  icon:'📊', label:'MD Dashboard' },
+  { id:'md-reports',    icon:'📥', label:'Reports Inbox' },
+  { id:'md-broadcast',  icon:'📣', label:'Broadcast Message' },
+  { section: 'Business' },
+  { id:'md-finance',    icon:'💰', label:'Finance Overview' },
+  { id:'md-outgrowers', icon:'🌾', label:'Outgrower Network' },
+  { id:'md-orders',     icon:'📦', label:'Orders & Sales' },
+  { section: 'Settings' },
+  { id:'md-settings',   icon:'⚙️', label:'Settings' },
 ];
-function saveInv(){ localStorage.setItem('jar_inventory',JSON.stringify(inv)); }
-function renderInventory(){
-  document.getElementById('inventory-body').innerHTML=inv.map(i=>`<tr><td><strong>${i.name}</strong></td><td>${i.stock.toLocaleString()} kg</td><td>RWF ${i.price.toLocaleString()}</td><td>${i.updated}</td><td><span class="pill ${i.stock<20?'p-red':'p-green'}">${i.stock<20?'⚠ Low':'● OK'}</span></td><td><button style="padding:5px 12px;background:var(--mint);color:var(--forest);border-radius:100px;border:none;font-family:'Outfit',sans-serif;cursor:pointer;font-weight:600;font-size:.76rem" onclick="updStock(${i.id})">Update</button></td></tr>`).join('');
-  renderQuickStock();
-}
-function renderQuickStock(){
-  const el=document.getElementById('quick-stock'); if(!el) return;
-  el.innerHTML=inv.slice(0,7).map(i=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:.83rem;font-weight:500">${i.name}</span><div style="display:flex;align-items:center;gap:7px"><span style="font-size:.83rem;color:var(--text-light)">${i.stock} kg</span><span class="pill ${i.stock<20?'p-red':'p-green'}" style="font-size:.68rem">${i.stock<20?'Low':'OK'}</span></div></div>`).join('');
-}
-function updStock(id){ const item=inv.find(i=>i.id===id); if(!item) return; const v=prompt(`Update "${item.name}"\nCurrent: ${item.stock} kg\n\nNew quantity (kg):`); if(v!==null&&!isNaN(+v)&&+v>=0){ item.stock=+v; item.updated='Just now'; saveInv(); renderInventory(); showToast(item.name+' updated to '+v+' kg'); addAct('Stock updated — '+item.name+': '+v+' kg'); } }
-function addStockPrompt(){ const n=prompt('Produce name:'); if(!n) return; const s=+prompt('Quantity (kg):'); if(isNaN(s)) return; const p=+prompt('Price per kg (RWF):'); if(isNaN(p)) return; inv.push({id:Date.now(),name:n,stock:s,price:p,updated:'Just now'}); saveInv(); renderInventory(); showToast(n+' added'); }
 
-// ORDERS
-let orders=JSON.parse(localStorage.getItem('jar_orders')||'null')||[
-  {id:'ORD-001',customer:'Nakumatt Supermarket',produce:'Carrots',qty:50,value:45000,date:'Today',status:'pending'},
-  {id:'ORD-002',customer:'Simba Supermarket',produce:'Irish Potatoes',qty:200,value:120000,date:'Yesterday',status:'active'},
-  {id:'ORD-003',customer:'Restaurant Le Gourmet',produce:'French Beans',qty:20,value:24000,date:'2 days ago',status:'transit'},
-  {id:'ORD-004',customer:'Kigali Fresh Market',produce:'Tomatoes',qty:80,value:64000,date:'3 days ago',status:'active'},
+const STAFF_NAV = [
+  { section: 'My Work' },
+  { id:'s-dashboard',   icon:'📊', label:'Operations Dashboard' },
+  { id:'s-inventory',   icon:'📦', label:'Inventory' },
+  { id:'s-orders',      icon:'🛒', label:'Orders & Sales' },
+  { id:'s-outgrowers',  icon:'🌾', label:'Outgrower Network' },
+  { section: 'Team' },
+  { id:'s-chat',        icon:'💬', label:'Team Chat' },
+  { id:'s-reports',     icon:'📋', label:'Submit Reports' },
+  { section: 'Account' },
+  { id:'s-settings',    icon:'⚙️', label:'Settings' },
 ];
-function saveOrders(){ localStorage.setItem('jar_orders',JSON.stringify(orders)); }
-function renderOrders(){ document.getElementById('orders-body').innerHTML=orders.map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.customer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td><td><span class="pill ${o.status==='active'?'p-green':o.status==='pending'?'p-yellow':'p-blue'}">${o.status==='active'?'● Delivered':o.status==='pending'?'⏳ Pending':'🚚 In Transit'}</span></td></tr>`).join(''); }
-function addOrderPrompt(){ const c=prompt('Customer name:'); if(!c) return; const p=prompt('Produce type:'); if(!p) return; const q=+prompt('Quantity (kg):'); if(isNaN(q)) return; const v=+prompt('Total value (RWF):'); if(isNaN(v)) return; const id='ORD-'+String(orders.length+1).padStart(3,'0'); orders.unshift({id,customer:c,produce:p,qty:q,value:v,date:'Today',status:'pending'}); saveOrders(); renderOrders(); showToast('Order '+id+' logged'); addAct('New order — '+c+': '+q+'kg '+p); }
 
-// FARMERS
-let farmers=JSON.parse(localStorage.getItem('jar_farmers')||'null')||[
-  {name:'Jean-Pierre Nkurunziza',district:'Huye',crops:'French Beans, Peas',acres:2.5,lastDelivery:120,status:'active'},
-  {name:'Marie Uwimana',district:'Musanze',crops:'Carrots, Tomatoes',acres:1.8,lastDelivery:85,status:'active'},
-  {name:'Emmanuel Habimana',district:'Nyamagabe',crops:'Avocados',acres:3,lastDelivery:200,status:'active'},
-  {name:'Consolée Ingabire',district:'Huye',crops:'Chilies',acres:1.2,lastDelivery:45,status:'pending'},
-  {name:'Théogène Bizimana',district:'Rubavu',crops:'Pineapples, Bananas',acres:2,lastDelivery:180,status:'active'},
-];
-function saveFarmers(){ localStorage.setItem('jar_farmers',JSON.stringify(farmers)); }
-function renderFarmers(){ document.getElementById('farmers-body').innerHTML=farmers.map(f=>`<tr><td><strong>${f.name}</strong></td><td>${f.district}</td><td>${f.crops}</td><td>${f.acres} ac</td><td>${f.lastDelivery} kg</td><td><span class="pill ${f.status==='active'?'p-green':'p-yellow'}">${f.status==='active'?'● Active':'⏳ Onboarding'}</span></td></tr>`).join(''); }
-function addFarmerPrompt(){ const n=prompt('Farmer full name:'); if(!n) return; const d=prompt('District:'); if(!d) return; const c=prompt('Crops grown:'); if(!c) return; const a=+prompt('Acres available:')||1; farmers.push({name:n,district:d,crops:c,acres:a,lastDelivery:0,status:'pending'}); saveFarmers(); renderFarmers(); showToast(n+' added'); }
+const nav     = isMD ? MD_NAV    : STAFF_NAV;
+const firstId = isMD ? 'md-dashboard' : 's-dashboard';
 
-// ACTIVITY
-const seedAct=[{text:'New order — Nakumatt Supermarket (50kg carrots)',time:'2h ago'},{text:'⚠ Low stock — Garden Peas (8kg)',time:'5h ago'},{text:'Jean-Pierre submitted harvest log (120kg beans)',time:'Yesterday'},{text:'Monthly sales report submitted',time:'2 days ago'},{text:'⚠ Low stock — Fresh Chili (12kg)',time:'2 days ago'}];
-let acts=JSON.parse(localStorage.getItem('jar_activities')||'[]');
-function addAct(text){ acts.unshift({text,time:'Just now'}); if(acts.length>20) acts.pop(); localStorage.setItem('jar_activities',JSON.stringify(acts)); renderActivity(); renderMDAct(); }
-function renderActivity(){ const el=document.getElementById('activity-feed'); if(!el) return; el.innerHTML=[...acts,...seedAct].slice(0,7).map(a=>`<div class="act-item"><div class="act-dot" style="background:${a.text.includes('⚠')?'var(--gold)':'var(--leaf)'}"></div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div></div>`).join(''); }
-function renderMDAct(){ const el=document.getElementById('md-activity'); if(!el) return; el.innerHTML=[...acts,...seedAct].slice(0,6).map(a=>`<div class="act-item"><div class="act-dot" style="background:${a.text.includes('⚠')?'var(--gold)':'var(--leaf)'}"></div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div></div>`).join(''); }
+// ── Build sidebar nav ──
+const navEl = document.getElementById('sidebarNav');
+nav.forEach(item => {
+  if(item.section){
+    const s = document.createElement('div');
+    s.className = 'nav-section'; s.textContent = item.section;
+    navEl.appendChild(s);
+  } else {
+    const b = document.createElement('button');
+    b.className = 'nav-item'; b.dataset.panel = item.id;
+    b.innerHTML = `<span class="icon">${item.icon}</span><span>${item.label}</span>`;
+    b.onclick = () => switchPanel(item.id, item.label);
+    navEl.appendChild(b);
+  }
+});
 
-// CHAT
-const SC=[{author:'Manager',text:'Good morning team! 🌱 Restock chilies and follow up Nakumatt delivery.',time:'08:02'},{author:'Field Staff',text:'Morning! Will check chili harvest today.',time:'08:15'},{author:'Manager',text:'Great. All harvest logs by 5pm daily.',time:'08:17'}];
-function getChats(){ const s=localStorage.getItem('jar_chats'); return s?JSON.parse(s):SC; }
-function saveChats(c){ localStorage.setItem('jar_chats',JSON.stringify(c)); }
-function renderChat(){ const msgs=getChats(); document.getElementById('chat-messages').innerHTML=msgs.map(m=>{ const mine=m.author===cu.name||m.author===cu.name+' (MD)'; return `<div class="chat-msg ${mine?'mine':''} ${m.bc?'bc':''}"><div class="chat-hdr"><span class="chat-author">${m.bc?'📢 '+m.author:m.author}</span><span class="chat-time">${m.time}</span></div><div class="chat-body">${m.text}</div></div>`; }).join(''); document.getElementById('chat-messages').scrollTop=99999; }
-function sendChat(){ const inp=document.getElementById('chat-input'); const t=inp.value.trim(); if(!t) return; const n=new Date(); const time=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0'); const c=getChats(); c.push({author:cu.name,text:t,time}); saveChats(c); inp.value=''; renderChat(); }
+// ══════════════════════════════════════════════════════════════════
+//  DATA STORE (sessionStorage)
+// ══════════════════════════════════════════════════════════════════
+function load(k,def){ try{ return JSON.parse(sessionStorage.getItem(k))||def }catch{ return def } }
+function save(k,v){ sessionStorage.setItem(k,JSON.stringify(v)) }
 
-// BROADCAST
-let bcs=JSON.parse(localStorage.getItem('jar_broadcasts')||'[]');
-function saveBCs(){ localStorage.setItem('jar_broadcasts',JSON.stringify(bcs)); }
-function setQ(id,t){ document.getElementById(id).value=t; }
-function sendBC(inputId){ const t=document.getElementById(inputId).value.trim(); if(!t){ showToast('Please type a message first','error'); return; } const n=new Date(); const time=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0'); const c=getChats(); c.push({author:cu.name+' (MD)',text:t,time,bc:true}); saveChats(c); bcs.unshift({text:t,time,date:n.toLocaleDateString('en-GB')}); saveBCs(); document.getElementById(inputId).value=''; showToast('📢 Broadcast sent to all staff!'); addAct('📢 MD broadcast: "'+t.substring(0,50)+(t.length>50?'...':'"')); renderBCH(); }
-function renderBCH(){ const el=document.getElementById('bc-history'); if(!el) return; if(!bcs.length){ el.innerHTML='<p style="font-size:.83rem;color:var(--text-light)">No broadcasts sent yet.</p>'; return; } el.innerHTML=bcs.slice(0,5).map(b=>`<div style="padding:12px;background:var(--mint);border-radius:var(--radius);margin-bottom:8px;border-left:4px solid var(--gold)"><div style="font-size:.75rem;color:var(--text-light);margin-bottom:3px">📢 ${b.date} at ${b.time}</div><div style="font-size:.86rem;color:var(--forest)">${b.text}</div></div>`).join(''); }
-function emailBC(){ const t=document.getElementById('bc-full').value||''; window.open('mailto:johndamilola328@gmail.com?subject='+encodeURIComponent('[JAR Broadcast] '+new Date().toLocaleDateString())+'&body='+encodeURIComponent(t)); }
+const STOCK   = load('jar_stock', [
+  {name:'Fresh Chili Peppers',qty:480,cat:'Export Grade',status:'In Stock'},
+  {name:'French Beans',       qty:15, cat:'Export Grade',status:'Low'},
+  {name:'Avocados',           qty:320,cat:'Export Grade',status:'In Stock'},
+  {name:'Irish Potatoes',     qty:0,  cat:'Local Market', status:'Out of Stock'},
+  {name:'Pineapples',         qty:95, cat:'Fruits',       status:'In Stock'},
+]);
+const ORDERS  = load('jar_orders',[
+  {buyer:'Nakumatt Kigali',produce:'Chili Peppers',qty:200,value:200000,status:'Delivered',date:'2025-03-24'},
+  {buyer:'Carrefour Kigali',produce:'French Beans', qty:150,value:180000,status:'In Transit',date:'2025-03-25'},
+]);
+const FARMERS = load('jar_farmers',[
+  {name:'Jean-Baptiste Nkurunziza',district:'Musanze',crops:'Chili, Beans',land:3,phone:'+250 788 123 456'},
+  {name:'Vestine Mukamana',        district:'Nyamagabe',crops:'Avocado',   land:2,phone:'+250 722 987 654'},
+]);
+const MESSAGES= load('jar_chat',[
+  {from:'Operations Manager',text:'Morning! Stock delivered to Nakumatt.',time:'08:14'},
+  {from:'Field Staff',       text:'Harvest done — 200kg chili ready.',   time:'09:30'},
+]);
+const REPORTS = load('jar_reports',[
+  {from:'Operations Manager',subject:'Daily Activity Report',preview:'All deliveries completed...',date:'2025-03-25',unread:true},
+  {from:'Field Staff',       subject:'Harvest Log — Chili',   preview:'Harvested 200kg from Plot B...',date:'2025-03-24',unread:false},
+]);
 
-// INBOX
-const SR=[{type:'daily',date:'2025-06-25',name:'Manager',subject:'Daily Activity — 25 June',body:'Sold 50kg carrots to Nakumatt. Chili stock critically low at 12kg. Will source from Jean-Pierre tomorrow.',unread:true},{type:'harvest',date:'2025-06-24',name:'Field Staff',subject:'Harvest Log — French Beans',body:'Harvested 120kg French beans from plots 2 and 3. Quality good. Delivered to packhouse at 14:00.',unread:true},{type:'sale',date:'2025-06-23',name:'Manager',subject:'Sales Record — Simba Supermarket',body:'Delivered 200kg Irish potatoes to Simba Supermarket. Payment received: RWF 120,000.',unread:true}];
-let rptLogs=JSON.parse(localStorage.getItem('jar_reports')||'[]');
-function renderInbox(){ const el=document.getElementById('inbox-list'); if(!el) return; const all=[...rptLogs,...SR]; if(!all.length){ el.innerHTML='<p style="color:var(--text-light)">No reports yet.</p>'; return; } el.innerHTML=all.map((r,i)=>`<div class="inbox-item ${r.unread?'unread':''}" onclick="openRpt(${i},this)"><div class="inbox-title">${r.unread?'🔵 ':''}${r.subject}</div><div class="inbox-meta"><span class="pill p-green" style="font-size:.7rem">${r.type}</span> &nbsp; by ${r.name} &nbsp;·&nbsp; ${r.date}</div><div class="inbox-preview">${r.body.substring(0,100)}${r.body.length>100?'…':''}</div></div>`).join(''); }
-function openRpt(i,el){ const all=[...rptLogs,...SR]; const r=all[i]; if(!r) return; r.unread=false; el.classList.remove('unread'); el.querySelector('.inbox-title').textContent=r.subject; alert('📋 '+r.subject+'\n\nFrom: '+r.name+'\nDate: '+r.date+'\nType: '+r.type+'\n\n'+r.body); }
-function markAllRead(){ SR.forEach(r=>r.unread=false); rptLogs.forEach(r=>r.unread=false); renderInbox(); showToast('All reports marked as read'); }
-function renderMDRpts(){ const el=document.getElementById('md-reports-preview'); if(!el) return; el.innerHTML=[...rptLogs,...SR].slice(0,3).map(r=>`<div style="padding:9px 0;border-bottom:1px solid var(--border)"><div style="font-weight:600;font-size:.85rem;color:var(--forest)">${r.unread?'🔵 ':''}${r.subject}</div><div style="font-size:.75rem;color:var(--text-light)">${r.name} · ${r.date}</div></div>`).join(''); }
+// ══════════════════════════════════════════════════════════════════
+//  PANELS HTML
+// ══════════════════════════════════════════════════════════════════
+const PANELS = {};
 
-// REPORTS SUBMIT
-let selRptType='daily';
-function selRpt(el,t){ document.querySelectorAll('.rpt-card').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); selRptType=t; }
-function renderRptLog(){ const el=document.getElementById('report-log'); if(!el) return; if(!rptLogs.length){ el.innerHTML='<p style="font-size:.83rem;color:var(--text-light)">No reports submitted yet.</p>'; return; } el.innerHTML=rptLogs.slice(0,8).map(r=>`<div style="padding:11px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;background:var(--cream)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><strong style="font-size:.86rem;color:var(--forest)">${r.subject}</strong><span class="pill p-green" style="font-size:.7rem">${r.type}</span></div><div style="font-size:.78rem;color:var(--text-light)">${r.name} · ${r.date}</div><div style="font-size:.83rem;color:var(--text-mid);margin-top:5px">${r.body.substring(0,100)}${r.body.length>100?'…':''}</div></div>`).join(''); }
-function submitReport(e){ e.preventDefault(); const r={type:selRptType,date:document.getElementById('rpt-date').value,name:document.getElementById('rpt-name').value,subject:document.getElementById('rpt-subject').value,body:document.getElementById('rpt-body').value,amount:document.getElementById('rpt-amount').value,submitted:new Date().toISOString(),unread:true}; rptLogs.unshift(r); localStorage.setItem('jar_reports',JSON.stringify(rptLogs)); showToast('Report submitted!'); addAct('Report: "'+r.subject+'" by '+r.name); e.target.reset(); document.getElementById('rpt-date').value=new Date().toISOString().split('T')[0]; document.getElementById('rpt-name').value=cu.name; renderRptLog(); }
-function emailRpt(){ const s=document.getElementById('rpt-subject').value||'JAR Report'; const b=document.getElementById('rpt-body').value||''; const n=document.getElementById('rpt-name').value||cu.name; window.open('mailto:johndamilola328@gmail.com?subject='+encodeURIComponent('[JAR Report] '+s)+'&body='+encodeURIComponent('From: '+n+'\n\n'+b)); }
+// ── MD DASHBOARD ──
+PANELS['md-dashboard'] = ()=>`
+<div class="kpi-grid">
+  <div class="kpi kpi-green"><div class="kpi-label">Total Stock</div><div class="kpi-val">${STOCK.reduce((a,b)=>a+b.qty,0)} kg</div><div class="kpi-sub">Across all produce</div></div>
+  <div class="kpi kpi-gold"><div class="kpi-label">Active Orders</div><div class="kpi-val">${ORDERS.length}</div><div class="kpi-sub">This month</div></div>
+  <div class="kpi"><div class="kpi-label">Revenue (Est.)</div><div class="kpi-val">RWF ${(ORDERS.reduce((a,b)=>a+b.value,0)/1000).toFixed(0)}K</div><div class="kpi-sub">All orders</div></div>
+  <div class="kpi"><div class="kpi-label">Outgrowers</div><div class="kpi-val">${FARMERS.length}</div><div class="kpi-sub">Contracted farmers</div></div>
+</div>
+<div class="card">
+  <div class="card-head"><h3>📥 Unread Reports from Staff</h3></div>
+  <div class="card-body">
+    ${REPORTS.filter(r=>r.unread).length===0?'<p style="color:#aaa;font-size:.85rem">No unread reports.</p>':
+      REPORTS.filter(r=>r.unread).map(r=>`
+        <div class="inbox-item unread">
+          <div class="inbox-from">${r.from}</div>
+          <div class="inbox-subject">${r.subject}</div>
+          <div class="inbox-preview">${r.preview}</div>
+          <div class="inbox-meta"><span class="badge badge-yellow">Unread</span><span style="font-size:.72rem;color:#aaa">${r.date}</span></div>
+        </div>`).join('')}
+  </div>
+</div>
+<div class="card">
+  <div class="card-head"><h3>📊 Stock Alert</h3></div>
+  <div class="card-body">
+    <table><thead><tr><th>Produce</th><th>Qty</th><th>Status</th></tr></thead><tbody>
+    ${STOCK.map(s=>`<tr><td>${s.name}</td><td>${s.qty} kg</td><td><span class="badge ${s.status==='In Stock'?'badge-green':s.status==='Low'?'badge-yellow':'badge-red'}">${s.status}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
 
-// PASSWORD
-function pwStrength(pw){ const bar=document.getElementById('pw-bar'); if(!bar) return; if(pw.length<4){ bar.style.background='#DC2626'; bar.style.width='25%'; } else if(pw.length<8){ bar.style.background='#F59E0B'; bar.style.width='60%'; } else { bar.style.background='#16A34A'; bar.style.width='100%'; } }
-function changePw(e){ e.preventDefault(); const cur=document.getElementById('pw-cur').value; const nw=document.getElementById('pw-new').value; const con=document.getElementById('pw-con').value; const saved=localStorage.getItem('jar_password')||'jar2025'; if(cur!==saved){ showToast('Current password is incorrect','error'); return; } if(nw.length<6){ showToast('Password must be at least 6 characters','error'); return; } if(nw!==con){ showToast('Passwords do not match','error'); return; } localStorage.setItem('jar_password',nw); showToast('Password changed! Tell your staff the new password.'); e.target.reset(); }
+// ── MD REPORTS INBOX ──
+PANELS['md-reports'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>📥 All Staff Reports</h3></div>
+  <div class="card-body">
+    ${REPORTS.length===0?'<p style="color:#aaa;font-size:.85rem">No reports yet.</p>':
+      REPORTS.map(r=>`
+        <div class="inbox-item ${r.unread?'unread':''}">
+          <div class="inbox-from">${r.from}</div>
+          <div class="inbox-subject">${r.subject}</div>
+          <div class="inbox-preview">${r.preview}</div>
+          <div class="inbox-meta"><span class="badge ${r.unread?'badge-yellow':'badge-green'}">${r.unread?'Unread':'Read'}</span><span style="font-size:.72rem;color:#aaa">${r.date}</span></div>
+        </div>`).join('')}
+  </div>
+</div>`;
 
-function logout(){ localStorage.removeItem('jar_user'); window.location.href='index.html'; }
+// ── MD BROADCAST ──
+PANELS['md-broadcast'] = ()=>`
+<div class="broadcast-box">
+  <h4>📣 Send a Message to All Staff</h4>
+  <p>This message will appear in the Team Chat for all staff members.</p>
+  <textarea id="broadcastText" placeholder="Type your message to all staff…"></textarea>
+  <button class="btn btn-gold" style="margin-top:.7rem" onclick="sendBroadcast()">Send to All Staff</button>
+</div>
+<div class="card">
+  <div class="card-head"><h3>Recent Broadcasts</h3></div>
+  <div class="card-body">
+    <ul class="feed">
+      <li><div class="feed-dot" style="background:var(--gold)"></div><div><div class="feed-text">Reminder: All produce must be weighed before loading.</div><div class="feed-time">Yesterday · 14:30</div></div></li>
+      <li><div class="feed-dot" style="background:var(--gold)"></div><div><div class="feed-text">June farming launch confirmed. Full details to follow.</div><div class="feed-time">2 days ago · 09:00</div></div></li>
+    </ul>
+  </div>
+</div>`;
 
-// INIT
-buildNav();
-const dp = isMD?'md':'dashboard';
-const db = document.querySelector('[data-p="'+dp+'"]');
-sp(dp, db);
+// ── MD FINANCE ──
+PANELS['md-finance'] = ()=>`
+<div class="kpi-grid">
+  <div class="kpi kpi-gold"><div class="kpi-label">Total Revenue</div><div class="kpi-val">RWF ${(ORDERS.reduce((a,b)=>a+b.value,0)/1000).toFixed(0)}K</div></div>
+  <div class="kpi"><div class="kpi-label">Orders Delivered</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='Delivered').length}</div></div>
+  <div class="kpi"><div class="kpi-label">In Transit</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='In Transit').length}</div></div>
+  <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='Pending').length}</div></div>
+</div>
+<div class="card">
+  <div class="card-head"><h3>💰 Order Revenue Breakdown</h3></div>
+  <div class="card-body">
+    <table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Status</th></tr></thead><tbody>
+    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td><span class="badge ${o.status==='Delivered'?'badge-green':o.status==='In Transit'?'badge-blue':'badge-yellow'}">${o.status}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
+
+// ── MD OUTGROWERS ──
+PANELS['md-outgrowers'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>🌾 Outgrower Network</h3><button class="btn btn-green btn-sm" onclick="openModal('addFarmerModal')">+ Add Farmer</button></div>
+  <div class="card-body">
+    <table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Land</th><th>Phone</th></tr></thead><tbody id="mdFarmerTbl">
+    ${FARMERS.map(f=>`<tr><td>${f.name}</td><td>${f.district}</td><td>${f.crops}</td><td>${f.land} acres</td><td>${f.phone}</td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
+
+// ── MD ORDERS ──
+PANELS['md-orders'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>📦 All Orders</h3></div>
+  <div class="card-body">
+    <table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody>
+    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td><td><span class="badge ${o.status==='Delivered'?'badge-green':o.status==='In Transit'?'badge-blue':'badge-yellow'}">${o.status}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
+
+// ── MD SETTINGS ──
+PANELS['md-settings'] = ()=>`
+<div class="card">
+  <div class="card-body">
+    <div class="settings-section">
+      <h4>Change Your Password</h4>
+      <div class="form-group"><label>Current Password</label><input type="password" id="pwOld" placeholder="Enter current password"/></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="At least 8 characters" oninput="checkStrength(this.value)"/>
+        <div class="pw-strength" id="pwBar"></div><div class="pw-hint" id="pwHint"></div>
+      </div>
+      <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConf" placeholder="Repeat new password"/></div>
+      <button class="btn btn-green" onclick="changePassword()">Update Password</button>
+      <div id="pwMsg" style="margin-top:.7rem;font-size:.82rem"></div>
+    </div>
+    <div class="settings-section">
+      <h4>Account Info</h4>
+      <p style="font-size:.88rem;color:#555">Logged in as <strong>${userName}</strong> · Role: <strong>${roleLabel}</strong></p>
+    </div>
+  </div>
+</div>`;
+
+// ── STAFF DASHBOARD ──
+PANELS['s-dashboard'] = ()=>`
+<div class="kpi-grid">
+  <div class="kpi kpi-green"><div class="kpi-label">Total Stock</div><div class="kpi-val">${STOCK.reduce((a,b)=>a+b.qty,0)} kg</div></div>
+  <div class="kpi"><div class="kpi-label">Active Orders</div><div class="kpi-val">${ORDERS.length}</div></div>
+  <div class="kpi"><div class="kpi-label">Outgrowers</div><div class="kpi-val">${FARMERS.length}</div></div>
+  <div class="kpi kpi-gold"><div class="kpi-label">Low Stock Items</div><div class="kpi-val">${STOCK.filter(s=>s.status==='Low'||s.status==='Out of Stock').length}</div></div>
+</div>
+<div class="card">
+  <div class="card-head"><h3>📋 Recent Activity</h3></div>
+  <div class="card-body">
+    <ul class="feed">
+      <li><div class="feed-dot"></div><div><div class="feed-text">French Beans stock is low (15 kg). Restock needed.</div><div class="feed-time">Today · 08:00</div></div></li>
+      <li><div class="feed-dot"></div><div><div class="feed-text">Order #2 from Carrefour is In Transit.</div><div class="feed-time">Today · 07:30</div></div></li>
+      <li><div class="feed-dot"></div><div><div class="feed-text">New outgrower Vestine Mukamana added to network.</div><div class="feed-time">Yesterday · 15:00</div></div></li>
+    </ul>
+  </div>
+</div>`;
+
+// ── STAFF INVENTORY ──
+PANELS['s-inventory'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>📦 Inventory</h3><button class="btn btn-green btn-sm" onclick="openModal('addStockModal')">+ Add Stock</button></div>
+  <div class="card-body">
+    <table><thead><tr><th>Produce</th><th>Category</th><th>Quantity</th><th>Status</th></tr></thead><tbody id="stockTbl">
+    ${STOCK.map(s=>`<tr><td>${s.name}</td><td>${s.cat}</td><td>${s.qty} kg</td><td><span class="badge ${s.status==='In Stock'?'badge-green':s.status==='Low'?'badge-yellow':'badge-red'}">${s.status}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
+
+// ── STAFF ORDERS ──
+PANELS['s-orders'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>🛒 Orders & Sales</h3><button class="btn btn-green btn-sm" onclick="openModal('addOrderModal')">+ Log Order</button></div>
+  <div class="card-body">
+    <table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody id="orderTbl">
+    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td><td><span class="badge ${o.status==='Delivered'?'badge-green':o.status==='In Transit'?'badge-blue':'badge-yellow'}">${o.status}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
+
+// ── STAFF OUTGROWERS ──
+PANELS['s-outgrowers'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>🌾 Outgrower Network</h3><button class="btn btn-green btn-sm" onclick="openModal('addFarmerModal')">+ Add Farmer</button></div>
+  <div class="card-body">
+    <table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Land</th><th>Phone</th></tr></thead><tbody id="farmerTbl">
+    ${FARMERS.map(f=>`<tr><td>${f.name}</td><td>${f.district}</td><td>${f.crops}</td><td>${f.land} acres</td><td>${f.phone}</td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;
+
+// ── STAFF CHAT ──
+PANELS['s-chat'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>💬 Team Chat</h3></div>
+  <div class="chat-wrap">
+    <div class="chat-messages" id="chatMessages">
+      ${MESSAGES.map(m=>`
+        <div class="msg ${m.from===userName?'mine':'other'}">
+          <div class="msg-bubble">${m.text}</div>
+          <div class="msg-meta">${m.from===userName?'You':m.from} · ${m.time}</div>
+        </div>`).join('')}
+    </div>
+    <div class="chat-input-row">
+      <input id="chatInput" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>`;
+
+// ── STAFF REPORTS ──
+PANELS['s-reports'] = ()=>`
+<div class="card">
+  <div class="card-head"><h3>📋 Submit a Report</h3></div>
+  <div class="card-body">
+    <div class="form-group"><label>Report Type</label>
+      <select id="reportType">
+        <option>Daily Activity Report</option>
+        <option>Harvest Log</option>
+        <option>Sales Record</option>
+        <option>Expense Report</option>
+        <option>Incident Report</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Report Details</label>
+      <textarea id="reportBody" placeholder="Describe what happened today…"></textarea>
+    </div>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+      <button class="btn btn-green" onclick="submitReport()">Submit Report</button>
+      <button class="btn btn-gold" onclick="emailReport()">📧 Email to Management</button>
+    </div>
+    <div id="reportMsg" style="margin-top:.8rem;font-size:.82rem"></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-head"><h3>My Submitted Reports</h3></div>
+  <div class="card-body" id="myReports">
+    <p style="color:#aaa;font-size:.85rem">No reports submitted yet this session.</p>
+  </div>
+</div>`;
+
+// ── STAFF SETTINGS ──
+PANELS['s-settings'] = ()=>`
+<div class="card">
+  <div class="card-body">
+    <div class="settings-section">
+      <h4>Change Your Password</h4>
+      <div class="form-group"><label>Current Password</label><input type="password" id="pwOld" placeholder="Enter current password"/></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="At least 8 characters" oninput="checkStrength(this.value)"/>
+        <div class="pw-strength" id="pwBar"></div><div class="pw-hint" id="pwHint"></div>
+      </div>
+      <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConf" placeholder="Repeat new password"/></div>
+      <button class="btn btn-green" onclick="changePassword()">Update Password</button>
+      <div id="pwMsg" style="margin-top:.7rem;font-size:.82rem"></div>
+    </div>
+    <div class="settings-section">
+      <h4>Account Info</h4>
+      <p style="font-size:.88rem;color:#555">Logged in as <strong>${userName}</strong> · Role: <strong>${roleLabel}</strong></p>
+    </div>
+  </div>
+</div>`;
+
+// ══════════════════════════════════════════════════════════════════
+//  PANEL SWITCHING
+// ══════════════════════════════════════════════════════════════════
+let currentPanel = '';
+function switchPanel(id, label){
+  currentPanel = id;
+  document.getElementById('panels').innerHTML =
+    `<div class="panel active">${PANELS[id]()}</div>`;
+  document.getElementById('topbarTitle').textContent = label||id;
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.panel===id);
+  });
+  // close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  // scroll chat to bottom
+  if(id==='s-chat'){
+    setTimeout(()=>{
+      const c=document.getElementById('chatMessages');
+      if(c) c.scrollTop=c.scrollHeight;
+    },50);
+  }
+}
+switchPanel(firstId, isMD?'MD Dashboard':'Operations Dashboard');
+
+// ══════════════════════════════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════════════════════════════
+function saveStock(){
+  const name=document.getElementById('stockName').value.trim();
+  const qty=parseInt(document.getElementById('stockQty').value)||0;
+  const cat=document.getElementById('stockCat').value;
+  const status=document.getElementById('stockStatus').value;
+  if(!name){ alert('Please enter produce name'); return; }
+  STOCK.push({name,qty,cat,status}); save('jar_stock',STOCK);
+  closeModal('addStockModal');
+  switchPanel(currentPanel);
+}
+
+function saveOrder(){
+  const buyer=document.getElementById('orderBuyer').value.trim();
+  const produce=document.getElementById('orderProduce').value.trim();
+  const qty=parseInt(document.getElementById('orderQty').value)||0;
+  const value=parseInt(document.getElementById('orderValue').value)||0;
+  const status=document.getElementById('orderStatus').value;
+  if(!buyer||!produce){ alert('Please fill in buyer and produce'); return; }
+  const date=new Date().toISOString().slice(0,10);
+  ORDERS.push({buyer,produce,qty,value,status,date}); save('jar_orders',ORDERS);
+  closeModal('addOrderModal');
+  switchPanel(currentPanel);
+}
+
+function saveFarmer(){
+  const name=document.getElementById('farmerName').value.trim();
+  const district=document.getElementById('farmerDistrict').value.trim();
+  const crops=document.getElementById('farmerCrops').value.trim();
+  const land=parseFloat(document.getElementById('farmerLand').value)||0;
+  const phone=document.getElementById('farmerPhone').value.trim();
+  if(!name){ alert('Please enter farmer name'); return; }
+  FARMERS.push({name,district,crops,land,phone}); save('jar_farmers',FARMERS);
+  closeModal('addFarmerModal');
+  switchPanel(currentPanel);
+}
+
+function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const text=inp.value.trim(); if(!text) return;
+  const now=new Date(); const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  MESSAGES.push({from:userName,text,time}); save('jar_chat',MESSAGES);
+  inp.value='';
+  const c=document.getElementById('chatMessages');
+  const div=document.createElement('div'); div.className='msg mine';
+  div.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-meta">You · ${time}</div>`;
+  c.appendChild(div); c.scrollTop=c.scrollHeight;
+}
+
+function sendBroadcast(){
+  const text=document.getElementById('broadcastText').value.trim();
+  if(!text){ alert('Please type a message first'); return; }
+  const now=new Date(); const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  MESSAGES.push({from:'📣 MD Broadcast',text,time}); save('jar_chat',MESSAGES);
+  document.getElementById('broadcastText').value='';
+  alert('Broadcast sent to all staff! ✓');
+}
+
+function submitReport(){
+  const type=document.getElementById('reportType').value;
+  const body=document.getElementById('reportBody').value.trim();
+  if(!body){ document.getElementById('reportMsg').innerHTML='<span style="color:#dc2626">Please write your report before submitting.</span>'; return; }
+  const date=new Date().toISOString().slice(0,10);
+  REPORTS.unshift({from:userName,subject:type,preview:body.slice(0,60)+'…',date,unread:true});
+  save('jar_reports',REPORTS);
+  document.getElementById('reportMsg').innerHTML='<span style="color:#166534">✓ Report submitted successfully.</span>';
+  document.getElementById('reportBody').value='';
+  const mr=document.getElementById('myReports');
+  if(mr){ mr.innerHTML=`<div class="inbox-item"><div class="inbox-from">${type}</div><div class="inbox-subject">${date}</div><div class="inbox-preview">${body.slice(0,80)}</div></div>`; }
+}
+
+function emailReport(){
+  const type=document.getElementById('reportType').value;
+  const body=document.getElementById('reportBody').value.trim();
+  const subject=encodeURIComponent(`JAR Farm Report: ${type} — ${userName}`);
+  const bodyEnc=encodeURIComponent(`From: ${userName} (${roleLabel})\nDate: ${new Date().toDateString()}\nType: ${type}\n\n${body||'(No details entered)'}`);
+  window.open(`mailto:johndamilola328@gmail.com?subject=${subject}&body=${bodyEnc}`);
+}
+
+function checkStrength(pw){
+  const bar=document.getElementById('pwBar'); const hint=document.getElementById('pwHint');
+  if(!bar) return;
+  let score=0;
+  if(pw.length>=8) score++;
+  if(/[A-Z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  const colors=['#ef4444','#f97316','#eab308','#22c55e'];
+  const labels=['Too short','Weak','Good','Strong'];
+  bar.style.width=(score/4*100)+'%'; bar.style.background=colors[Math.max(0,score-1)];
+  hint.textContent=pw.length?labels[Math.max(0,score-1)]:'';
+}
+
+function changePassword(){
+  const oldPw=document.getElementById('pwOld')?.value;
+  const newPw=document.getElementById('pwNew')?.value;
+  const conf =document.getElementById('pwConf')?.value;
+  const msg  =document.getElementById('pwMsg');
+  if(!oldPw||!newPw||!conf){ msg.innerHTML='<span style="color:#dc2626">Please fill all fields.</span>'; return; }
+  if(newPw!==conf){ msg.innerHTML='<span style="color:#dc2626">New passwords do not match.</span>'; return; }
+  if(newPw.length<6){ msg.innerHTML='<span style="color:#dc2626">Password must be at least 6 characters.</span>'; return; }
+  // Store new password in sessionStorage (for this session)
+  sessionStorage.setItem('jar_pw_'+role, newPw);
+  msg.innerHTML='<span style="color:#166534">✓ Password updated for this session. Ask your administrator to update the code permanently.</span>';
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  MODALS & MISC
+// ══════════════════════════════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+function logout(){ sessionStorage.clear(); window.location.href='index.html'; }
+
+// Close modals on backdrop click
+document.querySelectorAll('.overlay').forEach(el=>{
+  el.addEventListener('click', e=>{ if(e.target===el) el.classList.remove('open'); });
+});
 </script>
 </body>
 </html>
