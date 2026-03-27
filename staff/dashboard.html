@@ -7,69 +7,63 @@
   <link rel="icon" type="image/png" href="../logo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --green:#1a5c2e;--green-mid:#2d7a45;--green-light:#e8f5ec;
-      --gold:#c8961e;--dark:#0f2818;--text:#2a3d30;--sidebar:240px;
-    }
+    :root{--green:#1a5c2e;--green-mid:#2d7a45;--green-light:#e8f5ec;--gold:#c8961e;
+          --dark:#0f2818;--text:#2a3d30;--sidebar:240px}
     body{font-family:'DM Sans',sans-serif;background:#f4f6f4;color:var(--text);display:flex;min-height:100vh}
 
-    /* ── SIDEBAR ── */
-    .sidebar{
-      width:var(--sidebar);min-height:100vh;background:var(--dark);
-      display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50;
-      transition:transform .3s;
-    }
-    .sidebar-brand{padding:1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.7rem}
-    .sidebar-brand img{width:36px;height:36px;object-fit:contain;border-radius:4px}
-    .sidebar-brand span{color:#fff;font-weight:600;font-size:.95rem}
-    .sidebar-user{padding:.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08)}
-    .sidebar-user .name{color:#fff;font-weight:600;font-size:.88rem}
-    .sidebar-user .role-tag{
-      display:inline-block;margin-top:.3rem;padding:.15rem .6rem;border-radius:20px;
-      font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-    }
-    .role-md    .role-tag{background:rgba(200,150,30,.25);color:#f0c060}
-    .role-staff .role-tag{background:rgba(45,122,69,.35);color:#7dd9a0}
-    nav.sidebar-nav{flex:1;padding:.8rem 0;overflow-y:auto}
-    .nav-section{padding:.5rem 1.2rem .2rem;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
-    .nav-item{
-      display:flex;align-items:center;gap:.75rem;padding:.65rem 1.2rem;
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar);min-height:100vh;background:var(--dark);
+      display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50;transition:transform .3s}
+    .sb-brand{padding:1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;align-items:center;gap:.7rem}
+    .sb-brand img{width:36px;height:36px;object-fit:contain;border-radius:4px}
+    .sb-brand span{color:#fff;font-weight:600;font-size:.95rem}
+    .sb-user{padding:.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08)}
+    .sb-user .sname{color:#fff;font-weight:600;font-size:.88rem}
+    .sb-user .sid{color:rgba(255,255,255,.4);font-size:.72rem;margin-top:.1rem;
+      font-family:monospace;letter-spacing:.04em}
+    .role-tag{display:inline-block;margin-top:.35rem;padding:.15rem .6rem;border-radius:20px;
+      font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+    .md-tag{background:rgba(200,150,30,.25);color:#f0c060}
+    .staff-tag{background:rgba(45,122,69,.35);color:#7dd9a0}
+    nav.sb-nav{flex:1;padding:.8rem 0;overflow-y:auto}
+    .nav-sec{padding:.5rem 1.2rem .2rem;font-size:.65rem;font-weight:700;
+      color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase}
+    .nav-item{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.2rem;
       color:rgba(255,255,255,.65);text-decoration:none;font-size:.88rem;cursor:pointer;
-      border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s;
-      border-left:3px solid transparent;
-    }
+      border:none;background:none;width:100%;text-align:left;transition:all .15s;
+      border-left:3px solid transparent}
     .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
     .nav-item.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--gold)}
-    .nav-item .icon{font-size:1rem;width:20px;text-align:center}
-    .sidebar-bottom{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.08)}
-    .btn-logout{
-      width:100%;padding:.6rem;background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);
-      border:1px solid rgba(255,255,255,.12);border-radius:6px;font-family:inherit;
-      font-size:.82rem;cursor:pointer;transition:all .2s;
-    }
+    .nav-item .ic{font-size:1rem;width:20px;text-align:center}
+    .sb-bot{padding:1rem 1.2rem;border-top:1px solid rgba(255,255,255,.08)}
+    .btn-logout{width:100%;padding:.6rem;background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.12);border-radius:6px;font-family:inherit;font-size:.82rem;
+      cursor:pointer;transition:all .2s}
     .btn-logout:hover{background:rgba(220,50,50,.2);color:#ff9999;border-color:rgba(220,50,50,.3)}
 
-    /* ── MAIN ── */
+    /* MAIN */
     .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
-    .topbar{
-      background:#fff;border-bottom:1px solid #e5ebe5;padding:.85rem 2rem;
-      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;
-    }
-    .topbar-left{display:flex;align-items:center;gap:.8rem}
-    .menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:4px;font-size:1.3rem}
+    .topbar{background:#fff;border-bottom:1px solid #e5ebe5;padding:.85rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+    .topbar-l{display:flex;align-items:center;gap:.8rem}
+    .menu-btn{display:none;background:none;border:none;cursor:pointer;font-size:1.3rem}
     .page-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--dark)}
-    .topbar-right{display:flex;align-items:center;gap:1rem}
+    .topbar-r{display:flex;align-items:center;gap:1rem}
     .date-chip{font-size:.78rem;color:#888;background:#f4f4f4;padding:.3rem .7rem;border-radius:20px}
 
-    /* ── PANELS ── */
-    .panel{display:none;padding:2rem;animation:fadeIn .2s ease}
+    /* PANELS */
+    .panel{display:none;padding:2rem;animation:fi .2s ease}
     .panel.active{display:block}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-    /* KPI CARDS */
-    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;margin-bottom:2rem}
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1.2rem;margin-bottom:2rem}
     .kpi{background:#fff;border-radius:10px;padding:1.4rem;border:1px solid #e5ebe5}
     .kpi-label{font-size:.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
     .kpi-val{font-size:1.8rem;font-weight:700;color:var(--dark);font-family:'Playfair Display',serif}
@@ -77,75 +71,70 @@
     .kpi-green .kpi-val{color:var(--green)}
     .kpi-gold .kpi-val{color:var(--gold)}
 
-    /* SECTION CARDS */
+    /* CARDS */
     .card{background:#fff;border-radius:10px;border:1px solid #e5ebe5;margin-bottom:1.5rem}
-    .card-head{padding:1.2rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+    .card-head{padding:1.2rem 1.5rem;border-bottom:1px solid #f0f0f0;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
     .card-head h3{font-size:1rem;color:var(--dark);font-weight:600}
     .card-body{padding:1.5rem}
     table{width:100%;border-collapse:collapse;font-size:.88rem}
-    th{text-align:left;padding:.6rem .8rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#999;border-bottom:2px solid #f0f0f0}
+    th{text-align:left;padding:.6rem .8rem;font-size:.72rem;font-weight:700;
+      text-transform:uppercase;letter-spacing:.08em;color:#999;border-bottom:2px solid #f0f0f0}
     td{padding:.65rem .8rem;border-bottom:1px solid #f8f8f8;color:var(--text)}
     tr:last-child td{border-bottom:none}
     tr:hover td{background:#fafcfa}
     .badge{display:inline-block;padding:.2rem .6rem;border-radius:20px;font-size:.7rem;font-weight:700}
-    .badge-green{background:#dcfce7;color:#166534}
-    .badge-yellow{background:#fef9c3;color:#854d0e}
-    .badge-red{background:#fee2e2;color:#991b1b}
-    .badge-blue{background:#dbeafe;color:#1e40af}
-    .badge-gold{background:#fef3c7;color:#92400e}
+    .bg-green{background:#dcfce7;color:#166534}
+    .bg-yellow{background:#fef9c3;color:#854d0e}
+    .bg-red{background:#fee2e2;color:#991b1b}
+    .bg-blue{background:#dbeafe;color:#1e40af}
+    .bg-gray{background:#f1f5f9;color:#475569}
+    .bg-gold{background:#fef3c7;color:#92400e}
+    .bg-orange{background:#ffedd5;color:#9a3412}
 
-    /* FORM ELEMENTS */
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
-    .form-group{margin-bottom:1rem}
-    .form-group label{display:block;font-size:.78rem;font-weight:600;color:#555;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
-    .form-group input,.form-group select,.form-group textarea{
-      width:100%;padding:.65rem .9rem;border:1.5px solid #e0e0e0;border-radius:7px;
-      font-family:inherit;font-size:.9rem;outline:none;transition:border-color .2s;
-    }
-    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green)}
-    .form-group textarea{min-height:90px;resize:vertical}
-    .btn{padding:.6rem 1.2rem;border-radius:6px;border:none;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;transition:opacity .2s}
-    .btn-green{background:var(--green);color:#fff}
-    .btn-green:hover{opacity:.88}
-    .btn-gold{background:var(--gold);color:#fff}
-    .btn-gold:hover{opacity:.88}
+    /* FORM */
+    .frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+    .fg{margin-bottom:1rem}
+    .fg label{display:block;font-size:.78rem;font-weight:600;color:#555;
+      margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.04em}
+    .fg input,.fg select,.fg textarea{width:100%;padding:.65rem .9rem;
+      border:1.5px solid #e0e0e0;border-radius:7px;font-family:inherit;font-size:.9rem;outline:none;transition:border-color .2s}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--green)}
+    .fg textarea{min-height:90px;resize:vertical}
+    .hint{font-size:.72rem;color:#aaa;margin-top:.25rem}
+
+    /* BUTTONS */
+    .btn{padding:.6rem 1.2rem;border-radius:6px;border:none;font-family:inherit;
+      font-size:.88rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+    .btn-green{background:var(--green);color:#fff}.btn-green:hover{opacity:.88}
+    .btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{opacity:.88}
+    .btn-red{background:#dc2626;color:#fff}.btn-red:hover{opacity:.88}
     .btn-sm{padding:.35rem .8rem;font-size:.78rem}
     .btn-ghost{background:#f4f4f4;color:#444;border:1px solid #e0e0e0}
     .btn-ghost:hover{background:#eee}
 
-    /* SETTINGS / PASSWORD */
-    .settings-section{margin-bottom:2rem}
-    .settings-section h4{font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--green-light)}
-    .pw-strength{height:4px;border-radius:2px;margin-top:.4rem;transition:all .3s}
-    .pw-hint{font-size:.73rem;color:#999;margin-top:.3rem}
+    /* STAFF MANAGEMENT */
+    .staff-id-display{
+      font-family:monospace;font-size:1.1rem;font-weight:700;letter-spacing:.08em;
+      color:var(--dark);background:var(--green-light);padding:.5rem 1rem;
+      border-radius:8px;display:inline-block;border:2px dashed var(--green);
+    }
+    .id-gen-box{background:linear-gradient(135deg,var(--dark),var(--green));
+      border-radius:12px;padding:1.5rem;color:#fff;margin-bottom:1.5rem}
+    .id-gen-box h4{font-size:1rem;margin-bottom:.4rem}
+    .id-gen-box p{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:1rem}
+    .action-btns{display:flex;gap:.5rem;flex-wrap:wrap}
 
-    /* ACTIVITY FEED */
-    .feed{list-style:none}
-    .feed li{display:flex;gap:.8rem;padding:.7rem 0;border-bottom:1px solid #f0f0f0;align-items:flex-start}
-    .feed li:last-child{border-bottom:none}
-    .feed-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:.35rem;flex-shrink:0}
-    .feed-text{font-size:.85rem;line-height:1.5}
-    .feed-time{font-size:.72rem;color:#aaa;margin-top:.1rem}
-
-    /* REPORTS INBOX (MD only) */
-    .inbox-item{padding:1rem;border:1px solid #e5ebe5;border-radius:8px;margin-bottom:.8rem;cursor:pointer;transition:border-color .2s}
-    .inbox-item:hover{border-color:var(--green)}
-    .inbox-item.unread{border-left:3px solid var(--gold)}
-    .inbox-from{font-weight:600;font-size:.88rem;color:var(--dark)}
-    .inbox-subject{font-size:.82rem;color:#555;margin:.2rem 0}
-    .inbox-preview{font-size:.78rem;color:#aaa}
-    .inbox-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.4rem}
-
-    /* BROADCAST */
-    .broadcast-box{background:linear-gradient(135deg,var(--dark),var(--green));border-radius:10px;padding:1.5rem;color:#fff;margin-bottom:1.5rem}
-    .broadcast-box h4{font-size:1rem;margin-bottom:.5rem}
-    .broadcast-box p{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:1rem}
-    .broadcast-box textarea{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;width:100%;padding:.7rem;border-radius:6px;font-family:inherit;font-size:.88rem;min-height:70px;resize:none;outline:none}
-    .broadcast-box textarea::placeholder{color:rgba(255,255,255,.45)}
+    /* SETTINGS */
+    .settings-sec{margin-bottom:2rem}
+    .settings-sec h4{font-size:.9rem;font-weight:700;color:var(--dark);
+      margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--green-light)}
+    .pw-bar{height:4px;border-radius:2px;margin-top:.4rem;transition:all .3s}
+    .pw-hint-label{font-size:.73rem;color:#999;margin-top:.3rem}
 
     /* CHAT */
     .chat-wrap{display:flex;flex-direction:column;height:400px}
-    .chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem}
+    .chat-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.8rem}
     .msg{max-width:80%}
     .msg.mine{align-self:flex-end}
     .msg.other{align-self:flex-start}
@@ -154,30 +143,80 @@
     .msg.other .msg-bubble{background:#f0f4f0;color:var(--text);border-bottom-left-radius:3px}
     .msg-meta{font-size:.68rem;color:#aaa;margin-top:.2rem}
     .msg.mine .msg-meta{text-align:right}
-    .chat-input-row{display:flex;gap:.6rem;padding:1rem;border-top:1px solid #f0f0f0}
-    .chat-input-row input{flex:1;padding:.6rem .9rem;border:1.5px solid #e0e0e0;border-radius:20px;font-family:inherit;font-size:.88rem;outline:none}
-    .chat-input-row input:focus{border-color:var(--green)}
-    .chat-send{background:var(--green);color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
+    .chat-in{display:flex;gap:.6rem;padding:1rem;border-top:1px solid #f0f0f0}
+    .chat-in input{flex:1;padding:.6rem .9rem;border:1.5px solid #e0e0e0;border-radius:20px;
+      font-family:inherit;font-size:.88rem;outline:none}
+    .chat-in input:focus{border-color:var(--green)}
+    .chat-send{background:var(--green);color:#fff;border:none;border-radius:50%;
+      width:38px;height:38px;cursor:pointer;font-size:1rem;flex-shrink:0}
 
-    /* OVERLAY */
-    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:1rem}
+    /* FEED */
+    .feed{list-style:none}
+    .feed li{display:flex;gap:.8rem;padding:.7rem 0;border-bottom:1px solid #f0f0f0;align-items:flex-start}
+    .feed li:last-child{border-bottom:none}
+    .feed-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:.35rem;flex-shrink:0}
+    .feed-text{font-size:.85rem;line-height:1.5}
+    .feed-time{font-size:.72rem;color:#aaa;margin-top:.1rem}
+
+    /* INBOX */
+    .inbox-item{padding:1rem;border:1px solid #e5ebe5;border-radius:8px;
+      margin-bottom:.8rem;cursor:pointer;transition:border-color .2s}
+    .inbox-item:hover{border-color:var(--green)}
+    .inbox-item.unread{border-left:3px solid var(--gold)}
+    .inbox-from{font-weight:600;font-size:.88rem;color:var(--dark)}
+    .inbox-sub{font-size:.82rem;color:#555;margin:.2rem 0}
+    .inbox-pre{font-size:.78rem;color:#aaa}
+    .inbox-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.4rem}
+
+    /* BROADCAST */
+    .broadcast-box{background:linear-gradient(135deg,var(--dark),var(--green));
+      border-radius:10px;padding:1.5rem;color:#fff;margin-bottom:1.5rem}
+    .broadcast-box h4{font-size:1rem;margin-bottom:.5rem}
+    .broadcast-box p{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:1rem}
+    .broadcast-box textarea{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+      color:#fff;width:100%;padding:.7rem;border-radius:6px;font-family:inherit;
+      font-size:.88rem;min-height:70px;resize:none;outline:none}
+    .broadcast-box textarea::placeholder{color:rgba(255,255,255,.45)}
+
+    /* OVERLAY / MODAL */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+      align-items:center;justify-content:center;padding:1rem}
     .overlay.open{display:flex}
-    .modal{background:#fff;border-radius:12px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
-    .modal-head{padding:1.2rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+    .modal{background:#fff;border-radius:14px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+    .modal-head{padding:1.2rem 1.5rem;border-bottom:1px solid #f0f0f0;
+      display:flex;justify-content:space-between;align-items:center}
     .modal-head h3{font-size:1rem;font-weight:700;color:var(--dark)}
-    .modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1}
+    .modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888}
     .modal-body{padding:1.5rem}
+
+    /* FORCE CHANGE PASSWORD SCREEN */
+    .pw-force-overlay{display:none;position:fixed;inset:0;background:rgba(10,31,16,.95);
+      z-index:500;align-items:center;justify-content:center;padding:1rem}
+    .pw-force-overlay.open{display:flex}
+    .pw-force-card{background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden}
+    .pw-force-top{background:linear-gradient(135deg,#0f2818,#1a5c2e);padding:1.5rem 2rem;text-align:center}
+    .pw-force-top h2{font-family:'Playfair Display',serif;color:#fff;font-size:1.2rem}
+    .pw-force-top p{color:rgba(255,255,255,.6);font-size:.82rem;margin-top:.3rem}
+    .pw-force-body{padding:1.8rem 2rem}
+
+    /* GENERATED ID DISPLAY */
+    .gen-id-result{background:var(--green-light);border:2px solid var(--green);
+      border-radius:10px;padding:1.2rem;text-align:center;margin:1rem 0;display:none}
+    .gen-id-result .id-code{font-family:monospace;font-size:1.8rem;font-weight:700;
+      color:var(--dark);letter-spacing:.12em}
+    .gen-id-result p{font-size:.8rem;color:#555;margin-top:.4rem}
 
     /* MOBILE */
     @media(max-width:768px){
       .sidebar{transform:translateX(-100%)}
       .sidebar.open{transform:translateX(0)}
       .main{margin-left:0}
-      .menu-toggle{display:block}
+      .menu-btn{display:block}
       .topbar{padding:.85rem 1rem}
       .panel{padding:1rem}
       .kpi-grid{grid-template-columns:1fr 1fr}
-      .form-row{grid-template-columns:1fr}
+      .frow{grid-template-columns:1fr}
+      .action-btns{flex-direction:column}
     }
   </style>
 </head>
@@ -185,16 +224,17 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
+  <div class="sb-brand">
     <img src="../logo.png" alt="JAR" onerror="this.style.display='none'"/>
     <span>JAR Farm</span>
   </div>
-  <div class="sidebar-user" id="sidebarUser">
-    <div class="name" id="sidebarName">—</div>
-    <span class="role-tag" id="sidebarRoleTag">—</span>
+  <div class="sb-user">
+    <div class="sname" id="sbName">—</div>
+    <div class="sid" id="sbStaffId">—</div>
+    <span class="role-tag" id="sbRoleTag">—</span>
   </div>
-  <nav class="sidebar-nav" id="sidebarNav"></nav>
-  <div class="sidebar-bottom">
+  <nav class="sb-nav" id="sbNav"></nav>
+  <div class="sb-bot">
     <button class="btn-logout" onclick="logout()">Sign Out</button>
   </div>
 </div>
@@ -202,36 +242,63 @@
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <div class="topbar-left">
-      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-      <div class="page-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-l">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="page-title" id="topTitle">Dashboard</div>
     </div>
-    <div class="topbar-right">
+    <div class="topbar-r">
       <div class="date-chip" id="dateChip"></div>
     </div>
   </div>
+  <div id="panels"></div>
+</div>
 
-  <div id="panels">
-    <!-- panels injected by JS -->
+<!-- FORCE CHANGE PASSWORD OVERLAY -->
+<div class="pw-force-overlay" id="pwForceOverlay">
+  <div class="pw-force-card">
+    <div class="pw-force-top">
+      <h2>🔐 Set Your Password</h2>
+      <p>You must create a new password before continuing.</p>
+    </div>
+    <div class="pw-force-body">
+      <div id="pwForceErr" style="background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;
+        padding:.65rem 1rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;display:none"></div>
+      <div class="fg">
+        <label>Temporary Password</label>
+        <input type="password" id="pwOldForce" placeholder="Enter the temporary password you received"/>
+      </div>
+      <div class="fg">
+        <label>New Password</label>
+        <input type="password" id="pwNewForce" placeholder="At least 8 characters"
+          oninput="pwStrength(this.value,'pwBar2','pwHint2')"/>
+        <div class="pw-bar" id="pwBar2"></div>
+        <div class="pw-hint-label" id="pwHint2"></div>
+      </div>
+      <div class="fg">
+        <label>Confirm New Password</label>
+        <input type="password" id="pwConfForce" placeholder="Repeat new password"/>
+      </div>
+      <button class="btn btn-green" style="width:100%;padding:.8rem" id="pwForceBtn"
+        onclick="forceChangePassword()">Set New Password</button>
+    </div>
   </div>
 </div>
 
 <!-- ADD STOCK MODAL -->
 <div class="overlay" id="addStockModal">
   <div class="modal">
-    <div class="modal-head"><h3>Add / Update Stock</h3><button class="modal-close" onclick="closeModal('addStockModal')">×</button></div>
+    <div class="modal-head"><h3>Add / Update Stock</h3>
+      <button class="modal-close" onclick="closeModal('addStockModal')">×</button></div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group"><label>Produce Name</label><input id="stockName" placeholder="e.g. French Beans"/></div>
-        <div class="form-group"><label>Quantity (kg)</label><input id="stockQty" type="number" placeholder="500"/></div>
+      <div class="frow">
+        <div class="fg"><label>Produce Name</label><input id="stockName" placeholder="e.g. French Beans"/></div>
+        <div class="fg"><label>Quantity (kg)</label><input id="stockQty" type="number" placeholder="500"/></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Category</label>
-          <select id="stockCat"><option>Export Grade</option><option>Local Market</option><option>Fruits</option></select>
-        </div>
-        <div class="form-group"><label>Status</label>
-          <select id="stockStatus"><option>In Stock</option><option>Low</option><option>Out of Stock</option></select>
-        </div>
+      <div class="frow">
+        <div class="fg"><label>Category</label>
+          <select id="stockCat"><option>Export Grade</option><option>Local Market</option><option>Fruits</option></select></div>
+        <div class="fg"><label>Status</label>
+          <select id="stockStatus"><option>In Stock</option><option>Low</option><option>Out of Stock</option></select></div>
       </div>
       <button class="btn btn-green" onclick="saveStock()">Save Stock</button>
     </div>
@@ -241,19 +308,19 @@
 <!-- LOG ORDER MODAL -->
 <div class="overlay" id="addOrderModal">
   <div class="modal">
-    <div class="modal-head"><h3>Log New Order</h3><button class="modal-close" onclick="closeModal('addOrderModal')">×</button></div>
+    <div class="modal-head"><h3>Log New Order</h3>
+      <button class="modal-close" onclick="closeModal('addOrderModal')">×</button></div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group"><label>Buyer / Customer</label><input id="orderBuyer" placeholder="e.g. Nakumatt Kigali"/></div>
-        <div class="form-group"><label>Produce</label><input id="orderProduce" placeholder="e.g. Chili Peppers"/></div>
+      <div class="frow">
+        <div class="fg"><label>Buyer</label><input id="orderBuyer" placeholder="e.g. Nakumatt Kigali"/></div>
+        <div class="fg"><label>Produce</label><input id="orderProduce" placeholder="e.g. Chili Peppers"/></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Quantity (kg)</label><input id="orderQty" type="number" placeholder="200"/></div>
-        <div class="form-group"><label>Value (RWF)</label><input id="orderValue" type="number" placeholder="200000"/></div>
+      <div class="frow">
+        <div class="fg"><label>Quantity (kg)</label><input id="orderQty" type="number" placeholder="200"/></div>
+        <div class="fg"><label>Value (RWF)</label><input id="orderValue" type="number" placeholder="200000"/></div>
       </div>
-      <div class="form-group"><label>Status</label>
-        <select id="orderStatus"><option>Pending</option><option>In Transit</option><option>Delivered</option></select>
-      </div>
+      <div class="fg"><label>Status</label>
+        <select id="orderStatus"><option>Pending</option><option>In Transit</option><option>Delivered</option></select></div>
       <button class="btn btn-green" onclick="saveOrder()">Log Order</button>
     </div>
   </div>
@@ -262,146 +329,244 @@
 <!-- ADD FARMER MODAL -->
 <div class="overlay" id="addFarmerModal">
   <div class="modal">
-    <div class="modal-head"><h3>Add Outgrower Farmer</h3><button class="modal-close" onclick="closeModal('addFarmerModal')">×</button></div>
+    <div class="modal-head"><h3>Add Outgrower Farmer</h3>
+      <button class="modal-close" onclick="closeModal('addFarmerModal')">×</button></div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group"><label>Full Name</label><input id="farmerName" placeholder="Farmer's full name"/></div>
-        <div class="form-group"><label>District</label><input id="farmerDistrict" placeholder="e.g. Musanze"/></div>
+      <div class="frow">
+        <div class="fg"><label>Full Name</label><input id="farmerName" placeholder="Farmer's full name"/></div>
+        <div class="fg"><label>District</label><input id="farmerDistrict" placeholder="e.g. Musanze"/></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Crops</label><input id="farmerCrops" placeholder="e.g. Chili, Beans"/></div>
-        <div class="form-group"><label>Land (acres)</label><input id="farmerLand" type="number" placeholder="2"/></div>
+      <div class="frow">
+        <div class="fg"><label>Crops</label><input id="farmerCrops" placeholder="e.g. Chili, Beans"/></div>
+        <div class="fg"><label>Land (acres)</label><input id="farmerLand" type="number" placeholder="2"/></div>
       </div>
-      <div class="form-group"><label>Phone</label><input id="farmerPhone" placeholder="+250 7xx xxx xxx"/></div>
+      <div class="fg"><label>Phone</label><input id="farmerPhone" placeholder="+250 7xx xxx xxx"/></div>
       <button class="btn btn-green" onclick="saveFarmer()">Add Farmer</button>
     </div>
   </div>
 </div>
 
+<!-- GENERATE STAFF ID MODAL (MD only) -->
+<div class="overlay" id="genIdModal">
+  <div class="modal">
+    <div class="modal-head"><h3>🪪 Generate New Staff ID</h3>
+      <button class="modal-close" onclick="closeModal('genIdModal')">×</button></div>
+    <div class="modal-body">
+      <div class="fg">
+        <label>Staff Full Name</label>
+        <input id="genName" placeholder="Enter exact name (as it will appear on appointment letter)"/>
+        <div class="hint">This name must match exactly when the staff member logs in</div>
+      </div>
+      <div class="fg">
+        <label>Role</label>
+        <select id="genRole">
+          <option value="manager|OM|Operations Manager">Operations Manager</option>
+          <option value="field|FS|Field Staff">Field Staff</option>
+          <option value="packhouse|PS|Packhouse Staff">Packhouse Staff</option>
+          <option value="driver|DR|Driver</option>
+          <option value="accountant|AC|Accountant">Accountant</option>
+          <option value="admin|AD|Administrator">Administrator</option>
+        </select>
+      </div>
+      <div class="gen-id-result" id="genResult">
+        <div class="id-code" id="genIdCode">—</div>
+        <p>Copy this Staff ID and include it in the staff member's appointment letter.</p>
+        <button class="btn btn-green btn-sm" style="margin-top:.6rem" onclick="copyGenId()">📋 Copy ID</button>
+      </div>
+      <div id="genErr" style="background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;
+        padding:.65rem 1rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;display:none"></div>
+      <button class="btn btn-gold" id="genBtn" onclick="generateStaffId()">Generate Staff ID</button>
+      <button class="btn btn-ghost" style="margin-top:.6rem" onclick="closeModal('genIdModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEACTIVATE CONFIRM MODAL -->
+<div class="overlay" id="deactivateModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h3>Confirm Action</h3>
+      <button class="modal-close" onclick="closeModal('deactivateModal')">×</button></div>
+    <div class="modal-body">
+      <p style="font-size:.9rem;color:#444;margin-bottom:1.2rem" id="deactivateMsg">
+        Are you sure you want to deactivate this Staff ID?</p>
+      <div style="display:flex;gap:.8rem">
+        <button class="btn btn-red" id="deactivateConfirmBtn" onclick="confirmDeactivate()">Confirm</button>
+        <button class="btn btn-ghost" onclick="closeModal('deactivateModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ══════════════════════════════════════════════════════════════════
-//  SESSION CHECK
-// ══════════════════════════════════════════════════════════════════
-const role      = sessionStorage.getItem('jar_role');
-const userName  = sessionStorage.getItem('jar_name');
-const roleLabel = sessionStorage.getItem('jar_roleLabel');
+// ── FIREBASE CONFIG — same as index.html ─────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyCgAxvg4xfgmpdm7-LCFHO_NiDQKGGm2OQ",
+  authDomain:        "jarfarm-3a34e.firebaseapp.com",
+  projectId:         "jarfarm-3a34e",
+  storageBucket:     "jarfarm-3a34e.firebasestorage.app",
+  messagingSenderId: "505148580037",
+  appId:             "1:505148580037:web:6a198b22aa6de557c1d0ac"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
 
-if(!role || !userName){ window.location.href = 'index.html'; }
+// ── State ────────────────────────────────────────────────────────────
+let CUR_USER   = null;   // Firebase Auth user
+let USER_PROF  = null;   // Firestore users/{uid} data
+let isMD       = false;
+let currentPanel = '';
+let pendingDeactivate = null; // { id, action }
 
-const isMD      = role === 'md';
-const isManager = role === 'manager';
-
-// Date chip
+// ── Date chip ────────────────────────────────────────────────────────
 document.getElementById('dateChip').textContent =
   new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 
-// Sidebar user info
-document.getElementById('sidebarName').textContent = userName;
-document.getElementById('sidebarRoleTag').textContent = roleLabel;
-document.getElementById('sidebarUser').className =
-  'sidebar-user ' + (isMD ? 'role-md' : 'role-staff');
+// ── Auth Guard ───────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { location.href = 'index.html'; return; }
+  CUR_USER = user;
 
-// ══════════════════════════════════════════════════════════════════
-//  NAV DEFINITIONS — completely separate for MD vs Staff
-// ══════════════════════════════════════════════════════════════════
-const MD_NAV = [
-  { section: 'Overview' },
-  { id:'md-dashboard',  icon:'📊', label:'MD Dashboard' },
-  { id:'md-reports',    icon:'📥', label:'Reports Inbox' },
-  { id:'md-broadcast',  icon:'📣', label:'Broadcast Message' },
-  { section: 'Business' },
-  { id:'md-finance',    icon:'💰', label:'Finance Overview' },
-  { id:'md-outgrowers', icon:'🌾', label:'Outgrower Network' },
-  { id:'md-orders',     icon:'📦', label:'Orders & Sales' },
-  { section: 'Settings' },
-  { id:'md-settings',   icon:'⚙️', label:'Settings' },
-];
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (!snap.exists) { await auth.signOut(); location.href='index.html'; return; }
+    USER_PROF = snap.data();
+    isMD      = USER_PROF.role === 'md';
 
-const STAFF_NAV = [
-  { section: 'My Work' },
-  { id:'s-dashboard',   icon:'📊', label:'Operations Dashboard' },
-  { id:'s-inventory',   icon:'📦', label:'Inventory' },
-  { id:'s-orders',      icon:'🛒', label:'Orders & Sales' },
-  { id:'s-outgrowers',  icon:'🌾', label:'Outgrower Network' },
-  { section: 'Team' },
-  { id:'s-chat',        icon:'💬', label:'Team Chat' },
-  { id:'s-reports',     icon:'📋', label:'Submit Reports' },
-  { section: 'Account' },
-  { id:'s-settings',    icon:'⚙️', label:'Settings' },
-];
+    // Populate sidebar
+    document.getElementById('sbName').textContent    = USER_PROF.name;
+    document.getElementById('sbStaffId').textContent = USER_PROF.staffId || '';
+    const tag = document.getElementById('sbRoleTag');
+    tag.textContent  = USER_PROF.roleLabel;
+    tag.className    = 'role-tag ' + (isMD ? 'md-tag' : 'staff-tag');
 
-const nav     = isMD ? MD_NAV    : STAFF_NAV;
-const firstId = isMD ? 'md-dashboard' : 's-dashboard';
+    // Build nav
+    buildNav();
 
-// ── Build sidebar nav ──
-const navEl = document.getElementById('sidebarNav');
-nav.forEach(item => {
-  if(item.section){
-    const s = document.createElement('div');
-    s.className = 'nav-section'; s.textContent = item.section;
-    navEl.appendChild(s);
-  } else {
-    const b = document.createElement('button');
-    b.className = 'nav-item'; b.dataset.panel = item.id;
-    b.innerHTML = `<span class="icon">${item.icon}</span><span>${item.label}</span>`;
-    b.onclick = () => switchPanel(item.id, item.label);
-    navEl.appendChild(b);
+    // Check must change password
+    if (USER_PROF.mustChangePassword) {
+      document.getElementById('pwForceOverlay').classList.add('open');
+    }
+
+    // Load first panel
+    const firstPanel = isMD ? 'md-dash' : 's-dash';
+    switchPanel(firstPanel, isMD ? 'MD Dashboard' : 'Operations Dashboard');
+
+  } catch (err) {
+    console.error('Profile load error:', err);
   }
 });
 
-// ══════════════════════════════════════════════════════════════════
-//  DATA STORE (sessionStorage)
-// ══════════════════════════════════════════════════════════════════
-function load(k,def){ try{ return JSON.parse(sessionStorage.getItem(k))||def }catch{ return def } }
-function save(k,v){ sessionStorage.setItem(k,JSON.stringify(v)) }
+// ── NAV ──────────────────────────────────────────────────────────────
+const MD_NAV = [
+  { sec:'Overview' },
+  { id:'md-dash',   ic:'📊', label:'MD Dashboard' },
+  { id:'md-staff',  ic:'🪪', label:'Staff Management' },
+  { id:'md-reports',ic:'📥', label:'Reports Inbox' },
+  { id:'md-broadcast',ic:'📣',label:'Broadcast Message' },
+  { sec:'Business' },
+  { id:'md-finance',ic:'💰', label:'Finance Overview' },
+  { id:'md-out',    ic:'🌾', label:'Outgrower Network' },
+  { id:'md-orders', ic:'📦', label:'Orders & Sales' },
+  { sec:'Settings' },
+  { id:'md-settings',ic:'⚙️',label:'Settings' },
+];
+const STAFF_NAV = [
+  { sec:'My Work' },
+  { id:'s-dash',    ic:'📊', label:'Operations Dashboard' },
+  { id:'s-inv',     ic:'📦', label:'Inventory' },
+  { id:'s-orders',  ic:'🛒', label:'Orders & Sales' },
+  { id:'s-out',     ic:'🌾', label:'Outgrower Network' },
+  { sec:'Team' },
+  { id:'s-chat',    ic:'💬', label:'Team Chat' },
+  { id:'s-reports', ic:'📋', label:'Submit Reports' },
+  { sec:'Account' },
+  { id:'s-settings',ic:'⚙️', label:'Settings' },
+];
 
-const STOCK   = load('jar_stock', [
+function buildNav() {
+  const nav = isMD ? MD_NAV : STAFF_NAV;
+  const el  = document.getElementById('sbNav');
+  nav.forEach(item => {
+    if (item.sec) {
+      const s=document.createElement('div'); s.className='nav-sec'; s.textContent=item.sec;
+      el.appendChild(s);
+    } else {
+      const b=document.createElement('button'); b.className='nav-item';
+      b.dataset.panel=item.id;
+      b.innerHTML=`<span class="ic">${item.ic}</span><span>${item.label}</span>`;
+      b.onclick=()=>switchPanel(item.id,item.label);
+      el.appendChild(b);
+    }
+  });
+}
+
+// ── DATA STORE (session) ─────────────────────────────────────────────
+function ld(k,def){ try{return JSON.parse(sessionStorage.getItem(k))||def}catch{return def} }
+function sv(k,v){ sessionStorage.setItem(k,JSON.stringify(v)) }
+
+const STOCK  =ld('jar_stock',[
   {name:'Fresh Chili Peppers',qty:480,cat:'Export Grade',status:'In Stock'},
-  {name:'French Beans',       qty:15, cat:'Export Grade',status:'Low'},
-  {name:'Avocados',           qty:320,cat:'Export Grade',status:'In Stock'},
-  {name:'Irish Potatoes',     qty:0,  cat:'Local Market', status:'Out of Stock'},
-  {name:'Pineapples',         qty:95, cat:'Fruits',       status:'In Stock'},
+  {name:'French Beans',qty:15,cat:'Export Grade',status:'Low'},
+  {name:'Avocados',qty:320,cat:'Export Grade',status:'In Stock'},
+  {name:'Irish Potatoes',qty:0,cat:'Local Market',status:'Out of Stock'},
+  {name:'Pineapples',qty:95,cat:'Fruits',status:'In Stock'},
 ]);
-const ORDERS  = load('jar_orders',[
+const ORDERS =ld('jar_orders',[
   {buyer:'Nakumatt Kigali',produce:'Chili Peppers',qty:200,value:200000,status:'Delivered',date:'2025-03-24'},
-  {buyer:'Carrefour Kigali',produce:'French Beans', qty:150,value:180000,status:'In Transit',date:'2025-03-25'},
+  {buyer:'Carrefour Kigali',produce:'French Beans',qty:150,value:180000,status:'In Transit',date:'2025-03-25'},
 ]);
-const FARMERS = load('jar_farmers',[
+const FARMERS=ld('jar_farmers',[
   {name:'Jean-Baptiste Nkurunziza',district:'Musanze',crops:'Chili, Beans',land:3,phone:'+250 788 123 456'},
-  {name:'Vestine Mukamana',        district:'Nyamagabe',crops:'Avocado',   land:2,phone:'+250 722 987 654'},
+  {name:'Vestine Mukamana',district:'Nyamagabe',crops:'Avocado',land:2,phone:'+250 722 987 654'},
 ]);
-const MESSAGES= load('jar_chat',[
+const MSGS   =ld('jar_chat',[
   {from:'Operations Manager',text:'Morning! Stock delivered to Nakumatt.',time:'08:14'},
-  {from:'Field Staff',       text:'Harvest done — 200kg chili ready.',   time:'09:30'},
+  {from:'Field Staff',text:'Harvest done — 200kg chili ready.',time:'09:30'},
 ]);
-const REPORTS = load('jar_reports',[
-  {from:'Operations Manager',subject:'Daily Activity Report',preview:'All deliveries completed...',date:'2025-03-25',unread:true},
-  {from:'Field Staff',       subject:'Harvest Log — Chili',   preview:'Harvested 200kg from Plot B...',date:'2025-03-24',unread:false},
+const REPORTS_INBOX=ld('jar_reports',[
+  {from:'Operations Manager',sub:'Daily Activity Report',pre:'All deliveries completed...',date:'2025-03-25',unread:true},
+  {from:'Field Staff',sub:'Harvest Log — Chili',pre:'Harvested 200kg from Plot B...',date:'2025-03-24',unread:false},
 ]);
 
-// ══════════════════════════════════════════════════════════════════
-//  PANELS HTML
-// ══════════════════════════════════════════════════════════════════
+// ── PANEL SWITCH ─────────────────────────────────────────────────────
+function switchPanel(id, label) {
+  currentPanel = id;
+  const html = PANELS[id] ? PANELS[id]() : `<div class="panel active"><p>Panel not found.</p></div>`;
+  document.getElementById('panels').innerHTML = `<div class="panel active">${html}</div>`;
+  document.getElementById('topTitle').textContent = label || id;
+  document.querySelectorAll('.nav-item').forEach(b =>
+    b.classList.toggle('active', b.dataset.panel===id));
+  document.getElementById('sidebar').classList.remove('open');
+  if (id==='s-chat') setTimeout(()=>{const c=document.getElementById('chatMsgs');if(c)c.scrollTop=c.scrollHeight},50);
+}
+
+// ── PANELS ────────────────────────────────────────────────────────────
 const PANELS = {};
 
 // ── MD DASHBOARD ──
-PANELS['md-dashboard'] = ()=>`
+PANELS['md-dash'] = () => `
 <div class="kpi-grid">
-  <div class="kpi kpi-green"><div class="kpi-label">Total Stock</div><div class="kpi-val">${STOCK.reduce((a,b)=>a+b.qty,0)} kg</div><div class="kpi-sub">Across all produce</div></div>
-  <div class="kpi kpi-gold"><div class="kpi-label">Active Orders</div><div class="kpi-val">${ORDERS.length}</div><div class="kpi-sub">This month</div></div>
-  <div class="kpi"><div class="kpi-label">Revenue (Est.)</div><div class="kpi-val">RWF ${(ORDERS.reduce((a,b)=>a+b.value,0)/1000).toFixed(0)}K</div><div class="kpi-sub">All orders</div></div>
-  <div class="kpi"><div class="kpi-label">Outgrowers</div><div class="kpi-val">${FARMERS.length}</div><div class="kpi-sub">Contracted farmers</div></div>
+  <div class="kpi kpi-green"><div class="kpi-label">Total Stock</div>
+    <div class="kpi-val">${STOCK.reduce((a,b)=>a+b.qty,0)} kg</div><div class="kpi-sub">Across all produce</div></div>
+  <div class="kpi kpi-gold"><div class="kpi-label">Active Orders</div>
+    <div class="kpi-val">${ORDERS.length}</div><div class="kpi-sub">This month</div></div>
+  <div class="kpi"><div class="kpi-label">Revenue (Est.)</div>
+    <div class="kpi-val">RWF ${(ORDERS.reduce((a,b)=>a+b.value,0)/1000).toFixed(0)}K</div></div>
+  <div class="kpi"><div class="kpi-label">Outgrowers</div>
+    <div class="kpi-val">${FARMERS.length}</div></div>
 </div>
 <div class="card">
-  <div class="card-head"><h3>📥 Unread Reports from Staff</h3></div>
+  <div class="card-head"><h3>📥 Unread Reports</h3></div>
   <div class="card-body">
-    ${REPORTS.filter(r=>r.unread).length===0?'<p style="color:#aaa;font-size:.85rem">No unread reports.</p>':
-      REPORTS.filter(r=>r.unread).map(r=>`
+    ${REPORTS_INBOX.filter(r=>r.unread).length===0
+      ? '<p style="color:#aaa;font-size:.85rem">No unread reports.</p>'
+      : REPORTS_INBOX.filter(r=>r.unread).map(r=>`
         <div class="inbox-item unread">
-          <div class="inbox-from">${r.from}</div>
-          <div class="inbox-subject">${r.subject}</div>
-          <div class="inbox-preview">${r.preview}</div>
-          <div class="inbox-meta"><span class="badge badge-yellow">Unread</span><span style="font-size:.72rem;color:#aaa">${r.date}</span></div>
+          <div class="inbox-from">${r.from}</div><div class="inbox-sub">${r.sub}</div>
+          <div class="inbox-pre">${r.pre}</div>
+          <div class="inbox-meta"><span class="badge bg-yellow">Unread</span>
+            <span style="font-size:.72rem;color:#aaa">${r.date}</span></div>
         </div>`).join('')}
   </div>
 </div>
@@ -409,170 +574,225 @@ PANELS['md-dashboard'] = ()=>`
   <div class="card-head"><h3>📊 Stock Alert</h3></div>
   <div class="card-body">
     <table><thead><tr><th>Produce</th><th>Qty</th><th>Status</th></tr></thead><tbody>
-    ${STOCK.map(s=>`<tr><td>${s.name}</td><td>${s.qty} kg</td><td><span class="badge ${s.status==='In Stock'?'badge-green':s.status==='Low'?'badge-yellow':'badge-red'}">${s.status}</span></td></tr>`).join('')}
+    ${STOCK.map(s=>`<tr><td>${s.name}</td><td>${s.qty} kg</td>
+      <td><span class="badge ${s.status==='In Stock'?'bg-green':s.status==='Low'?'bg-yellow':'bg-red'}">${s.status}</span></td></tr>`).join('')}
     </tbody></table>
   </div>
 </div>`;
 
+// ── MD STAFF MANAGEMENT ──
+PANELS['md-staff'] = () => {
+  // We'll load staff asynchronously after render
+  setTimeout(loadStaffTable, 50);
+  return `
+<div class="id-gen-box">
+  <h4>🪪 Staff ID Management</h4>
+  <p>You are the only person who can issue Staff IDs. Each staff member gets a unique ID which they need to log in. You can also deactivate IDs to instantly revoke access.</p>
+  <button class="btn btn-gold" onclick="openModal('genIdModal')">+ Generate New Staff ID</button>
+</div>
+<div class="card">
+  <div class="card-head">
+    <h3>All Staff Members</h3>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <span class="badge bg-green" id="activeCount">— Active</span>
+      <span class="badge bg-red" id="inactiveCount">— Inactive</span>
+      <span class="badge bg-yellow" id="pendingCount">— Pending</span>
+    </div>
+  </div>
+  <div class="card-body" style="overflow-x:auto">
+    <div id="staffTableWrap">
+      <p style="color:#aaa;font-size:.85rem">Loading staff…</p>
+    </div>
+  </div>
+</div>`;
+};
+
+async function loadStaffTable() {
+  try {
+    const snap = await db.collection('staff_ids').orderBy('createdAt','desc').get();
+    const staff = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+
+    const active   = staff.filter(s=>s.status==='active').length;
+    const inactive = staff.filter(s=>s.status==='inactive').length;
+    const pending  = staff.filter(s=>!s.onboarded || s.status==='pending').length;
+
+    const ac = document.getElementById('activeCount');
+    const ic = document.getElementById('inactiveCount');
+    const pc = document.getElementById('pendingCount');
+    if (ac) { ac.textContent=active+' Active'; ic.textContent=inactive+' Inactive'; pc.textContent=pending+' Pending'; }
+
+    const wrap = document.getElementById('staffTableWrap');
+    if (!wrap) return;
+
+    if (staff.length === 0) {
+      wrap.innerHTML = '<p style="color:#aaa;font-size:.85rem">No staff IDs generated yet. Click "Generate New Staff ID" to get started.</p>';
+      return;
+    }
+
+    wrap.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Staff ID</th><th>Name</th><th>Role</th><th>Status</th><th>Email</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${staff.map(s => {
+            const isPending = !s.onboarded;
+            const statusBadge = s.status==='active' && !isPending
+              ? '<span class="badge bg-green">Active</span>'
+              : s.status==='inactive'
+              ? '<span class="badge bg-red">Deactivated</span>'
+              : '<span class="badge bg-yellow">Pending Onboarding</span>';
+            const actionBtn = s.status === 'inactive'
+              ? `<button class="btn btn-green btn-sm" onclick="promptDeactivate('${s.docId}','activate','${s.name}')">Reactivate</button>`
+              : `<button class="btn btn-red btn-sm" onclick="promptDeactivate('${s.docId}','deactivate','${s.name}')">Deactivate</button>`;
+            return `<tr>
+              <td><span class="staff-id-display" style="font-size:.85rem;padding:.3rem .6rem">${s.docId}</span></td>
+              <td>${s.name}</td>
+              <td>${s.roleLabel||''}</td>
+              <td>${statusBadge}</td>
+              <td style="font-size:.82rem;color:#888">${s.email||'—'}</td>
+              <td>${actionBtn}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    console.error(err);
+    const wrap = document.getElementById('staffTableWrap');
+    if (wrap) wrap.innerHTML = '<p style="color:#dc2626;font-size:.85rem">Error loading staff. Check your Firebase connection.</p>';
+  }
+}
+
 // ── MD REPORTS INBOX ──
-PANELS['md-reports'] = ()=>`
+PANELS['md-reports'] = () => `
 <div class="card">
   <div class="card-head"><h3>📥 All Staff Reports</h3></div>
   <div class="card-body">
-    ${REPORTS.length===0?'<p style="color:#aaa;font-size:.85rem">No reports yet.</p>':
-      REPORTS.map(r=>`
-        <div class="inbox-item ${r.unread?'unread':''}">
-          <div class="inbox-from">${r.from}</div>
-          <div class="inbox-subject">${r.subject}</div>
-          <div class="inbox-preview">${r.preview}</div>
-          <div class="inbox-meta"><span class="badge ${r.unread?'badge-yellow':'badge-green'}">${r.unread?'Unread':'Read'}</span><span style="font-size:.72rem;color:#aaa">${r.date}</span></div>
-        </div>`).join('')}
+    ${REPORTS_INBOX.length===0 ? '<p style="color:#aaa;font-size:.85rem">No reports yet.</p>'
+    : REPORTS_INBOX.map(r=>`
+      <div class="inbox-item ${r.unread?'unread':''}">
+        <div class="inbox-from">${r.from}</div><div class="inbox-sub">${r.sub}</div>
+        <div class="inbox-pre">${r.pre}</div>
+        <div class="inbox-meta"><span class="badge ${r.unread?'bg-yellow':'bg-green'}">${r.unread?'Unread':'Read'}</span>
+          <span style="font-size:.72rem;color:#aaa">${r.date}</span></div>
+      </div>`).join('')}
   </div>
 </div>`;
 
 // ── MD BROADCAST ──
-PANELS['md-broadcast'] = ()=>`
+PANELS['md-broadcast'] = () => `
 <div class="broadcast-box">
   <h4>📣 Send a Message to All Staff</h4>
   <p>This message will appear in the Team Chat for all staff members.</p>
   <textarea id="broadcastText" placeholder="Type your message to all staff…"></textarea>
   <button class="btn btn-gold" style="margin-top:.7rem" onclick="sendBroadcast()">Send to All Staff</button>
-</div>
-<div class="card">
-  <div class="card-head"><h3>Recent Broadcasts</h3></div>
-  <div class="card-body">
-    <ul class="feed">
-      <li><div class="feed-dot" style="background:var(--gold)"></div><div><div class="feed-text">Reminder: All produce must be weighed before loading.</div><div class="feed-time">Yesterday · 14:30</div></div></li>
-      <li><div class="feed-dot" style="background:var(--gold)"></div><div><div class="feed-text">June farming launch confirmed. Full details to follow.</div><div class="feed-time">2 days ago · 09:00</div></div></li>
-    </ul>
-  </div>
 </div>`;
 
 // ── MD FINANCE ──
-PANELS['md-finance'] = ()=>`
+PANELS['md-finance'] = () => `
 <div class="kpi-grid">
-  <div class="kpi kpi-gold"><div class="kpi-label">Total Revenue</div><div class="kpi-val">RWF ${(ORDERS.reduce((a,b)=>a+b.value,0)/1000).toFixed(0)}K</div></div>
-  <div class="kpi"><div class="kpi-label">Orders Delivered</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='Delivered').length}</div></div>
+  <div class="kpi kpi-gold"><div class="kpi-label">Total Revenue</div>
+    <div class="kpi-val">RWF ${(ORDERS.reduce((a,b)=>a+b.value,0)/1000).toFixed(0)}K</div></div>
+  <div class="kpi"><div class="kpi-label">Delivered</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='Delivered').length}</div></div>
   <div class="kpi"><div class="kpi-label">In Transit</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='In Transit').length}</div></div>
   <div class="kpi"><div class="kpi-label">Pending</div><div class="kpi-val">${ORDERS.filter(o=>o.status==='Pending').length}</div></div>
 </div>
 <div class="card">
-  <div class="card-head"><h3>💰 Order Revenue Breakdown</h3></div>
-  <div class="card-body">
-    <table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Status</th></tr></thead><tbody>
-    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td><span class="badge ${o.status==='Delivered'?'badge-green':o.status==='In Transit'?'badge-blue':'badge-yellow'}">${o.status}</span></td></tr>`).join('')}
-    </tbody></table>
-  </div>
+  <div class="card-head"><h3>💰 Revenue Breakdown</h3></div>
+  <div class="card-body"><table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Status</th></tr></thead><tbody>
+    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td>
+      <td>RWF ${o.value.toLocaleString()}</td>
+      <td><span class="badge ${o.status==='Delivered'?'bg-green':o.status==='In Transit'?'bg-blue':'bg-yellow'}">${o.status}</span></td></tr>`).join('')}
+  </tbody></table></div>
 </div>`;
 
 // ── MD OUTGROWERS ──
-PANELS['md-outgrowers'] = ()=>`
+PANELS['md-out'] = () => `
 <div class="card">
-  <div class="card-head"><h3>🌾 Outgrower Network</h3><button class="btn btn-green btn-sm" onclick="openModal('addFarmerModal')">+ Add Farmer</button></div>
-  <div class="card-body">
-    <table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Land</th><th>Phone</th></tr></thead><tbody id="mdFarmerTbl">
+  <div class="card-head"><h3>🌾 Outgrower Network</h3>
+    <button class="btn btn-green btn-sm" onclick="openModal('addFarmerModal')">+ Add Farmer</button></div>
+  <div class="card-body"><table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Land</th><th>Phone</th></tr></thead><tbody>
     ${FARMERS.map(f=>`<tr><td>${f.name}</td><td>${f.district}</td><td>${f.crops}</td><td>${f.land} acres</td><td>${f.phone}</td></tr>`).join('')}
-    </tbody></table>
-  </div>
+  </tbody></table></div>
 </div>`;
 
 // ── MD ORDERS ──
-PANELS['md-orders'] = ()=>`
+PANELS['md-orders'] = () => `
 <div class="card">
   <div class="card-head"><h3>📦 All Orders</h3></div>
-  <div class="card-body">
-    <table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody>
-    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td><td><span class="badge ${o.status==='Delivered'?'badge-green':o.status==='In Transit'?'badge-blue':'badge-yellow'}">${o.status}</span></td></tr>`).join('')}
-    </tbody></table>
-  </div>
+  <div class="card-body" style="overflow-x:auto"><table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody>
+    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td>
+      <td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td>
+      <td><span class="badge ${o.status==='Delivered'?'bg-green':o.status==='In Transit'?'bg-blue':'bg-yellow'}">${o.status}</span></td></tr>`).join('')}
+  </tbody></table></div>
 </div>`;
 
 // ── MD SETTINGS ──
-PANELS['md-settings'] = ()=>`
-<div class="card">
-  <div class="card-body">
-    <div class="settings-section">
-      <h4>Change Your Password</h4>
-      <div class="form-group"><label>Current Password</label><input type="password" id="pwOld" placeholder="Enter current password"/></div>
-      <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="At least 8 characters" oninput="checkStrength(this.value)"/>
-        <div class="pw-strength" id="pwBar"></div><div class="pw-hint" id="pwHint"></div>
-      </div>
-      <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConf" placeholder="Repeat new password"/></div>
-      <button class="btn btn-green" onclick="changePassword()">Update Password</button>
-      <div id="pwMsg" style="margin-top:.7rem;font-size:.82rem"></div>
-    </div>
-    <div class="settings-section">
-      <h4>Account Info</h4>
-      <p style="font-size:.88rem;color:#555">Logged in as <strong>${userName}</strong> · Role: <strong>${roleLabel}</strong></p>
-    </div>
-  </div>
-</div>`;
+PANELS['md-settings'] = () => settingsHTML();
 
 // ── STAFF DASHBOARD ──
-PANELS['s-dashboard'] = ()=>`
+PANELS['s-dash'] = () => `
 <div class="kpi-grid">
   <div class="kpi kpi-green"><div class="kpi-label">Total Stock</div><div class="kpi-val">${STOCK.reduce((a,b)=>a+b.qty,0)} kg</div></div>
   <div class="kpi"><div class="kpi-label">Active Orders</div><div class="kpi-val">${ORDERS.length}</div></div>
   <div class="kpi"><div class="kpi-label">Outgrowers</div><div class="kpi-val">${FARMERS.length}</div></div>
-  <div class="kpi kpi-gold"><div class="kpi-label">Low Stock Items</div><div class="kpi-val">${STOCK.filter(s=>s.status==='Low'||s.status==='Out of Stock').length}</div></div>
+  <div class="kpi kpi-gold"><div class="kpi-label">Low Stock</div>
+    <div class="kpi-val">${STOCK.filter(s=>s.status==='Low'||s.status==='Out of Stock').length}</div></div>
 </div>
 <div class="card">
   <div class="card-head"><h3>📋 Recent Activity</h3></div>
-  <div class="card-body">
-    <ul class="feed">
-      <li><div class="feed-dot"></div><div><div class="feed-text">French Beans stock is low (15 kg). Restock needed.</div><div class="feed-time">Today · 08:00</div></div></li>
-      <li><div class="feed-dot"></div><div><div class="feed-text">Order #2 from Carrefour is In Transit.</div><div class="feed-time">Today · 07:30</div></div></li>
-      <li><div class="feed-dot"></div><div><div class="feed-text">New outgrower Vestine Mukamana added to network.</div><div class="feed-time">Yesterday · 15:00</div></div></li>
-    </ul>
-  </div>
+  <div class="card-body"><ul class="feed">
+    <li><div class="feed-dot"></div><div><div class="feed-text">French Beans stock is low (15 kg). Restock needed.</div><div class="feed-time">Today · 08:00</div></div></li>
+    <li><div class="feed-dot"></div><div><div class="feed-text">Order from Carrefour is In Transit.</div><div class="feed-time">Today · 07:30</div></div></li>
+    <li><div class="feed-dot"></div><div><div class="feed-text">Vestine Mukamana added to outgrower network.</div><div class="feed-time">Yesterday · 15:00</div></div></li>
+  </ul></div>
 </div>`;
 
 // ── STAFF INVENTORY ──
-PANELS['s-inventory'] = ()=>`
+PANELS['s-inv'] = () => `
 <div class="card">
-  <div class="card-head"><h3>📦 Inventory</h3><button class="btn btn-green btn-sm" onclick="openModal('addStockModal')">+ Add Stock</button></div>
-  <div class="card-body">
-    <table><thead><tr><th>Produce</th><th>Category</th><th>Quantity</th><th>Status</th></tr></thead><tbody id="stockTbl">
-    ${STOCK.map(s=>`<tr><td>${s.name}</td><td>${s.cat}</td><td>${s.qty} kg</td><td><span class="badge ${s.status==='In Stock'?'badge-green':s.status==='Low'?'badge-yellow':'badge-red'}">${s.status}</span></td></tr>`).join('')}
-    </tbody></table>
-  </div>
+  <div class="card-head"><h3>📦 Inventory</h3>
+    <button class="btn btn-green btn-sm" onclick="openModal('addStockModal')">+ Add Stock</button></div>
+  <div class="card-body"><table><thead><tr><th>Produce</th><th>Category</th><th>Quantity</th><th>Status</th></tr></thead><tbody>
+    ${STOCK.map(s=>`<tr><td>${s.name}</td><td>${s.cat}</td><td>${s.qty} kg</td>
+      <td><span class="badge ${s.status==='In Stock'?'bg-green':s.status==='Low'?'bg-yellow':'bg-red'}">${s.status}</span></td></tr>`).join('')}
+  </tbody></table></div>
 </div>`;
 
 // ── STAFF ORDERS ──
-PANELS['s-orders'] = ()=>`
+PANELS['s-orders'] = () => `
 <div class="card">
-  <div class="card-head"><h3>🛒 Orders & Sales</h3><button class="btn btn-green btn-sm" onclick="openModal('addOrderModal')">+ Log Order</button></div>
-  <div class="card-body">
-    <table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody id="orderTbl">
-    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td><td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td><td><span class="badge ${o.status==='Delivered'?'badge-green':o.status==='In Transit'?'badge-blue':'badge-yellow'}">${o.status}</span></td></tr>`).join('')}
-    </tbody></table>
-  </div>
+  <div class="card-head"><h3>🛒 Orders & Sales</h3>
+    <button class="btn btn-green btn-sm" onclick="openModal('addOrderModal')">+ Log Order</button></div>
+  <div class="card-body" style="overflow-x:auto"><table><thead><tr><th>Buyer</th><th>Produce</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody>
+    ${ORDERS.map(o=>`<tr><td>${o.buyer}</td><td>${o.produce}</td><td>${o.qty} kg</td>
+      <td>RWF ${o.value.toLocaleString()}</td><td>${o.date}</td>
+      <td><span class="badge ${o.status==='Delivered'?'bg-green':o.status==='In Transit'?'bg-blue':'bg-yellow'}">${o.status}</span></td></tr>`).join('')}
+  </tbody></table></div>
 </div>`;
 
 // ── STAFF OUTGROWERS ──
-PANELS['s-outgrowers'] = ()=>`
+PANELS['s-out'] = () => `
 <div class="card">
-  <div class="card-head"><h3>🌾 Outgrower Network</h3><button class="btn btn-green btn-sm" onclick="openModal('addFarmerModal')">+ Add Farmer</button></div>
-  <div class="card-body">
-    <table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Land</th><th>Phone</th></tr></thead><tbody id="farmerTbl">
+  <div class="card-head"><h3>🌾 Outgrower Network</h3>
+    <button class="btn btn-green btn-sm" onclick="openModal('addFarmerModal')">+ Add Farmer</button></div>
+  <div class="card-body"><table><thead><tr><th>Name</th><th>District</th><th>Crops</th><th>Land</th><th>Phone</th></tr></thead><tbody>
     ${FARMERS.map(f=>`<tr><td>${f.name}</td><td>${f.district}</td><td>${f.crops}</td><td>${f.land} acres</td><td>${f.phone}</td></tr>`).join('')}
-    </tbody></table>
-  </div>
+  </tbody></table></div>
 </div>`;
 
 // ── STAFF CHAT ──
-PANELS['s-chat'] = ()=>`
+PANELS['s-chat'] = () => `
 <div class="card">
   <div class="card-head"><h3>💬 Team Chat</h3></div>
   <div class="chat-wrap">
-    <div class="chat-messages" id="chatMessages">
-      ${MESSAGES.map(m=>`
-        <div class="msg ${m.from===userName?'mine':'other'}">
-          <div class="msg-bubble">${m.text}</div>
-          <div class="msg-meta">${m.from===userName?'You':m.from} · ${m.time}</div>
-        </div>`).join('')}
+    <div class="chat-msgs" id="chatMsgs">
+      ${MSGS.map(m=>`<div class="msg ${m.from===USER_PROF?.name?'mine':'other'}">
+        <div class="msg-bubble">${m.text}</div>
+        <div class="msg-meta">${m.from===USER_PROF?.name?'You':m.from} · ${m.time}</div>
+      </div>`).join('')}
     </div>
-    <div class="chat-input-row">
+    <div class="chat-in">
       <input id="chatInput" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendChat()"/>
       <button class="chat-send" onclick="sendChat()">➤</button>
     </div>
@@ -580,20 +800,17 @@ PANELS['s-chat'] = ()=>`
 </div>`;
 
 // ── STAFF REPORTS ──
-PANELS['s-reports'] = ()=>`
+PANELS['s-reports'] = () => `
 <div class="card">
   <div class="card-head"><h3>📋 Submit a Report</h3></div>
   <div class="card-body">
-    <div class="form-group"><label>Report Type</label>
+    <div class="fg"><label>Report Type</label>
       <select id="reportType">
-        <option>Daily Activity Report</option>
-        <option>Harvest Log</option>
-        <option>Sales Record</option>
-        <option>Expense Report</option>
-        <option>Incident Report</option>
+        <option>Daily Activity Report</option><option>Harvest Log</option>
+        <option>Sales Record</option><option>Expense Report</option><option>Incident Report</option>
       </select>
     </div>
-    <div class="form-group"><label>Report Details</label>
+    <div class="fg"><label>Report Details</label>
       <textarea id="reportBody" placeholder="Describe what happened today…"></textarea>
     </div>
     <div style="display:flex;gap:.8rem;flex-wrap:wrap">
@@ -602,178 +819,295 @@ PANELS['s-reports'] = ()=>`
     </div>
     <div id="reportMsg" style="margin-top:.8rem;font-size:.82rem"></div>
   </div>
-</div>
-<div class="card">
-  <div class="card-head"><h3>My Submitted Reports</h3></div>
-  <div class="card-body" id="myReports">
-    <p style="color:#aaa;font-size:.85rem">No reports submitted yet this session.</p>
-  </div>
 </div>`;
 
 // ── STAFF SETTINGS ──
-PANELS['s-settings'] = ()=>`
-<div class="card">
-  <div class="card-body">
-    <div class="settings-section">
-      <h4>Change Your Password</h4>
-      <div class="form-group"><label>Current Password</label><input type="password" id="pwOld" placeholder="Enter current password"/></div>
-      <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="At least 8 characters" oninput="checkStrength(this.value)"/>
-        <div class="pw-strength" id="pwBar"></div><div class="pw-hint" id="pwHint"></div>
-      </div>
-      <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConf" placeholder="Repeat new password"/></div>
-      <button class="btn btn-green" onclick="changePassword()">Update Password</button>
-      <div id="pwMsg" style="margin-top:.7rem;font-size:.82rem"></div>
+PANELS['s-settings'] = () => settingsHTML();
+
+// ── SETTINGS HTML (shared) ──
+function settingsHTML() {
+  return `
+<div class="card"><div class="card-body">
+  <div class="settings-sec">
+    <h4>Change Password</h4>
+    <div class="fg"><label>Current Password</label>
+      <input type="password" id="pwOld" placeholder="Enter current password"/></div>
+    <div class="fg"><label>New Password</label>
+      <input type="password" id="pwNew" placeholder="At least 8 characters"
+        oninput="pwStrength(this.value,'pwBar','pwHint')"/>
+      <div class="pw-bar" id="pwBar"></div>
+      <div class="pw-hint-label" id="pwHint"></div>
     </div>
-    <div class="settings-section">
-      <h4>Account Info</h4>
-      <p style="font-size:.88rem;color:#555">Logged in as <strong>${userName}</strong> · Role: <strong>${roleLabel}</strong></p>
-    </div>
+    <div class="fg"><label>Confirm New Password</label>
+      <input type="password" id="pwConf" placeholder="Repeat new password"/></div>
+    <button class="btn btn-green" onclick="changePassword()">Update Password</button>
+    <div id="pwMsg" style="margin-top:.7rem;font-size:.82rem"></div>
   </div>
-</div>`;
+  <div class="settings-sec">
+    <h4>Account Info</h4>
+    <p style="font-size:.88rem;color:#555">
+      <strong>${USER_PROF?.name||'—'}</strong><br/>
+      Staff ID: <strong>${USER_PROF?.staffId||'—'}</strong><br/>
+      Role: <strong>${USER_PROF?.roleLabel||'—'}</strong><br/>
+      Email: <strong>${CUR_USER?.email||'—'}</strong>
+    </p>
+  </div>
+</div></div>`;
+}
 
 // ══════════════════════════════════════════════════════════════════
-//  PANEL SWITCHING
+//  FORCE PASSWORD CHANGE
 // ══════════════════════════════════════════════════════════════════
-let currentPanel = '';
-function switchPanel(id, label){
-  currentPanel = id;
-  document.getElementById('panels').innerHTML =
-    `<div class="panel active">${PANELS[id]()}</div>`;
-  document.getElementById('topbarTitle').textContent = label||id;
-  document.querySelectorAll('.nav-item').forEach(b=>{
-    b.classList.toggle('active', b.dataset.panel===id);
-  });
-  // close mobile sidebar
-  document.getElementById('sidebar').classList.remove('open');
-  // scroll chat to bottom
-  if(id==='s-chat'){
-    setTimeout(()=>{
-      const c=document.getElementById('chatMessages');
-      if(c) c.scrollTop=c.scrollHeight;
-    },50);
+async function forceChangePassword() {
+  const oldPw  = document.getElementById('pwOldForce').value;
+  const newPw  = document.getElementById('pwNewForce').value;
+  const confPw = document.getElementById('pwConfForce').value;
+  const errEl  = document.getElementById('pwForceErr');
+  errEl.style.display='none';
+
+  if (!oldPw||!newPw||!confPw) { errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
+  if (newPw !== confPw) { errEl.textContent='New passwords do not match.'; errEl.style.display='block'; return; }
+  if (newPw.length < 8) { errEl.textContent='Password must be at least 8 characters.'; errEl.style.display='block'; return; }
+  if (newPw === oldPw) { errEl.textContent='New password must be different from the temporary password.'; errEl.style.display='block'; return; }
+
+  const btn = document.getElementById('pwForceBtn');
+  btn.disabled=true; btn.textContent='Updating…';
+
+  try {
+    // Re-authenticate then update
+    const credential = firebase.auth.EmailAuthProvider.credential(CUR_USER.email, oldPw);
+    await CUR_USER.reauthenticateWithCredential(credential);
+    await CUR_USER.updatePassword(newPw);
+
+    // Clear mustChangePassword flag
+    await db.collection('users').doc(CUR_USER.uid).update({ mustChangePassword: false });
+    USER_PROF.mustChangePassword = false;
+
+    document.getElementById('pwForceOverlay').classList.remove('open');
+  } catch(err) {
+    console.error(err);
+    if (err.code==='auth/wrong-password'||err.code==='auth/invalid-credential')
+      errEl.textContent = 'Incorrect temporary password. Please try again.';
+    else
+      errEl.textContent = 'Error: '+err.message;
+    errEl.style.display='block';
+  } finally {
+    btn.disabled=false; btn.textContent='Set New Password';
   }
 }
-switchPanel(firstId, isMD?'MD Dashboard':'Operations Dashboard');
 
 // ══════════════════════════════════════════════════════════════════
-//  ACTIONS
+//  STAFF ID GENERATION (MD only)
+// ══════════════════════════════════════════════════════════════════
+let lastGenId = null;
+
+async function generateStaffId() {
+  const name     = document.getElementById('genName').value.trim();
+  const roleVal  = document.getElementById('genRole').value;
+  const errEl    = document.getElementById('genErr');
+  errEl.style.display='none';
+  document.getElementById('genResult').style.display='none';
+
+  if (!name)    { errEl.textContent='Please enter the staff member\'s full name.'; errEl.style.display='block'; return; }
+  if (!roleVal) { errEl.textContent='Please select a role.'; errEl.style.display='block'; return; }
+
+  const [role, code, roleLabel] = roleVal.split('|');
+  const year = new Date().getFullYear();
+  const btn  = document.getElementById('genBtn');
+  btn.disabled=true; btn.textContent='Generating…';
+
+  try {
+    // Find existing IDs for this role to determine next number
+    const snap = await db.collection('staff_ids')
+      .where('role','==',role)
+      .get();
+
+    // Find highest number
+    let maxNum = 0;
+    snap.docs.forEach(d => {
+      const id = d.id; // e.g. 2025OM-003
+      const match = id.match(/-(\d+)$/);
+      if (match) maxNum = Math.max(maxNum, parseInt(match[1]));
+    });
+
+    const nextNum = String(maxNum + 1).padStart(3,'0');
+    const newId   = `${year}${code}-${nextNum}`;
+
+    // Save to Firestore
+    await db.collection('staff_ids').doc(newId).set({
+      name,
+      role,
+      roleLabel,
+      status:    'active',
+      onboarded: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: USER_PROF.name,
+    });
+
+    lastGenId = newId;
+    document.getElementById('genIdCode').textContent     = newId;
+    document.getElementById('genResult').style.display   = 'block';
+
+    // Reset form
+    document.getElementById('genName').value = '';
+
+  } catch(err) {
+    console.error(err);
+    errEl.textContent = 'Error generating ID: '+err.message;
+    errEl.style.display='block';
+  } finally {
+    btn.disabled=false; btn.textContent='Generate Staff ID';
+  }
+}
+
+function copyGenId() {
+  navigator.clipboard.writeText(lastGenId).then(()=>{
+    const b=document.querySelector('#genResult .btn');
+    b.textContent='✓ Copied!';
+    setTimeout(()=>b.textContent='📋 Copy ID',2000);
+  });
+}
+
+// ── Deactivate / Reactivate ──
+function promptDeactivate(staffId, action, name) {
+  pendingDeactivate = { id: staffId, action };
+  const msg = document.getElementById('deactivateMsg');
+  const btn = document.getElementById('deactivateConfirmBtn');
+  if (action === 'deactivate') {
+    msg.textContent = `Are you sure you want to deactivate ${name} (${staffId})? They will immediately lose access to the portal.`;
+    btn.textContent = 'Deactivate'; btn.className='btn btn-red';
+  } else {
+    msg.textContent = `Reactivate ${name} (${staffId})? They will regain access to the portal.`;
+    btn.textContent = 'Reactivate'; btn.className='btn btn-green';
+  }
+  openModal('deactivateModal');
+}
+
+async function confirmDeactivate() {
+  if (!pendingDeactivate) return;
+  const { id, action } = pendingDeactivate;
+  try {
+    await db.collection('staff_ids').doc(id).update({
+      status: action === 'deactivate' ? 'inactive' : 'active'
+    });
+    closeModal('deactivateModal');
+    switchPanel('md-staff','Staff Management');
+  } catch(err) {
+    console.error(err); alert('Error: '+err.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  ACTIONS (stock, orders, farmers, chat, reports)
 // ══════════════════════════════════════════════════════════════════
 function saveStock(){
-  const name=document.getElementById('stockName').value.trim();
-  const qty=parseInt(document.getElementById('stockQty').value)||0;
-  const cat=document.getElementById('stockCat').value;
-  const status=document.getElementById('stockStatus').value;
-  if(!name){ alert('Please enter produce name'); return; }
-  STOCK.push({name,qty,cat,status}); save('jar_stock',STOCK);
-  closeModal('addStockModal');
-  switchPanel(currentPanel);
+  const n=document.getElementById('stockName').value.trim();
+  const q=parseInt(document.getElementById('stockQty').value)||0;
+  const c=document.getElementById('stockCat').value;
+  const s=document.getElementById('stockStatus').value;
+  if(!n){alert('Please enter produce name');return;}
+  STOCK.push({name:n,qty:q,cat:c,status:s});sv('jar_stock',STOCK);
+  closeModal('addStockModal');switchPanel(currentPanel);
 }
-
 function saveOrder(){
-  const buyer=document.getElementById('orderBuyer').value.trim();
-  const produce=document.getElementById('orderProduce').value.trim();
-  const qty=parseInt(document.getElementById('orderQty').value)||0;
-  const value=parseInt(document.getElementById('orderValue').value)||0;
-  const status=document.getElementById('orderStatus').value;
-  if(!buyer||!produce){ alert('Please fill in buyer and produce'); return; }
-  const date=new Date().toISOString().slice(0,10);
-  ORDERS.push({buyer,produce,qty,value,status,date}); save('jar_orders',ORDERS);
-  closeModal('addOrderModal');
-  switchPanel(currentPanel);
+  const b=document.getElementById('orderBuyer').value.trim();
+  const p=document.getElementById('orderProduce').value.trim();
+  const q=parseInt(document.getElementById('orderQty').value)||0;
+  const v=parseInt(document.getElementById('orderValue').value)||0;
+  const s=document.getElementById('orderStatus').value;
+  if(!b||!p){alert('Please fill in buyer and produce');return;}
+  ORDERS.push({buyer:b,produce:p,qty:q,value:v,status:s,date:new Date().toISOString().slice(0,10)});
+  sv('jar_orders',ORDERS);closeModal('addOrderModal');switchPanel(currentPanel);
 }
-
 function saveFarmer(){
-  const name=document.getElementById('farmerName').value.trim();
-  const district=document.getElementById('farmerDistrict').value.trim();
-  const crops=document.getElementById('farmerCrops').value.trim();
-  const land=parseFloat(document.getElementById('farmerLand').value)||0;
-  const phone=document.getElementById('farmerPhone').value.trim();
-  if(!name){ alert('Please enter farmer name'); return; }
-  FARMERS.push({name,district,crops,land,phone}); save('jar_farmers',FARMERS);
-  closeModal('addFarmerModal');
-  switchPanel(currentPanel);
+  const n=document.getElementById('farmerName').value.trim();
+  if(!n){alert('Please enter farmer name');return;}
+  FARMERS.push({name:n,district:document.getElementById('farmerDistrict').value.trim(),
+    crops:document.getElementById('farmerCrops').value.trim(),
+    land:parseFloat(document.getElementById('farmerLand').value)||0,
+    phone:document.getElementById('farmerPhone').value.trim()});
+  sv('jar_farmers',FARMERS);closeModal('addFarmerModal');switchPanel(currentPanel);
 }
-
 function sendChat(){
   const inp=document.getElementById('chatInput');
-  const text=inp.value.trim(); if(!text) return;
-  const now=new Date(); const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
-  MESSAGES.push({from:userName,text,time}); save('jar_chat',MESSAGES);
-  inp.value='';
-  const c=document.getElementById('chatMessages');
+  const text=inp.value.trim(); if(!text)return;
+  const now=new Date();
+  const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  MSGS.push({from:USER_PROF.name,text,time});sv('jar_chat',MSGS);inp.value='';
+  const c=document.getElementById('chatMsgs');
   const div=document.createElement('div'); div.className='msg mine';
   div.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-meta">You · ${time}</div>`;
-  c.appendChild(div); c.scrollTop=c.scrollHeight;
+  c.appendChild(div);c.scrollTop=c.scrollHeight;
 }
-
 function sendBroadcast(){
   const text=document.getElementById('broadcastText').value.trim();
-  if(!text){ alert('Please type a message first'); return; }
-  const now=new Date(); const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
-  MESSAGES.push({from:'📣 MD Broadcast',text,time}); save('jar_chat',MESSAGES);
+  if(!text){alert('Please type a message first');return;}
+  const now=new Date();
+  const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  MSGS.push({from:'📣 MD Broadcast',text,time});sv('jar_chat',MSGS);
   document.getElementById('broadcastText').value='';
   alert('Broadcast sent to all staff! ✓');
 }
-
 function submitReport(){
   const type=document.getElementById('reportType').value;
   const body=document.getElementById('reportBody').value.trim();
-  if(!body){ document.getElementById('reportMsg').innerHTML='<span style="color:#dc2626">Please write your report before submitting.</span>'; return; }
-  const date=new Date().toISOString().slice(0,10);
-  REPORTS.unshift({from:userName,subject:type,preview:body.slice(0,60)+'…',date,unread:true});
-  save('jar_reports',REPORTS);
-  document.getElementById('reportMsg').innerHTML='<span style="color:#166534">✓ Report submitted successfully.</span>';
+  const msg=document.getElementById('reportMsg');
+  if(!body){msg.innerHTML='<span style="color:#dc2626">Please write your report before submitting.</span>';return;}
+  REPORTS_INBOX.unshift({from:USER_PROF.name,sub:type,pre:body.slice(0,60)+'…',
+    date:new Date().toISOString().slice(0,10),unread:true});
+  sv('jar_reports',REPORTS_INBOX);
+  msg.innerHTML='<span style="color:#166534">✓ Report submitted successfully.</span>';
   document.getElementById('reportBody').value='';
-  const mr=document.getElementById('myReports');
-  if(mr){ mr.innerHTML=`<div class="inbox-item"><div class="inbox-from">${type}</div><div class="inbox-subject">${date}</div><div class="inbox-preview">${body.slice(0,80)}</div></div>`; }
 }
-
 function emailReport(){
   const type=document.getElementById('reportType').value;
   const body=document.getElementById('reportBody').value.trim();
-  const subject=encodeURIComponent(`JAR Farm Report: ${type} — ${userName}`);
-  const bodyEnc=encodeURIComponent(`From: ${userName} (${roleLabel})\nDate: ${new Date().toDateString()}\nType: ${type}\n\n${body||'(No details entered)'}`);
-  window.open(`mailto:johndamilola328@gmail.com?subject=${subject}&body=${bodyEnc}`);
+  const s=encodeURIComponent(`JAR Farm Report: ${type} — ${USER_PROF.name}`);
+  const b=encodeURIComponent(`From: ${USER_PROF.name} (${USER_PROF.roleLabel})\nDate: ${new Date().toDateString()}\nType: ${type}\n\n${body||'(No details entered)'}`);
+  window.open(`mailto:johndamilola328@gmail.com?subject=${s}&body=${b}`);
 }
 
-function checkStrength(pw){
-  const bar=document.getElementById('pwBar'); const hint=document.getElementById('pwHint');
-  if(!bar) return;
-  let score=0;
-  if(pw.length>=8) score++;
-  if(/[A-Z]/.test(pw)) score++;
-  if(/[0-9]/.test(pw)) score++;
-  if(/[^A-Za-z0-9]/.test(pw)) score++;
-  const colors=['#ef4444','#f97316','#eab308','#22c55e'];
-  const labels=['Too short','Weak','Good','Strong'];
-  bar.style.width=(score/4*100)+'%'; bar.style.background=colors[Math.max(0,score-1)];
-  hint.textContent=pw.length?labels[Math.max(0,score-1)]:'';
-}
-
-function changePassword(){
+// ── CHANGE PASSWORD (from settings) ──
+async function changePassword(){
   const oldPw=document.getElementById('pwOld')?.value;
   const newPw=document.getElementById('pwNew')?.value;
   const conf =document.getElementById('pwConf')?.value;
   const msg  =document.getElementById('pwMsg');
-  if(!oldPw||!newPw||!conf){ msg.innerHTML='<span style="color:#dc2626">Please fill all fields.</span>'; return; }
-  if(newPw!==conf){ msg.innerHTML='<span style="color:#dc2626">New passwords do not match.</span>'; return; }
-  if(newPw.length<6){ msg.innerHTML='<span style="color:#dc2626">Password must be at least 6 characters.</span>'; return; }
-  // Store new password in sessionStorage (for this session)
-  sessionStorage.setItem('jar_pw_'+role, newPw);
-  msg.innerHTML='<span style="color:#166534">✓ Password updated for this session. Ask your administrator to update the code permanently.</span>';
+  if(!oldPw||!newPw||!conf){msg.innerHTML='<span style="color:#dc2626">Fill all fields.</span>';return;}
+  if(newPw!==conf){msg.innerHTML='<span style="color:#dc2626">Passwords do not match.</span>';return;}
+  if(newPw.length<8){msg.innerHTML='<span style="color:#dc2626">Must be at least 8 characters.</span>';return;}
+  try {
+    const cred=firebase.auth.EmailAuthProvider.credential(CUR_USER.email,oldPw);
+    await CUR_USER.reauthenticateWithCredential(cred);
+    await CUR_USER.updatePassword(newPw);
+    msg.innerHTML='<span style="color:#166534">✓ Password updated successfully.</span>';
+  } catch(err) {
+    if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential')
+      msg.innerHTML='<span style="color:#dc2626">Current password is incorrect.</span>';
+    else msg.innerHTML='<span style="color:#dc2626">Error: '+err.message+'</span>';
+  }
+}
+
+// ── PASSWORD STRENGTH ──
+function pwStrength(pw,barId,hintId){
+  const bar=document.getElementById(barId);const hint=document.getElementById(hintId);
+  if(!bar)return;
+  let s=0;
+  if(pw.length>=8)s++;if(/[A-Z]/.test(pw))s++;if(/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;
+  bar.style.width=(s/4*100)+'%';bar.style.background=['#ef4444','#f97316','#eab308','#22c55e'][Math.max(0,s-1)];
+  hint.textContent=pw.length?['Too short','Weak','Good','Strong'][Math.max(0,s-1)]:'';
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  MODALS & MISC
+//  MISC
 // ══════════════════════════════════════════════════════════════════
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
-function logout(){ sessionStorage.clear(); window.location.href='index.html'; }
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+async function logout(){await auth.signOut();location.href='index.html';}
 
-// Close modals on backdrop click
 document.querySelectorAll('.overlay').forEach(el=>{
-  el.addEventListener('click', e=>{ if(e.target===el) el.classList.remove('open'); });
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open')});
 });
 </script>
 </body>
