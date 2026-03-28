@@ -626,7 +626,7 @@ function handlePhoto(input) {
   reader.readAsDataURL(file);
 }
 
-function saveSetup() {
+async function saveSetup() {
   const gmail  = document.getElementById('setupGmail').value.trim();
   const phone  = document.getElementById('setupPhone').value.trim();
   const script = document.getElementById('setupScriptUrl').value.trim();
