@@ -443,5 +443,58 @@
   renderNav('home');
   renderFooter();
 </script>
+
+<!-- FLOATING SCROLL BUTTONS -->
+<div id="scrollBtns" style="position:fixed;right:1.2rem;bottom:2rem;z-index:999;
+  display:flex;flex-direction:column;gap:.5rem;opacity:0;transition:opacity .3s">
+  <button onclick="scrollStep(-1)" title="Scroll up"
+    style="width:44px;height:44px;border-radius:50%;background:rgba(15,40,24,.75);
+    backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;
+    font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.25)">▲</button>
+  <button onclick="scrollStep(1)" title="Scroll down"
+    style="width:44px;height:44px;border-radius:50%;background:rgba(15,40,24,.75);
+    backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;
+    font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.25)">▼</button>
+</div>
+<script>
+  // Collect all sections for step scrolling
+  const _sections = () => Array.from(document.querySelectorAll(
+    'section, .trust-bar, .stats-section, .cta-banner, footer'
+  ));
+  let _scrolling = false;
+
+  function scrollStep(dir) {
+    if (_scrolling) return;
+    const secs  = _sections();
+    const mid   = window.innerHeight / 2;
+    const cur   = secs.findIndex(s => {
+      const r = s.getBoundingClientRect();
+      return r.top <= mid && r.bottom >= mid;
+    });
+    const next  = cur + dir;
+    if (next >= 0 && next < secs.length) {
+      _scrolling = true;
+      secs[next].scrollIntoView({ behavior:'smooth', block:'start' });
+      setTimeout(() => _scrolling = false, 800);
+    } else if (dir === -1) {
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+  }
+
+  // Show/hide scroll buttons
+  window.addEventListener('scroll', () => {
+    const btns = document.getElementById('scrollBtns');
+    if (btns) btns.style.opacity = window.scrollY > 100 ? '1' : '0';
+  });
+
+  // Hover effect
+  document.querySelectorAll('#scrollBtns button').forEach(b => {
+    b.addEventListener('mouseover', () => b.style.background='rgba(26,92,46,.9)');
+    b.addEventListener('mouseout',  () => b.style.background='rgba(15,40,24,.75)');
+  });
+</script>
+
 </body>
 </html>
