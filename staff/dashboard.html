@@ -19,7 +19,9 @@
     /* SIDEBAR */
     .sidebar{width:var(--sidebar);min-height:100vh;background:var(--dark);
       display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50;transition:transform .3s}
-    .sb-brand{padding:1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);
+    .sb-brand{padding:1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.7rem;transition:background .2s;}
+    .sb-brand:hover{background:rgba(255,255,255,.06);}
+    .sb-brand-x{
       display:flex;align-items:center;gap:.7rem}
     .sb-brand img{width:36px;height:36px;object-fit:contain;border-radius:4px}
     .sb-brand span{color:#fff;font-weight:600;font-size:.95rem}
@@ -224,10 +226,10 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <div class="sb-brand">
+  <a href="../index.html" class="sb-brand" style="text-decoration:none;cursor:pointer" title="Back to JAR Farm website">
     <img src="../logo.png" alt="JAR" onerror="this.style.display='none'"/>
     <span>JAR Farm</span>
-  </div>
+  </a>
   <div class="sb-user">
     <div class="sname" id="sbName">—</div>
     <div class="sid" id="sbStaffId">—</div>
