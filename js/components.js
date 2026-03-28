@@ -5,7 +5,7 @@ function renderNav(active = '') {
   document.getElementById('nav-placeholder').innerHTML = `
   <nav class="navbar">
     <a href="${base}index.html" class="nav-logo">
-      <img src="${base}logo.png" alt="JohnnyRose Agrospring Rwanda Ltd" style="height:48px;width:auto;"/>
+      <img src="${base}logo.png" alt="JohnyRose Agrospring Rwanda Ltd" style="height:48px;width:auto;"/>
       <div style="margin-left:.5rem;line-height:1.2">
         <div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#0f2818">JohnnyRose Agrospring</div>
         <div style="font-size:.72rem;color:#1a5c2e;font-weight:600;letter-spacing:.04em">Rwanda Ltd &nbsp;·&nbsp; Trading as JAR Farm</div>
