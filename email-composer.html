@@ -547,20 +547,48 @@ function showScreen(s) {
 
 // ── LOGIN ─────────────────────────────────────────────────────────
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pw    = document.getElementById('loginPw').value;
-  const err   = document.getElementById('loginErr');
-  err.classList.remove('show');
-  if (!email||!pw) { err.textContent='Please enter email and password.'; err.classList.add('show'); return; }
-  setLoad('loginBtn','loginBtnTxt',true,'Signing in…');
+  const emailVal = document.getElementById('loginEmail').value.trim();
+  const pwVal    = document.getElementById('loginPw').value;
+  const errEl    = document.getElementById('loginErr');
+  const statusEl = document.getElementById('loginStatus');
+  const btn      = document.getElementById('loginBtn');
+  const btnTxt   = document.getElementById('loginBtnTxt');
+
+  // Clear previous errors
+  errEl.classList.remove('show');
+  statusEl.style.display = 'none';
+
+  // Validate
+  if (!emailVal) { errEl.textContent='Please enter your email address.'; errEl.classList.add('show'); return; }
+  if (!pwVal)    { errEl.textContent='Please enter your password.'; errEl.classList.add('show'); return; }
+
+  // Show loading state
+  btn.disabled      = true;
+  btnTxt.textContent = 'Signing in…';
+  statusEl.style.display = 'block';
+  statusEl.textContent   = 'Connecting to Firebase…';
+
   try {
-    await auth.signInWithEmailAndPassword(email, pw);
+    statusEl.textContent = 'Verifying credentials…';
+    const cred = await auth.signInWithEmailAndPassword(emailVal, pwVal);
+    statusEl.textContent = 'Loading your profile…';
+    // onAuthStateChanged will handle the rest
   } catch(e) {
-    const c = e.code;
-    err.textContent = (c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-credential')
-      ? 'Incorrect email or password.' : 'Error: '+e.message;
-    err.classList.add('show');
-    setLoad('loginBtn','loginBtnTxt',false,'Sign In');
+    console.error('Login error:', e);
+    btn.disabled      = false;
+    btnTxt.textContent = 'Sign In';
+    statusEl.style.display = 'none';
+    const c = e.code || '';
+    if (c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-credential'||c==='auth/invalid-login-credentials') {
+      errEl.textContent = 'Incorrect email or password. Please try again.';
+    } else if (c==='auth/too-many-requests') {
+      errEl.textContent = 'Too many failed attempts. Please wait a few minutes.';
+    } else if (c==='auth/network-request-failed') {
+      errEl.textContent = 'No internet connection. Please check your network.';
+    } else {
+      errEl.textContent = 'Error: ' + (e.message || e.code || 'Unknown error');
+    }
+    errEl.classList.add('show');
   }
 }
 
