@@ -510,15 +510,31 @@ auth.onAuthStateChanged(async user => {
     if (!snap.exists) { await auth.signOut(); showScreen('login'); return; }
     USER_PROF = snap.data();
 
-    // Load email composer profile from localStorage (per user)
-    const key = 'jar_email_prof_' + user.uid;
-    EMAIL_PROF = JSON.parse(localStorage.getItem(key) || 'null');
-
-    if (!EMAIL_PROF || !EMAIL_PROF.gmail) {
+    // Load email composer profile from Firebase
+    try {
+      const profSnap = await db.collection('email_profiles').doc(user.uid).get();
+      if (profSnap.exists) {
+        EMAIL_PROF = profSnap.data();
+        // Also cache locally for speed
+        localStorage.setItem('jar_email_prof_'+user.uid, JSON.stringify(EMAIL_PROF));
+        initComposer();
+        showScreen('main');
+      } else {
+        // Check local cache as fallback
+        const cached = localStorage.getItem('jar_email_prof_'+user.uid);
+        if (cached) {
+          EMAIL_PROF = JSON.parse(cached);
+          // Sync to Firebase
+          await db.collection('email_profiles').doc(user.uid).set(EMAIL_PROF);
+          initComposer();
+          showScreen('main');
+        } else {
+          showScreen('setup');
+        }
+      }
+    } catch(err) {
+      console.error('Profile load error:', err);
       showScreen('setup');
-    } else {
-      initComposer();
-      showScreen('main');
     }
   } catch(err) { console.error(err); showScreen('login'); }
 });
@@ -551,7 +567,23 @@ async function doLogin() {
 async function doLogout() { await auth.signOut(); showScreen('login'); }
 
 // ── SETUP ─────────────────────────────────────────────────────────
-function showSetup() { showScreen('setup'); }
+function showSetup() {
+  // Pre-fill setup form with existing values
+  if (EMAIL_PROF) {
+    const g = document.getElementById('setupGmail');
+    const p = document.getElementById('setupPhone');
+    const s = document.getElementById('setupScriptUrl');
+    if (g) g.value = EMAIL_PROF.gmail || '';
+    if (p) p.value = EMAIL_PROF.phone || '';
+    if (s) s.value = EMAIL_PROF.scriptUrl || '';
+    if (EMAIL_PROF.photo) {
+      photoBase64 = EMAIL_PROF.photo;
+      const prev = document.getElementById('photoPreview');
+      if (prev) prev.innerHTML = `<img src="${EMAIL_PROF.photo}"/>`;
+    }
+  }
+  showScreen('setup');
+}
 
 function handlePhoto(input) {
   const file = input.files[0];
@@ -577,10 +609,25 @@ function saveSetup() {
   if (!script||!script.startsWith('https://')) {
     err.textContent='Please enter your Google Apps Script URL.'; err.classList.add('show'); return;
   }
-  EMAIL_PROF = { gmail, phone, scriptUrl: script, photo: photoBase64 || '' };
-  localStorage.setItem('jar_email_prof_'+CUR_USER.uid, JSON.stringify(EMAIL_PROF));
-  initComposer();
-  showScreen('main');
+  EMAIL_PROF = { gmail, phone, scriptUrl: script, photo: photoBase64 || '',
+    name: USER_PROF.name, role: USER_PROF.role, roleLabel: USER_PROF.roleLabel,
+    staffId: USER_PROF.staffId, updatedAt: new Date().toISOString() };
+
+  setLoad('setupBtn','setupBtnTxt',true,'Saving…');
+  try {
+    // Save to Firebase so it works on any device
+    await db.collection('email_profiles').doc(CUR_USER.uid).set(EMAIL_PROF);
+    // Also cache locally for speed
+    localStorage.setItem('jar_email_prof_'+CUR_USER.uid, JSON.stringify(EMAIL_PROF));
+    initComposer();
+    showScreen('main');
+  } catch(err) {
+    const errEl = document.getElementById('setupErr');
+    errEl.textContent = 'Error saving profile: ' + err.message;
+    errEl.classList.add('show');
+  } finally {
+    setLoad('setupBtn','setupBtnTxt',false,'Save & Continue');
+  }
 }
 
 // ── INIT COMPOSER ─────────────────────────────────────────────────
