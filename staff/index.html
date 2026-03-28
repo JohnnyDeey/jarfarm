@@ -15,53 +15,40 @@
     body{font-family:'DM Sans',sans-serif;min-height:100vh;
       background:linear-gradient(145deg,#0a1f10 0%,#1a5c2e 60%,#0f2818 100%);
       display:flex;align-items:center;justify-content:center;padding:1.5rem}
-    .card{background:#fff;border-radius:20px;width:100%;max-width:460px;
+    .card{background:#fff;border-radius:20px;width:100%;max-width:440px;
       box-shadow:0 32px 80px rgba(0,0,0,.4);overflow:hidden}
-    .card-top{background:linear-gradient(135deg,#0f2818,#1a5c2e);
-      padding:2rem 2rem 1.6rem;text-align:center}
+
+    /* HEADER */
+    .card-top{background:linear-gradient(135deg,#0f2818,#1a5c2e);padding:2rem 2rem 1.6rem;text-align:center}
     .logo-wrap{width:68px;height:68px;background:rgba(255,255,255,.12);border-radius:50%;
-      display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;overflow:hidden}
+      display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;overflow:hidden}
     .logo-wrap img{width:54px;height:54px;object-fit:contain}
-    .card-top h1{font-family:'Playfair Display',serif;color:#fff;font-size:1.45rem;margin-bottom:.3rem}
-    .card-top p{color:rgba(255,255,255,.55);font-size:.82rem}
+    .company-name{color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.2rem}
+    .trading-as{color:rgba(255,255,255,.5);font-size:.78rem}
 
-    /* STEP INDICATOR */
-    .step-ind{display:flex;align-items:center;justify-content:center;padding:1.1rem 2rem .5rem;
-      background:#fafafa;border-bottom:1px solid #f0f0f0;gap:0}
-    .s-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
-      justify-content:center;font-size:.75rem;font-weight:700;background:#ebebeb;color:#bbb;
-      transition:all .35s;flex-shrink:0}
-    .s-dot.active{background:#c8961e;color:#fff;box-shadow:0 0 0 4px rgba(200,150,30,.2)}
-    .s-dot.done{background:#1a5c2e;color:#fff}
-    .s-line{flex:1;height:2px;background:#ebebeb;transition:background .35s;max-width:50px}
-    .s-line.done{background:#1a5c2e}
-
-    /* STEPS */
-    .step{display:none;padding:1.8rem 2rem 2rem;animation:fi .25s ease}
-    .step.show{display:block}
+    /* SCREENS */
+    .screen{display:none;padding:1.8rem 2rem 2rem;animation:fi .25s ease}
+    .screen.show{display:block}
     @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .step-h{font-family:'Playfair Display',serif;font-size:1.1rem;color:#0f2818;margin-bottom:.3rem}
-    .step-p{font-size:.82rem;color:#888;margin-bottom:1.4rem;line-height:1.55}
-    .badge-small{display:inline-block;background:#dcfce7;color:#166534;padding:.25rem .7rem;
-      border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.04em;margin-bottom:.7rem}
+    .screen-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#0f2818;margin-bottom:.3rem}
+    .screen-sub{font-size:.82rem;color:#888;margin-bottom:1.4rem;line-height:1.55}
 
     /* FORM */
     .fg{margin-bottom:1.1rem}
     label{display:block;font-size:.75rem;font-weight:700;color:#444;margin-bottom:.4rem;
       letter-spacing:.05em;text-transform:uppercase}
-    input,select{width:100%;padding:.72rem 1rem;border:1.5px solid #e0e0e0;border-radius:8px;
+    input{width:100%;padding:.72rem 1rem;border:1.5px solid #e0e0e0;border-radius:8px;
       font-family:inherit;font-size:.92rem;color:#222;outline:none;transition:all .2s}
-    input:focus,select:focus{border-color:#1a5c2e;box-shadow:0 0 0 3px rgba(26,92,46,.1)}
-    .hint{font-size:.72rem;color:#aaa;margin-top:.3rem}
+    input:focus{border-color:#1a5c2e;box-shadow:0 0 0 3px rgba(26,92,46,.1)}
+    .hint{font-size:.72rem;color:#aaa;margin-top:.28rem}
     .frow{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
     .id-wrap{position:relative}
     .id-wrap input{text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding-left:2.8rem}
     .id-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);font-size:.95rem}
 
     /* MESSAGES */
-    .err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;
-      padding:.65rem 1rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;
-      display:none;line-height:1.5}
+    .err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:.65rem 1rem;
+      border-radius:6px;font-size:.82rem;margin-bottom:1rem;display:none;line-height:1.5}
     .err.show{display:block}
     .info{background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;
       padding:.65rem 1rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;line-height:1.5}
@@ -69,21 +56,28 @@
     /* BUTTONS */
     .btn{width:100%;padding:.82rem;background:linear-gradient(135deg,#1a5c2e,#2d7a45);
       color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.95rem;
-      font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.02em;
-      display:flex;align-items:center;justify-content:center;gap:.5rem}
+      font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
     .btn:hover{opacity:.9;transform:translateY(-1px)}
     .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-    .btn-ghost{background:#f4f6f4;color:#2a3d30;border:1.5px solid #d0e0d0;
-      border-radius:8px;padding:.72rem;width:100%;font-family:inherit;font-size:.88rem;
-      font-weight:600;cursor:pointer;transition:all .2s;margin-top:.55rem}
+    .btn-ghost{background:#f4f6f4;color:#2a3d30;border:1.5px solid #d0e0d0;border-radius:8px;
+      padding:.72rem;width:100%;font-family:inherit;font-size:.88rem;font-weight:600;
+      cursor:pointer;transition:all .2s;margin-top:.55rem}
     .btn-ghost:hover{background:#e8f5ec;border-color:#1a5c2e}
-
-    /* SPINNER */
     .spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);
       border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
     @keyframes sp{to{transform:rotate(360deg)}}
 
-    /* TEMP PASSWORD */
+    /* DIVIDER */
+    .divider{display:flex;align-items:center;gap:.8rem;margin:.9rem 0;color:#ccc;font-size:.75rem}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:#e8e8e8}
+
+    /* NEW STAFF LINK */
+    .new-staff-link{text-align:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #f0f0f0}
+    .new-staff-link p{font-size:.8rem;color:#888;margin-bottom:.5rem}
+    .new-staff-link button{background:none;border:none;color:#1a5c2e;font-family:inherit;
+      font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:underline}
+
+    /* TEMP PASSWORD BOX */
     .pw-box{background:linear-gradient(135deg,#0f2818,#1a5c2e);border-radius:10px;
       padding:1.5rem;text-align:center;margin-bottom:1.2rem}
     .pw-box p{color:rgba(255,255,255,.7);font-size:.8rem;margin-bottom:.5rem}
@@ -92,13 +86,14 @@
       display:block;word-break:break-all;margin:.4rem 0}
     .copy-pw{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
       color:#fff;border-radius:5px;padding:.35rem .9rem;font-size:.75rem;cursor:pointer;
-      font-family:inherit;transition:all .2s;margin-top:.3rem}
+      font-family:inherit;margin-top:.3rem}
     .copy-pw:hover{background:rgba(255,255,255,.28)}
 
+    .badge-small{display:inline-block;background:#dcfce7;color:#166534;padding:.25rem .7rem;
+      border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.04em;margin-bottom:.7rem}
     .big-icon{font-size:2.8rem;text-align:center;margin-bottom:.8rem}
-    .divider{display:flex;align-items:center;gap:.8rem;margin:.8rem 0;color:#ccc;font-size:.75rem}
-    .divider::before,.divider::after{content:'';flex:1;height:1px;background:#e8e8e8}
 
+    /* FOOTER */
     .card-foot{border-top:1px solid #f0f0f0;padding:.9rem 2rem;
       display:flex;justify-content:space-between;align-items:center}
     .card-foot a{color:#1a5c2e;text-decoration:none;font-size:.8rem;font-weight:500}
@@ -116,104 +111,17 @@
     <div class="logo-wrap">
       <img src="../logo.png" alt="JAR" onerror="this.parentElement.innerHTML='🌿'"/>
     </div>
-    <h1>JAR Farm Portal</h1>
-    <p>Authorised staff access only</p>
+    <div class="company-name">JohnyRose Agrospring Rwanda Ltd</div>
+    <div class="trading-as">Trading as JAR Farm &nbsp;·&nbsp; Staff Portal</div>
   </div>
 
-  <!-- STEP INDICATOR -->
-  <div class="step-ind">
-    <div class="s-dot active" id="d1">1</div>
-    <div class="s-line" id="l1"></div>
-    <div class="s-dot" id="d2">2</div>
-    <div class="s-line" id="l2"></div>
-    <div class="s-dot" id="d3">3</div>
-  </div>
-
-  <!-- STEP 1: Verify Identity -->
-  <div class="step show" id="s1">
-    <div class="step-h">Verify Your Identity</div>
-    <div class="step-p">Enter your Staff ID and the full name on your appointment letter — exactly as written.</div>
-    <div class="err" id="e1"></div>
-    <div class="fg">
-      <label>Staff ID</label>
-      <div class="id-wrap">
-        <span class="id-icon">🪪</span>
-        <input id="staffId" placeholder="e.g. 2025OM-001" maxlength="12"
-          oninput="this.value=this.value.toUpperCase()" autocomplete="off"
-          onkeydown="if(event.key==='Enter')step1()"/>
-      </div>
-      <div class="hint">Issued by the Managing Director on your appointment letter</div>
-    </div>
-    <div class="fg">
-      <label>Full Name</label>
-      <input id="fullName" placeholder="Enter name exactly as on your appointment letter"
-        autocomplete="name" onkeydown="if(event.key==='Enter')step1()"/>
-    </div>
-    <button class="btn" id="b1" onclick="step1()"><span id="b1t">Verify Identity →</span></button>
-  </div>
-
-  <!-- STEP 2: Onboarding (first time) -->
-  <div class="step" id="s2">
-    <div class="badge-small" id="s2badge">✓ Staff ID Verified</div>
-    <div class="step-h">Complete Your Profile</div>
-    <div class="step-p">First time here. Fill in your details to create your account. Your temporary password will be shown after this step.</div>
-    <div class="err" id="e2"></div>
-    <div class="fg">
-      <label>Email Address *</label>
-      <input type="email" id="newEmail" placeholder="your.email@example.com" autocomplete="email"/>
-      <div class="hint">Your temporary password will appear here after setup</div>
-    </div>
-    <div class="frow">
-      <div class="fg">
-        <label>Phone Number *</label>
-        <input type="tel" id="phone" placeholder="+250 7xx xxx xxx"/>
-      </div>
-      <div class="fg">
-        <label>Date of Birth *</label>
-        <input type="date" id="dob"/>
-      </div>
-    </div>
-    <div class="fg">
-      <label>Residential Address *</label>
-      <input id="addr" placeholder="e.g. KG 123 St, Kigali"/>
-    </div>
-    <div class="frow">
-      <div class="fg">
-        <label>Next of Kin</label>
-        <input id="nokName" placeholder="Full name"/>
-      </div>
-      <div class="fg">
-        <label>Next of Kin Phone</label>
-        <input type="tel" id="nokPhone" placeholder="+250 7xx xxx xxx"/>
-      </div>
-    </div>
-    <button class="btn" id="b2" onclick="step2()"><span id="b2t">Create My Account</span></button>
-    <button class="btn-ghost" onclick="show(1)">← Back</button>
-  </div>
-
-  <!-- STEP 2b: Show temp password -->
-  <div class="step" id="s2b">
-    <div class="big-icon">🎉</div>
-    <div class="step-h">Account Created!</div>
-    <div class="step-p">Save your temporary password below. You'll need it to sign in for the first time.</div>
-    <div class="pw-box">
-      <p>Your temporary password</p>
-      <span class="pw-val" id="pwVal">—</span>
-      <button class="copy-pw" onclick="doCopy()">📋 Copy Password</button>
-    </div>
-    <div class="info">
-      📧 A verification email has been sent to <strong id="sentTo"></strong>.
-      Please sign in with the password above — you'll be asked to create a new password straight away.
-    </div>
-    <button class="btn" onclick="goLogin()">Continue to Sign In →</button>
-  </div>
-
-  <!-- STEP 3: Sign In -->
-  <div class="step" id="s3">
-    <div class="badge-small" id="s3badge">✓ Identity Verified</div>
-    <div class="step-h">Sign In</div>
-    <div class="step-p" id="s3p">Enter your email and password to access the portal.</div>
-    <div class="err" id="e3"></div>
+  <!-- ══════════════════════════════════════
+       SCREEN A — Sign In (default)
+  ══════════════════════════════════════ -->
+  <div class="screen show" id="sLogin">
+    <div class="screen-title">Welcome back</div>
+    <div class="screen-sub">Sign in with your email and password.</div>
+    <div class="err" id="eLogin"></div>
     <div class="fg">
       <label>Email Address</label>
       <input type="email" id="loginEmail" placeholder="your.email@example.com" autocomplete="email"/>
@@ -221,26 +129,104 @@
     <div class="fg">
       <label>Password</label>
       <input type="password" id="loginPw" placeholder="Enter your password"
-        autocomplete="current-password" onkeydown="if(event.key==='Enter')step3()"/>
+        autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
-    <button class="btn" id="b3" onclick="step3()"><span id="b3t">Sign In</span></button>
+    <button class="btn" id="bLogin" onclick="doLogin()"><span id="bLoginT">Sign In</span></button>
     <div class="divider">or</div>
-    <button class="btn-ghost" onclick="showForgot()">Forgot password?</button>
-    <button class="btn-ghost" style="margin-top:.4rem" onclick="show(1)">← Use a different Staff ID</button>
+    <button class="btn-ghost" onclick="showScreen('sForgot')">Forgot password?</button>
+
+    <div class="new-staff-link">
+      <p>First time logging in?</p>
+      <button onclick="showScreen('sVerify')">Set up your account with your Staff ID →</button>
+    </div>
   </div>
 
-  <!-- STEP: Forgot Password -->
-  <div class="step" id="sForgot">
-    <div class="step-h">Reset Password</div>
-    <div class="step-p">Enter your registered email. We'll send you a reset link.</div>
+  <!-- ══════════════════════════════════════
+       SCREEN B — New Staff: Verify ID
+  ══════════════════════════════════════ -->
+  <div class="screen" id="sVerify">
+    <div class="screen-title">First Time Setup</div>
+    <div class="screen-sub">Enter your Staff ID and full name exactly as shown on your appointment letter.</div>
+    <div class="err" id="eVerify"></div>
+    <div class="fg">
+      <label>Staff ID</label>
+      <div class="id-wrap">
+        <span class="id-icon">🪪</span>
+        <input id="staffId" placeholder="e.g. 2025OM-001" maxlength="12"
+          oninput="this.value=this.value.toUpperCase()" autocomplete="off"
+          onkeydown="if(event.key==='Enter')doVerify()"/>
+      </div>
+      <div class="hint">Issued by the Managing Director on your appointment letter</div>
+    </div>
+    <div class="fg">
+      <label>Full Name</label>
+      <input id="verifyName" placeholder="Exact name on your appointment letter"
+        autocomplete="name" onkeydown="if(event.key==='Enter')doVerify()"/>
+    </div>
+    <button class="btn" id="bVerify" onclick="doVerify()"><span id="bVerifyT">Verify Identity →</span></button>
+    <button class="btn-ghost" onclick="showScreen('sLogin')">← Already have an account? Sign in</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN C — New Staff: Complete Profile
+  ══════════════════════════════════════ -->
+  <div class="screen" id="sProfile">
+    <div class="badge-small" id="profileBadge">✓ Staff ID Verified</div>
+    <div class="screen-title">Complete Your Profile</div>
+    <div class="screen-sub">Fill in your details. Your temporary password will be shown on the next screen.</div>
+    <div class="err" id="eProfile"></div>
+    <div class="fg">
+      <label>Email Address *</label>
+      <input type="email" id="newEmail" placeholder="your.email@example.com" autocomplete="email"/>
+      <div class="hint">You'll use this to sign in going forward</div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Phone Number *</label>
+        <input type="tel" id="phone" placeholder="+250 7xx xxx xxx"/></div>
+      <div class="fg"><label>Date of Birth *</label>
+        <input type="date" id="dob"/></div>
+    </div>
+    <div class="fg"><label>Residential Address *</label>
+      <input id="addr" placeholder="e.g. KG 123 St, Kigali"/></div>
+    <div class="frow">
+      <div class="fg"><label>Next of Kin</label>
+        <input id="nokName" placeholder="Full name"/></div>
+      <div class="fg"><label>Next of Kin Phone</label>
+        <input type="tel" id="nokPhone" placeholder="+250 7xx xxx xxx"/></div>
+    </div>
+    <button class="btn" id="bProfile" onclick="doProfile()"><span id="bProfileT">Create My Account</span></button>
+    <button class="btn-ghost" onclick="showScreen('sVerify')">← Back</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN D — Show Temp Password
+  ══════════════════════════════════════ -->
+  <div class="screen" id="sTempPw">
+    <div class="big-icon">🎉</div>
+    <div class="screen-title">Account Created!</div>
+    <div class="screen-sub">Save this temporary password. You'll need it to sign in and will be asked to set a new one immediately.</div>
+    <div class="pw-box">
+      <p>Your temporary password</p>
+      <span class="pw-val" id="pwVal">—</span>
+      <button class="copy-pw" onclick="doCopy()">📋 Copy Password</button>
+    </div>
+    <div class="info">📧 A verification email has been sent to <strong id="sentTo"></strong>.</div>
+    <button class="btn" onclick="goToLogin()">Continue to Sign In →</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN E — Forgot Password
+  ══════════════════════════════════════ -->
+  <div class="screen" id="sForgot">
+    <div class="screen-title">Reset Password</div>
+    <div class="screen-sub">Enter your registered email. We'll send you a reset link.</div>
     <div class="err" id="eForgot"></div>
     <div id="forgotOK" style="display:none" class="info"></div>
-    <div class="fg">
-      <label>Email Address</label>
+    <div class="fg"><label>Email Address</label>
       <input type="email" id="forgotEmail" placeholder="your.email@example.com"/>
     </div>
     <button class="btn" id="bForgot" onclick="doReset()"><span id="bForgotT">Send Reset Link</span></button>
-    <button class="btn-ghost" onclick="show(3)">← Back to Sign In</button>
+    <button class="btn-ghost" onclick="showScreen('sLogin')">← Back to Sign In</button>
   </div>
 
   <div class="card-foot">
@@ -250,9 +236,7 @@
 </div>
 
 <script>
-// ── FIREBASE CONFIG ─────────────────────────────────────────────────
-// ⚠️  Replace ALL values below with your own Firebase project config.
-// Get them from: Firebase Console → Your Project → Project Settings → Web App
+// ── FIREBASE CONFIG ──────────────────────────────────────────────
 const firebaseConfig = {
   apiKey:            "AIzaSyCgAxvg4xfgmpdm7-LCFHO_NiDQKGGm2OQ",
   authDomain:        "jarfarm-3a34e.firebaseapp.com",
@@ -261,8 +245,6 @@ const firebaseConfig = {
   messagingSenderId: "505148580037",
   appId:             "1:505148580037:web:6a198b22aa6de557c1d0ac"
 };
-// ────────────────────────────────────────────────────────────────────
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -270,158 +252,117 @@ const db   = firebase.firestore();
 // Redirect if already signed in
 auth.onAuthStateChanged(u => { if (u) location.href = 'dashboard.html'; });
 
-// ── State ────────────────────────────────────────────────────────────
-let staffRec  = null;   // Firestore staff_ids doc data
-let tmpPw     = null;   // Generated temp password
-let newEmail  = null;   // Email entered during onboarding
+// ── State ────────────────────────────────────────────────────────
+let staffRec = null;
+let tmpPw    = null;
+let newEmail = null;
 
-// ── Step display ─────────────────────────────────────────────────────
-function show(n) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('show'));
-  const el = typeof n === 'number' ? document.getElementById('s'+n)
-                                   : document.getElementById(n);
-  if (el) el.classList.add('show');
-  // Update indicator
-  const map = {1:1,2:2,'2b':3,3:3,'Forgot':3};
-  const cur = typeof n === 'number' ? map[n] || n : 3;
-  [1,2,3].forEach(i => {
-    const d = document.getElementById('d'+i);
-    d.className = 's-dot' + (i < cur ? ' done' : i===cur ? ' active' : '');
-    if (i < 3) document.getElementById('l'+i).className = 's-line' + (i < cur ? ' done' : '');
-  });
-}
-function showForgot() {
-  document.querySelectorAll('.step').forEach(s=>s.classList.remove('show'));
-  document.getElementById('sForgot').classList.add('show');
+// ── Navigation ───────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
 }
 
-// ── STEP 1 — Verify Identity ─────────────────────────────────────────
-async function step1() {
-  const sid  = document.getElementById('staffId').value.trim().toUpperCase();
-  const name = document.getElementById('fullName').value.trim();
-  clrErr('e1');
-
-  if (!sid)  return showErr('e1','Please enter your Staff ID.');
-  if (!name) return showErr('e1','Please enter your full name.');
-  if (!/^\d{4}[A-Z]{2,3}-\d{3}$/.test(sid))
-    return showErr('e1','Invalid Staff ID format. It should look like: 2025OM-001');
-
-  load('b1','b1t',true,'Verifying…');
-  try {
-    const snap = await db.collection('staff_ids').doc(sid).get();
-    if (!snap.exists) return showErr('e1','Staff ID not found. Check your appointment letter or contact the MD.');
-    const d = snap.data();
-    if (d.status === 'inactive') return showErr('e1','This Staff ID has been deactivated. Please contact the Managing Director.');
-    const norm = s => s.toLowerCase().replace(/\s+/g,' ').trim();
-    if (norm(d.name) !== norm(name)) return showErr('e1','Name does not match. Enter the exact name on your appointment letter.');
-
-    staffRec = { id: sid, ...d };
-
-    // Show role tag
-    const rt = document.getElementById('roleTag');
-    rt.textContent = d.roleLabel; rt.style.display='inline-block';
-    document.getElementById('s2badge').textContent = '✓ '+sid+' Verified';
-    document.getElementById('s3badge').textContent = '✓ '+sid+' · '+d.roleLabel;
-
-    if (!d.onboarded) { show(2); }
-    else { if (d.email) document.getElementById('loginEmail').value = d.email; show(3); }
-  } catch(err) {
-    console.error(err);
-    showErr('e1','Connection error. Please check your internet and try again.');
-  } finally { load('b1','b1t',false,'Verify Identity →'); }
-}
-
-// ── STEP 2 — Onboarding ──────────────────────────────────────────────
-async function step2() {
-  const email   = document.getElementById('newEmail').value.trim();
-  const phone   = document.getElementById('phone').value.trim();
-  const dob     = document.getElementById('dob').value;
-  const addr    = document.getElementById('addr').value.trim();
-  const nokNm   = document.getElementById('nokName').value.trim();
-  const nokPh   = document.getElementById('nokPhone').value.trim();
-  clrErr('e2');
-
-  if (!email) return showErr('e2','Please enter your email address.');
-  if (!phone) return showErr('e2','Please enter your phone number.');
-  if (!dob)   return showErr('e2','Please enter your date of birth.');
-  if (!addr)  return showErr('e2','Please enter your residential address.');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('e2','Please enter a valid email address.');
-
-  load('b2','b2t',true,'Creating account…');
-  tmpPw    = genPw();
-  newEmail = email;
-
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, tmpPw);
-    await cred.user.sendEmailVerification();
-
-    await db.collection('users').doc(cred.user.uid).set({
-      staffId:   staffRec.id,
-      name:      staffRec.name,
-      role:      staffRec.role,
-      roleLabel: staffRec.roleLabel,
-      email, phone, dob, address:addr,
-      nokName: nokNm, nokPhone: nokPh,
-      mustChangePassword: true,
-      onboardedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    await db.collection('staff_ids').doc(staffRec.id).update({
-      onboarded:true, status:'active', email, uid: cred.user.uid
-    });
-
-    await auth.signOut();
-
-    document.getElementById('pwVal').textContent  = tmpPw;
-    document.getElementById('sentTo').textContent = email;
-    show('2b');
-  } catch(err) {
-    console.error(err);
-    if (err.code==='auth/email-already-in-use')
-      showErr('e2','This email is already registered. Use a different email or contact the MD.');
-    else showErr('e2','Error: '+err.message);
-  } finally { load('b2','b2t',false,'Create My Account'); }
-}
-
-function goLogin() {
-  document.getElementById('loginEmail').value = newEmail || '';
-  document.getElementById('s3p').textContent = 'Use your temporary password to sign in — you\'ll be asked to set a new one immediately.';
-  show(3);
-}
-
-function doCopy() {
-  navigator.clipboard.writeText(tmpPw).then(() => {
-    const b = document.querySelector('.copy-pw');
-    b.textContent = '✓ Copied!';
-    setTimeout(()=>b.textContent='📋 Copy Password',2000);
-  });
-}
-
-// ── STEP 3 — Sign In ─────────────────────────────────────────────────
-async function step3() {
+// ── SCREEN A: Sign In ────────────────────────────────────────────
+async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pw    = document.getElementById('loginPw').value;
-  clrErr('e3');
-
-  if (!email) return showErr('e3','Please enter your email address.');
-  if (!pw)    return showErr('e3','Please enter your password.');
-
-  load('b3','b3t',true,'Signing in…');
+  clrErr('eLogin');
+  if (!email) return showErr('eLogin','Please enter your email address.');
+  if (!pw)    return showErr('eLogin','Please enter your password.');
+  load('bLogin','bLoginT',true,'Signing in…');
   try {
     await auth.signInWithEmailAndPassword(email, pw);
     location.href = 'dashboard.html';
   } catch(err) {
-    console.error(err);
     const c = err.code;
     if (c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-credential')
-      showErr('e3','Incorrect email or password. Please try again.');
+      showErr('eLogin','Incorrect email or password. Please try again.');
     else if (c==='auth/too-many-requests')
-      showErr('e3','Too many failed attempts. Wait a few minutes and try again.');
-    else showErr('e3','Sign in error: '+err.message);
-  } finally { load('b3','b3t',false,'Sign In'); }
+      showErr('eLogin','Too many attempts. Please wait a few minutes and try again.');
+    else showErr('eLogin','Sign in error: '+err.message);
+  } finally { load('bLogin','bLoginT',false,'Sign In'); }
 }
 
-// ── Forgot Password ───────────────────────────────────────────────────
+// ── SCREEN B: Verify Staff ID ────────────────────────────────────
+async function doVerify() {
+  const sid  = document.getElementById('staffId').value.trim().toUpperCase();
+  const name = document.getElementById('verifyName').value.trim();
+  clrErr('eVerify');
+  if (!sid)  return showErr('eVerify','Please enter your Staff ID.');
+  if (!name) return showErr('eVerify','Please enter your full name.');
+  if (!/^\d{4}[A-Z]{2,3}-\d{3}$/.test(sid))
+    return showErr('eVerify','Invalid Staff ID format. It should look like: 2025OM-001');
+  load('bVerify','bVerifyT',true,'Verifying…');
+  try {
+    const snap = await db.collection('staff_ids').doc(sid).get();
+    if (!snap.exists) return showErr('eVerify','Staff ID not found. Check your appointment letter or contact the MD.');
+    const d = snap.data();
+    if (d.status === 'inactive') return showErr('eVerify','This Staff ID has been deactivated. Contact the Managing Director.');
+    if (d.onboarded) return showErr('eVerify','This Staff ID is already registered. Please sign in with your email and password instead.');
+    const norm = s => s.toLowerCase().replace(/\s+/g,' ').trim();
+    if (norm(d.name) !== norm(name)) return showErr('eVerify','Name does not match. Enter the exact name on your appointment letter.');
+    staffRec = { id: sid, ...d };
+    const rt = document.getElementById('roleTag');
+    rt.textContent = d.roleLabel; rt.style.display = 'inline-block';
+    document.getElementById('profileBadge').textContent = '✓ '+sid+' · '+d.roleLabel;
+    showScreen('sProfile');
+  } catch(err) {
+    showErr('eVerify','Connection error. Check your internet and try again.');
+  } finally { load('bVerify','bVerifyT',false,'Verify Identity →'); }
+}
+
+// ── SCREEN C: Complete Profile ───────────────────────────────────
+async function doProfile() {
+  const email  = document.getElementById('newEmail').value.trim();
+  const phone  = document.getElementById('phone').value.trim();
+  const dob    = document.getElementById('dob').value;
+  const addr   = document.getElementById('addr').value.trim();
+  const nokNm  = document.getElementById('nokName').value.trim();
+  const nokPh  = document.getElementById('nokPhone').value.trim();
+  clrErr('eProfile');
+  if (!email) return showErr('eProfile','Please enter your email address.');
+  if (!phone) return showErr('eProfile','Please enter your phone number.');
+  if (!dob)   return showErr('eProfile','Please enter your date of birth.');
+  if (!addr)  return showErr('eProfile','Please enter your residential address.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('eProfile','Please enter a valid email address.');
+  load('bProfile','bProfileT',true,'Creating account…');
+  tmpPw = genPw(); newEmail = email;
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, tmpPw);
+    await cred.user.sendEmailVerification();
+    await db.collection('users').doc(cred.user.uid).set({
+      staffId: staffRec.id, name: staffRec.name, role: staffRec.role,
+      roleLabel: staffRec.roleLabel, email, phone, dob, address: addr,
+      nokName: nokNm, nokPhone: nokPh, mustChangePassword: true,
+      onboardedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('staff_ids').doc(staffRec.id).update({
+      onboarded: true, status: 'active', email, uid: cred.user.uid
+    });
+    await auth.signOut();
+    document.getElementById('pwVal').textContent  = tmpPw;
+    document.getElementById('sentTo').textContent = email;
+    showScreen('sTempPw');
+  } catch(err) {
+    if (err.code==='auth/email-already-in-use')
+      showErr('eProfile','This email is already registered. Use a different email or contact the MD.');
+    else showErr('eProfile','Error: '+err.message);
+  } finally { load('bProfile','bProfileT',false,'Create My Account'); }
+}
+
+function goToLogin() {
+  document.getElementById('loginEmail').value = newEmail || '';
+  showScreen('sLogin');
+}
+function doCopy() {
+  navigator.clipboard.writeText(tmpPw).then(()=>{
+    const b=document.querySelector('.copy-pw');
+    b.textContent='✓ Copied!';setTimeout(()=>b.textContent='📋 Copy Password',2000);
+  });
+}
+
+// ── SCREEN E: Forgot Password ────────────────────────────────────
 async function doReset() {
   const email = document.getElementById('forgotEmail').value.trim();
   clrErr('eForgot');
@@ -431,25 +372,24 @@ async function doReset() {
   try {
     await auth.sendPasswordResetEmail(email);
     document.getElementById('forgotOK').style.display='block';
-    document.getElementById('forgotOK').textContent =
-      '✓ Reset link sent to '+email+'. Check your inbox (and spam folder).';
+    document.getElementById('forgotOK').textContent='✓ Reset link sent to '+email+'. Check your inbox and spam folder.';
   } catch(err) {
     showErr('eForgot', err.code==='auth/user-not-found'
-      ? 'No account found with this email.' : 'Error sending reset email.');
+      ? 'No account found with this email.' : 'Error sending reset email. Try again.');
   } finally { load('bForgot','bForgotT',false,'Send Reset Link'); }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────
 function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.classList.add('show'); }
 function clrErr(id){ document.getElementById(id).classList.remove('show'); }
 function load(btnId,txtId,on,label){
-  const b=document.getElementById(btnId), t=document.getElementById(txtId);
+  const b=document.getElementById(btnId),t=document.getElementById(txtId);
   b.disabled=on;
   if(on){ t.style.display='none';
-    const s=document.createElement('div'); s.className='spin'; s.id='ls'; b.appendChild(s);
+    const s=document.createElement('div');s.className='spin';s.id='ls';b.appendChild(s);
   } else {
-    const s=document.getElementById('ls'); if(s) s.remove();
-    t.style.display=''; t.textContent=label;
+    const s=document.getElementById('ls');if(s)s.remove();
+    t.style.display='';t.textContent=label;
   }
 }
 function genPw(){
