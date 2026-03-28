@@ -518,6 +518,7 @@ const MD_NAV = [
   { id:'md-out',    ic:'🌾', label:'Outgrower Network' },
   { id:'md-orders', ic:'📦', label:'Orders & Sales' },
   { sec:'Settings' },
+  { id:'md-email',   ic:'✉️', label:'Email Composer' },
   { id:'md-settings',ic:'⚙️',label:'Settings' },
 ];
 const STAFF_NAV = [
@@ -530,6 +531,7 @@ const STAFF_NAV = [
   { id:'s-chat',    ic:'💬', label:'Team Chat' },
   { id:'s-reports', ic:'📋', label:'Submit Reports' },
   { sec:'Account' },
+  { id:'s-email',   ic:'✉️', label:'Email Composer' },
   { id:'s-settings',ic:'⚙️', label:'Settings' },
 ];
 
@@ -1149,6 +1151,22 @@ function printPayslip() {
   setTimeout(()=>win.print(), 500);
 }
 
+
+
+PANELS['md-email'] = () => {
+  return `<div style="background:#fff;border-radius:10px;border:1px solid #e5ebe5;overflow:hidden">
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-weight:600;color:var(--dark);font-size:.95rem">✉️ Email Composer</div>
+        <div style="font-size:.78rem;color:#888;margin-top:.2rem">Send branded HTML emails from your own Gmail</div>
+      </div>
+      <a href="../email-composer.html" target="_blank" class="btn btn-green btn-sm">Open Full Page ↗</a>
+    </div>
+    <iframe src="../email-composer.html" style="width:100%;height:800px;border:none"
+      title="Email Composer"></iframe>
+  </div>`;
+};
+PANELS['s-email'] = PANELS['md-email'];
 
 PANELS['md-reports'] = () => `
 <div class="card">
