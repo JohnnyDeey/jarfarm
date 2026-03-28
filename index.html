@@ -1,405 +1,529 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>JAR Farm — Staff Portal</title>
-  <link rel="icon" type="image/png" href="../logo.png"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <title>JAR Farm — Farmers. Fresh. Forward.</title>
+  <meta name="description" content="Connecting Rwanda's finest growers to global markets. Premium chilies, French beans, avocados and fresh produce."/>
+  <link rel="stylesheet" href="css/style.css"/>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'DM Sans',sans-serif;min-height:100vh;
-      background:linear-gradient(145deg,#0a1f10 0%,#1a5c2e 60%,#0f2818 100%);
-      display:flex;align-items:center;justify-content:center;padding:1.5rem}
-    .card{background:#fff;border-radius:20px;width:100%;max-width:440px;
-      box-shadow:0 32px 80px rgba(0,0,0,.4);overflow:hidden}
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      background: linear-gradient(135deg, #0a2618 0%, var(--forest) 45%, var(--mid-green) 100%);
+      position: relative; overflow: hidden; padding: 100px 5% 80px;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1400&q=80') center/cover;
+      opacity: 0.12;
+    }
+    .hero-blob {
+      position: absolute; width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,0.2) 0%, transparent 70%);
+      right: -100px; top: -100px; pointer-events: none;
+    }
+    .hero-content { position: relative; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(82,183,136,0.15); border: 1px solid rgba(82,183,136,0.3);
+      color: var(--fresh); padding: 7px 16px; border-radius: 100px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-tag span { width: 8px; height: 8px; background: var(--fresh); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+    .hero h1 { color: white; max-width: 680px; margin-bottom: 24px; }
+    .hero h1 em { font-style: italic; color: var(--gold-light); }
+    .hero p { color: rgba(255,255,255,0.7); font-size: 1.15rem; max-width: 520px; margin-bottom: 40px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-markets {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .market-badge {
+      background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+      padding: 14px 20px; color: white; display: flex; align-items: center; gap: 12px;
+      font-size: 0.85rem; font-weight: 500;
+    }
+    .market-flag { font-size: 1.3rem; }
+    .hero-scroll { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.4); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent); animation: scrollAnim 1.8s ease-in-out infinite; }
+    @keyframes scrollAnim { 0%,100%{opacity:0.4;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(0.6)} }
 
-    /* HEADER */
-    .card-top{background:linear-gradient(135deg,#0f2818,#1a5c2e);padding:2rem 2rem 1.6rem;text-align:center}
-    .logo-wrap{width:68px;height:68px;background:rgba(255,255,255,.12);border-radius:50%;
-      display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;overflow:hidden}
-    .logo-wrap img{width:54px;height:54px;object-fit:contain}
-    .company-name{color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.2rem}
-    .trading-as{color:rgba(255,255,255,.5);font-size:.78rem}
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 20px 5%;
+    }
+    .trust-items { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-mid); }
+    .trust-icon { width: 32px; height: 32px; background: var(--mint); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--forest); }
+    .trust-divider { width: 1px; height: 32px; background: var(--border); }
 
-    /* SCREENS */
-    .screen{display:none;padding:1.8rem 2rem 2rem;animation:fi .25s ease}
-    .screen.show{display:block}
-    @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .screen-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#0f2818;margin-bottom:.3rem}
-    .screen-sub{font-size:.82rem;color:#888;margin-bottom:1.4rem;line-height:1.55}
+    /* ── ABOUT STRIP ── */
+    .about-strip { background: white; }
+    .about-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-img-wrap { position: relative; }
+    .about-img {
+      width: 100%; height: 460px; object-fit: cover; border-radius: var(--radius-lg);
+      background: url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80') center/cover;
+    }
+    .about-badge {
+      position: absolute; bottom: 24px; left: 24px;
+      background: var(--forest); color: white; padding: 16px 20px; border-radius: var(--radius);
+    }
+    .about-badge .num { font-family: 'Cormorant Garamond',serif; font-size: 2rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+    .about-badge .lbl { font-size: 0.75rem; opacity: 0.75; margin-top: 2px; }
 
-    /* FORM */
-    .fg{margin-bottom:1.1rem}
-    label{display:block;font-size:.75rem;font-weight:700;color:#444;margin-bottom:.4rem;
-      letter-spacing:.05em;text-transform:uppercase}
-    input{width:100%;padding:.72rem 1rem;border:1.5px solid #e0e0e0;border-radius:8px;
-      font-family:inherit;font-size:.92rem;color:#222;outline:none;transition:all .2s}
-    input:focus{border-color:#1a5c2e;box-shadow:0 0 0 3px rgba(26,92,46,.1)}
-    .hint{font-size:.72rem;color:#aaa;margin-top:.28rem}
-    .frow{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-    .id-wrap{position:relative}
-    .id-wrap input{text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding-left:2.8rem}
-    .id-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);font-size:.95rem}
+    /* ── PRODUCE GRID ── */
+    .produce-section { background: var(--cream); }
+    .produce-grid { max-width: 1200px; margin: 48px auto 0; display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .produce-card {
+      background: white; border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow); transition: transform 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+    }
+    .produce-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .produce-card-img { height: 200px; background-size: cover; background-position: center; position: relative; }
+    .produce-card-img .badge { position: absolute; top: 12px; right: 12px; }
+    .produce-card-body { padding: 20px; }
+    .produce-card-body h4 { font-family: 'Cormorant Garamond',serif; font-size: 1.3rem; margin-bottom: 6px; }
+    .produce-card-body p { font-size: 0.85rem; color: var(--text-light); margin-bottom: 12px; }
+    .produce-price { font-weight: 700; color: var(--forest); font-size: 1.05rem; }
 
-    /* MESSAGES */
-    .err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:.65rem 1rem;
-      border-radius:6px;font-size:.82rem;margin-bottom:1rem;display:none;line-height:1.5}
-    .err.show{display:block}
-    .info{background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;
-      padding:.65rem 1rem;border-radius:6px;font-size:.82rem;margin-bottom:1rem;line-height:1.5}
+    /* ── HOW IT WORKS ── */
+    .how-section { background: white; }
+    .steps-grid { max-width: 1200px; margin: 48px auto 0; display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; position: relative; }
+    .steps-grid::before {
+      content: ''; position: absolute; top: 32px; left: 12%; right: 12%;
+      height: 2px; background: linear-gradient(to right, var(--mint), var(--leaf), var(--mint));
+      z-index: 0;
+    }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step-num {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--forest); color: var(--gold-light);
+      font-family: 'Cormorant Garamond',serif; font-size: 1.6rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; box-shadow: 0 0 0 8px var(--mint);
+    }
+    .step h4 { margin-bottom: 8px; }
+    .step p { font-size: 0.85rem; }
 
-    /* BUTTONS */
-    .btn{width:100%;padding:.82rem;background:linear-gradient(135deg,#1a5c2e,#2d7a45);
-      color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.95rem;
-      font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
-    .btn:hover{opacity:.9;transform:translateY(-1px)}
-    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-    .btn-ghost{background:#f4f6f4;color:#2a3d30;border:1.5px solid #d0e0d0;border-radius:8px;
-      padding:.72rem;width:100%;font-family:inherit;font-size:.88rem;font-weight:600;
-      cursor:pointer;transition:all .2s;margin-top:.55rem}
-    .btn-ghost:hover{background:#e8f5ec;border-color:#1a5c2e}
-    .spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);
-      border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
-    @keyframes sp{to{transform:rotate(360deg)}}
+    /* ── STATS ── */
+    .stats-section { background: var(--forest); }
+    .stats-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); }
+    .stat-item { text-align: center; padding: 48px 24px; border-right: 1px solid rgba(255,255,255,0.1); }
+    .stat-item:last-child { border-right: none; }
+    .stat-item .num { font-family: 'Cormorant Garamond',serif; font-size: 3.5rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+    .stat-item .lbl { color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
 
-    /* DIVIDER */
-    .divider{display:flex;align-items:center;gap:.8rem;margin:.9rem 0;color:#ccc;font-size:.75rem}
-    .divider::before,.divider::after{content:'';flex:1;height:1px;background:#e8e8e8}
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--gold) 0%, #c49010 100%);
+      padding: 64px 5%; text-align: center;
+    }
+    .cta-banner h2 { color: white; margin-bottom: 16px; }
+    .cta-banner p { color: rgba(255,255,255,0.85); max-width: 520px; margin: 0 auto 32px; }
 
-    /* NEW STAFF LINK */
-    .new-staff-link{text-align:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #f0f0f0}
-    .new-staff-link p{font-size:.8rem;color:#888;margin-bottom:.5rem}
-    .new-staff-link button{background:none;border:none;color:#1a5c2e;font-family:inherit;
-      font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:underline}
-
-    /* TEMP PASSWORD BOX */
-    .pw-box{background:linear-gradient(135deg,#0f2818,#1a5c2e);border-radius:10px;
-      padding:1.5rem;text-align:center;margin-bottom:1.2rem}
-    .pw-box p{color:rgba(255,255,255,.7);font-size:.8rem;margin-bottom:.5rem}
-    .pw-val{font-family:monospace;font-size:1.75rem;color:#f0c060;letter-spacing:.1em;
-      font-weight:700;background:rgba(0,0,0,.25);padding:.6rem 1rem;border-radius:6px;
-      display:block;word-break:break-all;margin:.4rem 0}
-    .copy-pw{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
-      color:#fff;border-radius:5px;padding:.35rem .9rem;font-size:.75rem;cursor:pointer;
-      font-family:inherit;margin-top:.3rem}
-    .copy-pw:hover{background:rgba(255,255,255,.28)}
-
-    .badge-small{display:inline-block;background:#dcfce7;color:#166534;padding:.25rem .7rem;
-      border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.04em;margin-bottom:.7rem}
-    .big-icon{font-size:2.8rem;text-align:center;margin-bottom:.8rem}
-
-    /* FOOTER */
-    .card-foot{border-top:1px solid #f0f0f0;padding:.9rem 2rem;
-      display:flex;justify-content:space-between;align-items:center}
-    .card-foot a{color:#1a5c2e;text-decoration:none;font-size:.8rem;font-weight:500}
-    .card-foot a:hover{text-decoration:underline}
-    .role-tag{font-size:.72rem;font-weight:700;padding:.22rem .65rem;border-radius:20px;
-      background:#e8f5ec;color:#166534;display:none}
-
-    @media(max-width:480px){body{padding:0;align-items:flex-start}
-      .card{border-radius:0;min-height:100vh}.frow{grid-template-columns:1fr}}
+    @media (max-width: 900px) {
+      .hero-markets { display: none; }
+      .about-inner { grid-template-columns: 1fr; }
+      .produce-grid { grid-template-columns: 1fr 1fr; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+      .steps-grid::before { display: none; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    }
+    @media (max-width: 600px) {
+      .produce-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
-<div class="card">
-  <div class="card-top">
-    <div class="logo-wrap">
-      <img src="../logo.png" alt="JAR" onerror="this.parentElement.innerHTML='🌿'"/>
-    </div>
-    <div class="company-name">JohnyRose Agrospring Rwanda Ltd</div>
-    <div class="trading-as">Trading as JAR Farm &nbsp;·&nbsp; Staff Portal</div>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN A — Sign In (default)
-  ══════════════════════════════════════ -->
-  <div class="screen show" id="sLogin">
-    <div class="screen-title">Welcome back</div>
-    <div class="screen-sub">Sign in with your email and password.</div>
-    <div class="err" id="eLogin"></div>
-    <div class="fg">
-      <label>Email Address</label>
-      <input type="email" id="loginEmail" placeholder="your.email@example.com" autocomplete="email"/>
-    </div>
-    <div class="fg">
-      <label>Password</label>
-      <input type="password" id="loginPw" placeholder="Enter your password"
-        autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
-    </div>
-    <button class="btn" id="bLogin" onclick="doLogin()"><span id="bLoginT">Sign In</span></button>
-    <div class="divider">or</div>
-    <button class="btn-ghost" onclick="showScreen('sForgot')">Forgot password?</button>
+<div id="nav-placeholder"></div>
 
-    <div class="new-staff-link">
-      <p>First time logging in?</p>
-      <button onclick="showScreen('sVerify')">Set up your account with your Staff ID →</button>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-blob"></div>
+  <div class="hero-content">
+    <div class="hero-tag"><span></span>Rwanda's Premier Agri-Exporter</div>
+    <h1>Farmers. Fresh.<br/><em>Forward.</em></h1>
+    <p>We connect Rwanda's finest growers with global markets — premium chilies, French beans, avocados and fresh produce that travel well and taste even better.</p>
+    <div class="hero-actions">
+      <a href="products.html" class="btn btn-gold">Browse Our Produce</a>
+      <a href="contact.html#partner" class="btn btn-secondary" style="color:white;border-color:rgba(255,255,255,0.4)">Partner With Us</a>
     </div>
   </div>
-
-  <!-- ══════════════════════════════════════
-       SCREEN B — New Staff: Verify ID
-  ══════════════════════════════════════ -->
-  <div class="screen" id="sVerify">
-    <div class="screen-title">First Time Setup</div>
-    <div class="screen-sub">Enter your Staff ID and full name exactly as shown on your appointment letter.</div>
-    <div class="err" id="eVerify"></div>
-    <div class="fg">
-      <label>Staff ID</label>
-      <div class="id-wrap">
-        <span class="id-icon">🪪</span>
-        <input id="staffId" placeholder="e.g. 2025OM-001" maxlength="12"
-          oninput="this.value=this.value.toUpperCase()" autocomplete="off"
-          onkeydown="if(event.key==='Enter')doVerify()"/>
+    <div class="hero-markets">
+    <!-- EU Flag -->
+    <div class="market-badge">
+      <span class="market-flag" style="font-size:1.3rem;line-height:1;">
+        <svg width="42" height="28" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="vertical-align:middle;">
+          <rect width="36" height="24" fill="#003399"/>
+          <g fill="#FFCC00" transform="translate(18,12)">
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(0) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(30) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(60) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(90) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(120) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(150) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(180) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(210) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(240) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(270) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(300) translate(0,-6.5) scale(0.55)"/>
+            <polygon points="0,-4.5 1.1,-1.4 4.3,-1.4 1.7,0.5 2.7,3.6 0,1.8 -2.7,3.6 -1.7,0.5 -4.3,-1.4 -1.1,-1.4" transform="rotate(330) translate(0,-6.5) scale(0.55)"/>
+          </g>
+        </svg>
+      </span>
+      <div>
+        <div style="font-weight:600">EU Markets</div>
+        <div style="opacity:.6;font-size:.75rem">Germany · Netherlands · France</div>
       </div>
-      <div class="hint">Issued by the Managing Director on your appointment letter</div>
     </div>
-    <div class="fg">
-      <label>Full Name</label>
-      <input id="verifyName" placeholder="Exact name on your appointment letter"
-        autocomplete="name" onkeydown="if(event.key==='Enter')doVerify()"/>
-    </div>
-    <button class="btn" id="bVerify" onclick="doVerify()"><span id="bVerifyT">Verify Identity →</span></button>
-    <button class="btn-ghost" onclick="showScreen('sLogin')">← Already have an account? Sign in</button>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN C — New Staff: Complete Profile
-  ══════════════════════════════════════ -->
-  <div class="screen" id="sProfile">
-    <div class="badge-small" id="profileBadge">✓ Staff ID Verified</div>
-    <div class="screen-title">Complete Your Profile</div>
-    <div class="screen-sub">Fill in your details. Your temporary password will be shown on the next screen.</div>
-    <div class="err" id="eProfile"></div>
-    <div class="fg">
-      <label>Email Address *</label>
-      <input type="email" id="newEmail" placeholder="your.email@example.com" autocomplete="email"/>
-      <div class="hint">You'll use this to sign in going forward</div>
+    <!-- UAE Flag -->
+    <div class="market-badge">
+      <span class="market-flag" style="font-size:1.3rem;line-height:1;">
+        <svg width="42" height="28" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="vertical-align:middle;">
+          <rect width="36" height="24" fill="#fff"/>
+          <rect width="36" height="8" fill="#00732F"/>
+          <rect y="16" width="36" height="8" fill="#000"/>
+          <rect width="12" height="24" fill="#FF0000"/>
+        </svg>
+      </span>
+      <div>
+        <div style="font-weight:600">UAE Markets</div>
+        <div style="opacity:.6;font-size:.75rem">Dubai · Abu Dhabi</div>
+      </div>
     </div>
-    <div class="frow">
-      <div class="fg"><label>Phone Number *</label>
-        <input type="tel" id="phone" placeholder="+250 7xx xxx xxx"/></div>
-      <div class="fg"><label>Date of Birth *</label>
-        <input type="date" id="dob"/></div>
-    </div>
-    <div class="fg"><label>Residential Address *</label>
-      <input id="addr" placeholder="e.g. KG 123 St, Kigali"/></div>
-    <div class="frow">
-      <div class="fg"><label>Next of Kin</label>
-        <input id="nokName" placeholder="Full name"/></div>
-      <div class="fg"><label>Next of Kin Phone</label>
-        <input type="tel" id="nokPhone" placeholder="+250 7xx xxx xxx"/></div>
-    </div>
-    <button class="btn" id="bProfile" onclick="doProfile()"><span id="bProfileT">Create My Account</span></button>
-    <button class="btn-ghost" onclick="showScreen('sVerify')">← Back</button>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN D — Show Temp Password
-  ══════════════════════════════════════ -->
-  <div class="screen" id="sTempPw">
-    <div class="big-icon">🎉</div>
-    <div class="screen-title">Account Created!</div>
-    <div class="screen-sub">Save this temporary password. You'll need it to sign in and will be asked to set a new one immediately.</div>
-    <div class="pw-box">
-      <p>Your temporary password</p>
-      <span class="pw-val" id="pwVal">—</span>
-      <button class="copy-pw" onclick="doCopy()">📋 Copy Password</button>
+    <!-- UK Flag -->
+    <div class="market-badge">
+      <span class="market-flag" style="font-size:1.3rem;line-height:1;">
+        <svg width="42" height="28" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="vertical-align:middle;">
+          <rect width="36" height="24" fill="#012169"/>
+          <path d="M0,0 L36,24 M36,0 L0,24" stroke="#fff" stroke-width="4.8"/>
+          <path d="M0,0 L36,24 M36,0 L0,24" stroke="#C8102E" stroke-width="3.2"/>
+          <path d="M18,0 V24 M0,12 H36" stroke="#fff" stroke-width="8"/>
+          <path d="M18,0 V24 M0,12 H36" stroke="#C8102E" stroke-width="4.8"/>
+        </svg>
+      </span>
+      <div>
+        <div style="font-weight:600">UK Markets</div>
+        <div style="opacity:.6;font-size:.75rem">London · Manchester</div>
+      </div>
     </div>
-    <div class="info">📧 A verification email has been sent to <strong id="sentTo"></strong>.</div>
-    <button class="btn" onclick="goToLogin()">Continue to Sign In →</button>
-  </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN E — Forgot Password
-  ══════════════════════════════════════ -->
-  <div class="screen" id="sForgot">
-    <div class="screen-title">Reset Password</div>
-    <div class="screen-sub">Enter your registered email. We'll send you a reset link.</div>
-    <div class="err" id="eForgot"></div>
-    <div id="forgotOK" style="display:none" class="info"></div>
-    <div class="fg"><label>Email Address</label>
-      <input type="email" id="forgotEmail" placeholder="your.email@example.com"/>
+    <!-- Rwanda Flag -->
+    <div class="market-badge">
+      <span class="market-flag" style="font-size:1.3rem;line-height:1;">
+        <svg width="42" height="28" viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="vertical-align:middle;">
+          <rect width="36" height="24" fill="#20603D"/>
+          <rect y="9.6" width="36" height="7.2" fill="#FAD201"/>
+          <rect y="16.8" width="36" height="7.2" fill="#E5BE01"/>
+          <circle cx="27" cy="5.5" r="2.8" fill="#FAD201"/>
+          <g stroke="#FAD201" stroke-width="0.7">
+            <line x1="27" y1="1.2" x2="27" y2="2.5"/>
+            <line x1="27" y1="8.5" x2="27" y2="9.8"/>
+            <line x1="23" y1="5.5" x2="24.3" y2="5.5"/>
+            <line x1="29.7" y1="5.5" x2="31" y2="5.5"/>
+            <line x1="24.2" y1="2.7" x2="25.1" y2="3.6"/>
+            <line x1="28.9" y1="7.4" x2="29.8" y2="8.3"/>
+            <line x1="29.8" y1="2.7" x2="28.9" y2="3.6"/>
+            <line x1="25.1" y1="7.4" x2="24.2" y2="8.3"/>
+          </g>
+        </svg>
+      </span>
+      <div>
+        <div style="font-weight:600">Local Markets</div>
+        <div style="opacity:.6;font-size:.75rem">Kigali · Regional</div>
+      </div>
     </div>
-    <button class="btn" id="bForgot" onclick="doReset()"><span id="bForgotT">Send Reset Link</span></button>
-    <button class="btn-ghost" onclick="showScreen('sLogin')">← Back to Sign In</button>
   </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
 
-  <div class="card-foot">
-    <a href="../index.html">← Back to JAR Farm</a>
-    <span class="role-tag" id="roleTag"></span>
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-items">
+    <div class="trust-item">
+      <div class="trust-icon">✓</div>
+      NAEB Certified Export
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">❄</div>
+      Cold Chain Logistics
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">🌱</div>
+      GAP Compliant Farming
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">🤝</div>
+      50–100 Outgrower Network
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">📦</div>
+      Packhouse Ready
+    </div>
   </div>
 </div>
 
+<!-- ABOUT STRIP -->
+<section class="section about-strip">
+  <div class="about-inner container">
+    <div class="about-img-wrap fade-up">
+      <div class="about-img"></div>
+      <div class="about-badge">
+        <div class="num">10+</div>
+        <div class="lbl">Acres Own Farm</div>
+      </div>
+    </div>
+    <div class="fade-up">
+      <div class="section-label">About JAR Farm</div>
+      <h2>Built to lift Rwandan farmers into global markets</h2>
+      <div class="divider"></div>
+      <p>JAR is an export-focused agribusiness sourcing fresh chilies, French beans, avocados, tomatoes, pineapples and more from our own farms and a trusted outgrower network. Quality, traceability, and fair pay are at the heart of everything we do.</p>
+      <p style="margin-top:14px">From seed to shelf, we manage the full journey — GAP training for farmers, packhouse processing, cold chain logistics, and export certification.</p>
+      <div style="display:flex;gap:32px;margin-top:32px;flex-wrap:wrap">
+        <div><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--forest)">50–100</div><div style="font-size:.85rem;color:var(--text-light)">Outgrowers</div></div>
+        <div><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--forest)">4</div><div style="font-size:.85rem;color:var(--text-light)">Export Markets</div></div>
+        <div><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--forest)">12+</div><div style="font-size:.85rem;color:var(--text-light)">Produce Lines</div></div>
+      </div>
+      <div style="margin-top:32px;display:flex;gap:12px">
+        <a href="about.html" class="btn btn-primary">Our Full Story</a>
+        <a href="contact.html#farmer" class="btn btn-secondary">Join as a Farmer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCE -->
+<section class="section produce-section">
+  <div class="container" style="text-align:center">
+    <div class="section-label" style="justify-content:center">Fresh Produce</div>
+    <h2>From our farms to your markets</h2>
+    <p style="max-width:520px;margin:12px auto 0">Seasonal and year-round availability across a wide range of export-grade and local market produce.</p>
+  </div>
+  <div class="produce-grid container">
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('img-freshchili.jpg')">
+        <span class="badge tag tag-green">Export Grade</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Fresh Chili Peppers</h4>
+        <p>Premium red & green chilies, export-certified with consistent heat profiles</p>
+        <div class="produce-price">RWF 1,000 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('img-freshbeans.jpg')">
+        <span class="badge tag tag-green">Export Grade</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>French Beans</h4>
+        <p>Fine beans sorted, washed and packhouse-processed for EU supermarkets</p>
+        <div class="produce-price">RWF 1,200 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=600&q=80')">
+        <span class="badge tag tag-green">Export Grade</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Avocados</h4>
+        <p>Hass and Fuerte varieties with full cold chain management to destination</p>
+        <div class="produce-price">RWF 2,400 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('img-irishpotatoes.jpg')">
+        <span class="badge tag tag-gold">Local Market</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Irish Potatoes</h4>
+        <p>Clean, washed potatoes in retail and bulk packaging for Kigali markets</p>
+        <div class="produce-price">RWF 600 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'">
+      <div class="produce-card-img" style="background-image:url('img-freshpineapple.jpg')">
+        <span class="badge tag tag-gold">Local Market</span>
+      </div>
+      <div class="produce-card-body">
+        <h4>Pineapples & Mangoes</h4>
+        <p>Sweet tropical fruits for retail distribution and regional cross-border trade</p>
+        <div class="produce-price">From RWF 800 / kg</div>
+      </div>
+    </div>
+    <div class="produce-card fade-up" onclick="window.location='products.html'" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;background:var(--mint);box-shadow:none">
+      <div style="font-size:2rem;margin-bottom:12px">🥬</div>
+      <h4>+8 More Products</h4>
+      <p style="font-size:.85rem;text-align:center;margin:8px 0 16px">Carrots, peas, tomatoes, eggplant, onions, passion fruit, bananas & more</p>
+      <a href="products.html" class="btn btn-primary btn-sm">View All Produce</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section">
+  <div class="container" style="text-align:center">
+    <div class="section-label" style="justify-content:center">How It Works</div>
+    <h2>From Rwanda's soil to your shelf</h2>
+  </div>
+  <div class="steps-grid container">
+    <div class="step fade-up">
+      <div class="step-num">1</div>
+      <h4>Farm & Harvest</h4>
+      <p>Our 10-acre farm plus 50–100 outgrowers grow GAP-certified produce with full traceability</p>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">2</div>
+      <h4>Pack & Grade</h4>
+      <p>Produce is sorted, washed and packhouse-processed at our Gikondo cold storage facility</p>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">3</div>
+      <h4>Certify & Ship</h4>
+      <p>NAEB export facilitation, phytosanitary certificates and freight partners handle delivery</p>
+    </div>
+    <div class="step fade-up">
+      <div class="step-num">4</div>
+      <h4>Arrive Fresh</h4>
+      <p>Cold chain maintained end-to-end. EU, UAE and UK buyers receive market-ready produce</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-inner">
+    <div class="stat-item fade-up"><div class="num">10+</div><div class="lbl">Acres Own Farm</div></div>
+    <div class="stat-item fade-up"><div class="num">100</div><div class="lbl">Outgrower Partners</div></div>
+    <div class="stat-item fade-up"><div class="num">12+</div><div class="lbl">Produce Varieties</div></div>
+    <div class="stat-item fade-up"><div class="num">4</div><div class="lbl">Export Destinations</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <h2>Ready to source premium Rwandan produce?</h2>
+  <p>Whether you're a buyer in the EU, a regional distributor or a farmer looking to join our network — we'd love to hear from you.</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <a href="contact.html#partner" class="btn btn-primary">Get In Touch</a>
+    <a href="products.html" class="btn" style="background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.4)">Browse Products</a>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+  <!-- ====================== STAFF ACCESS MODAL ====================== -->
+<div id="accessModal" class="access-modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeAccessModal()">×</span>
+    
+    <div class="modal-header">
+      <h2>Staff Portal Access</h2>
+      <p>Sign in to your JAR Farm account</p>
+    </div>
+
+    <form id="accessForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="yourname@jarfarm.rw" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" required>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <a href="#" onclick="forgotPassword(); return false;" style="color: var(--forest); text-decoration: none;">
+          Forgot Password?
+        </a>
+      </div>
+
+      <button type="button" onclick="handleStaffLogin()" class="btn-primary">Sign In</button>
+    </form>
+
+    <div class="role-info">
+      <strong>Approval Flow:</strong><br>
+      • MD approves Manager<br>
+      • Manager approves other staff members
+    </div>
+
+    <p style="text-align:center; font-size:0.85rem; color:#666; margin-top:20px;">
+      First time? Contact your superior for onboarding.
+    </p>
+  </div>
+</div>
+
+<script src="js/components.js"></script>
+<script src="js/main.js"></script>
 <script>
-// ── FIREBASE CONFIG ──────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey:            "AIzaSyCgAxvg4xfgmpdm7-LCFHO_NiDQKGGm2OQ",
-  authDomain:        "jarfarm-3a34e.firebaseapp.com",
-  projectId:         "jarfarm-3a34e",
-  storageBucket:     "jarfarm-3a34e.firebasestorage.app",
-  messagingSenderId: "505148580037",
-  appId:             "1:505148580037:web:6a198b22aa6de557c1d0ac"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
+  renderNav('home');
+  renderFooter();
 
-// Redirect if already signed in
-auth.onAuthStateChanged(u => { if (u) location.href = 'dashboard.html'; });
-
-// ── State ────────────────────────────────────────────────────────
-let staffRec = null;
-let tmpPw    = null;
-let newEmail = null;
-
-// ── Navigation ───────────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
-  document.getElementById(id).classList.add('show');
-}
-
-// ── SCREEN A: Sign In ────────────────────────────────────────────
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pw    = document.getElementById('loginPw').value;
-  clrErr('eLogin');
-  if (!email) return showErr('eLogin','Please enter your email address.');
-  if (!pw)    return showErr('eLogin','Please enter your password.');
-  load('bLogin','bLoginT',true,'Signing in…');
-  try {
-    await auth.signInWithEmailAndPassword(email, pw);
-    location.href = 'dashboard.html';
-  } catch(err) {
-    const c = err.code;
-    if (c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-credential')
-      showErr('eLogin','Incorrect email or password. Please try again.');
-    else if (c==='auth/too-many-requests')
-      showErr('eLogin','Too many attempts. Please wait a few minutes and try again.');
-    else showErr('eLogin','Sign in error: '+err.message);
-  } finally { load('bLogin','bLoginT',false,'Sign In'); }
-}
-
-// ── SCREEN B: Verify Staff ID ────────────────────────────────────
-async function doVerify() {
-  const sid  = document.getElementById('staffId').value.trim().toUpperCase();
-  const name = document.getElementById('verifyName').value.trim();
-  clrErr('eVerify');
-  if (!sid)  return showErr('eVerify','Please enter your Staff ID.');
-  if (!name) return showErr('eVerify','Please enter your full name.');
-  if (!/^\d{4}[A-Z]{2,3}-\d{3}$/.test(sid))
-    return showErr('eVerify','Invalid Staff ID format. It should look like: 2025OM-001');
-  load('bVerify','bVerifyT',true,'Verifying…');
-  try {
-    const snap = await db.collection('staff_ids').doc(sid).get();
-    if (!snap.exists) return showErr('eVerify','Staff ID not found. Check your appointment letter or contact the MD.');
-    const d = snap.data();
-    if (d.status === 'inactive') return showErr('eVerify','This Staff ID has been deactivated. Contact the Managing Director.');
-    if (d.onboarded) return showErr('eVerify','This Staff ID is already registered. Please sign in with your email and password instead.');
-    const norm = s => s.toLowerCase().replace(/\s+/g,' ').trim();
-    if (norm(d.name) !== norm(name)) return showErr('eVerify','Name does not match. Enter the exact name on your appointment letter.');
-    staffRec = { id: sid, ...d };
-    const rt = document.getElementById('roleTag');
-    rt.textContent = d.roleLabel; rt.style.display = 'inline-block';
-    document.getElementById('profileBadge').textContent = '✓ '+sid+' · '+d.roleLabel;
-    showScreen('sProfile');
-  } catch(err) {
-    showErr('eVerify','Connection error. Check your internet and try again.');
-  } finally { load('bVerify','bVerifyT',false,'Verify Identity →'); }
-}
-
-// ── SCREEN C: Complete Profile ───────────────────────────────────
-async function doProfile() {
-  const email  = document.getElementById('newEmail').value.trim();
-  const phone  = document.getElementById('phone').value.trim();
-  const dob    = document.getElementById('dob').value;
-  const addr   = document.getElementById('addr').value.trim();
-  const nokNm  = document.getElementById('nokName').value.trim();
-  const nokPh  = document.getElementById('nokPhone').value.trim();
-  clrErr('eProfile');
-  if (!email) return showErr('eProfile','Please enter your email address.');
-  if (!phone) return showErr('eProfile','Please enter your phone number.');
-  if (!dob)   return showErr('eProfile','Please enter your date of birth.');
-  if (!addr)  return showErr('eProfile','Please enter your residential address.');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('eProfile','Please enter a valid email address.');
-  load('bProfile','bProfileT',true,'Creating account…');
-  tmpPw = genPw(); newEmail = email;
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, tmpPw);
-    await cred.user.sendEmailVerification();
-    await db.collection('users').doc(cred.user.uid).set({
-      staffId: staffRec.id, name: staffRec.name, role: staffRec.role,
-      roleLabel: staffRec.roleLabel, email, phone, dob, address: addr,
-      nokName: nokNm, nokPhone: nokPh, mustChangePassword: true,
-      onboardedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await db.collection('staff_ids').doc(staffRec.id).update({
-      onboarded: true, status: 'active', email, uid: cred.user.uid
-    });
-    await auth.signOut();
-    document.getElementById('pwVal').textContent  = tmpPw;
-    document.getElementById('sentTo').textContent = email;
-    showScreen('sTempPw');
-  } catch(err) {
-    if (err.code==='auth/email-already-in-use')
-      showErr('eProfile','This email is already registered. Use a different email or contact the MD.');
-    else showErr('eProfile','Error: '+err.message);
-  } finally { load('bProfile','bProfileT',false,'Create My Account'); }
-}
-
-function goToLogin() {
-  document.getElementById('loginEmail').value = newEmail || '';
-  showScreen('sLogin');
-}
-function doCopy() {
-  navigator.clipboard.writeText(tmpPw).then(()=>{
-    const b=document.querySelector('.copy-pw');
-    b.textContent='✓ Copied!';setTimeout(()=>b.textContent='📋 Copy Password',2000);
-  });
-}
-
-// ── SCREEN E: Forgot Password ────────────────────────────────────
-async function doReset() {
-  const email = document.getElementById('forgotEmail').value.trim();
-  clrErr('eForgot');
-  document.getElementById('forgotOK').style.display='none';
-  if (!email) return showErr('eForgot','Please enter your email address.');
-  load('bForgot','bForgotT',true,'Sending…');
-  try {
-    await auth.sendPasswordResetEmail(email);
-    document.getElementById('forgotOK').style.display='block';
-    document.getElementById('forgotOK').textContent='✓ Reset link sent to '+email+'. Check your inbox and spam folder.';
-  } catch(err) {
-    showErr('eForgot', err.code==='auth/user-not-found'
-      ? 'No account found with this email.' : 'Error sending reset email. Try again.');
-  } finally { load('bForgot','bForgotT',false,'Send Reset Link'); }
-}
-
-// ── Helpers ──────────────────────────────────────────────────────
-function showErr(id,msg){ const e=document.getElementById(id); e.textContent=msg; e.classList.add('show'); }
-function clrErr(id){ document.getElementById(id).classList.remove('show'); }
-function load(btnId,txtId,on,label){
-  const b=document.getElementById(btnId),t=document.getElementById(txtId);
-  b.disabled=on;
-  if(on){ t.style.display='none';
-    const s=document.createElement('div');s.className='spin';s.id='ls';b.appendChild(s);
-  } else {
-    const s=document.getElementById('ls');if(s)s.remove();
-    t.style.display='';t.textContent=label;
+  // ====================== STAFF ACCESS FUNCTIONS ======================
+  function openStaffPortal() {
+    document.getElementById('accessModal').style.display = 'flex';
   }
-}
-function genPw(){
-  const ch='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  let p='ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]
-       +'abcdefghjkmnpqrstuvwxyz'[Math.floor(Math.random()*23)]
-       +'23456789'[Math.floor(Math.random()*8)];
-  for(let i=0;i<7;i++) p+=ch[Math.floor(Math.random()*ch.length)];
-  return p.split('').sort(()=>Math.random()-.5).join('');
-}
+
+  function closeAccessModal() {
+    document.getElementById('accessModal').style.display = 'none';
+  }
+
+  function handleStaffLogin() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+
+    if (email.includes("md@") || email.includes("director")) {
+      alert("✅ Welcome MD!\n\nYou can onboard and approve the Manager.");
+    } 
+    else if (email.includes("manager@")) {
+      alert("✅ Welcome Manager!\n\nYou can onboard and approve other staff members.");
+    } 
+    else {
+      alert("✅ Login successful!\n\nYour access level will be determined by your approver (MD or Manager).");
+    }
+
+    closeAccessModal();
+    // Later you can redirect: window.location.href = "dashboard.html";
+  }
+
+  function forgotPassword() {
+    const email = prompt("Enter your registered email address:");
+    if (email) {
+      alert(`Password reset link sent to:\n${email}\n\n(Email service will be set up later)`);
+    }
+  }
+
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+    const modal = document.getElementById('accessModal');
+    if (event.target === modal) {
+      closeAccessModal();
+    }
+  };
 </script>
 </body>
 </html>
