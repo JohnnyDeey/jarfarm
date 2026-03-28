@@ -5,7 +5,7 @@ function renderNav(active = '') {
   document.getElementById('nav-placeholder').innerHTML = `
   <nav class="navbar">
     <a href="${base}index.html" class="nav-logo">
-      <img src="${base}logo.png" alt="JohnnyRose Agrospring Rwanda Limited" style="height:48px;width:auto;"/>
+      <img src="${base}logo.png" alt="JAR Farm" style="height:48px;width:auto;"/><span style="font-family:Playfair Display,serif;font-size:1.1rem;font-weight:700;color:#0f2818;line-height:1.2;margin-left:.5rem">JAR Farm</span>
     </a>
     <ul class="nav-links">
       <li><a href="${base}index.html" class="${active==='home'?'active':''}">Home</a></li>
