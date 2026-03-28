@@ -1153,19 +1153,30 @@ function printPayslip() {
 
 
 
-PANELS['md-email'] = () => {
-  return `<div style="background:#fff;border-radius:10px;border:1px solid #e5ebe5;overflow:hidden">
-    <div style="padding:1rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-weight:600;color:var(--dark);font-size:.95rem">✉️ Email Composer</div>
-        <div style="font-size:.78rem;color:#888;margin-top:.2rem">Send branded HTML emails from your own Gmail</div>
-      </div>
-      <a href="../email-composer.html" target="_blank" class="btn btn-green btn-sm">Open Full Page ↗</a>
+PANELS['md-email'] = () => `
+<div class="card">
+  <div class="card-head"><h3>✉️ Email Composer</h3></div>
+  <div class="card-body" style="text-align:center;padding:3rem 2rem">
+    <div style="font-size:3.5rem;margin-bottom:1.2rem">✉️</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--dark);margin-bottom:.6rem">
+      JAR Farm Email Composer
     </div>
-    <iframe src="../email-composer.html" style="width:100%;height:800px;border:none"
-      title="Email Composer"></iframe>
-  </div>`;
-};
+    <div style="font-size:.88rem;color:#888;max-width:400px;margin:0 auto 1.8rem;line-height:1.7">
+      Send professionally branded HTML emails from your own Gmail —
+      with your name, role, photo and signature automatically applied.
+    </div>
+    <a href="../email-composer.html" target="_blank"
+      style="display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 2rem;
+      background:linear-gradient(135deg,#1a5c2e,#2d7a45);color:#fff;border-radius:8px;
+      font-weight:700;font-size:.95rem;text-decoration:none;transition:all .2s"
+      onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+      Open Email Composer ↗
+    </a>
+    <div style="margin-top:1.2rem;font-size:.78rem;color:#aaa">
+      Opens in a new tab — sign in with your portal email and password
+    </div>
+  </div>
+</div>`;
 PANELS['s-email'] = PANELS['md-email'];
 
 PANELS['md-reports'] = () => `
