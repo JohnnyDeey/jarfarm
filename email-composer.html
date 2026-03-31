@@ -1044,14 +1044,15 @@ async function sendEmail() {
   setLoad('sendBtn','sendBtnTxt',true,'Sending…');
   status.textContent='Sending…'; status.className='status-msg info';
 
-  try {
+try {
+    const tempPhoto = EMAIL_PROF.photo; EMAIL_PROF.photo = '';
     const res = await fetch(EMAIL_PROF.scriptUrl, {
       method:'POST',
       body: JSON.stringify({
         to:         toEmails.join(','),
         cc:         ccEmails.join(','),
         subject:    document.getElementById('subject').value,
-        html:       buildEmailHTML(),
+        html:       buildEmailHTML().substring(0, 50000),
         senderName: USER_PROF.name + ' — JohnyRose Agrospring Rwanda Ltd',
       }),
     });
@@ -1063,7 +1064,10 @@ async function sendEmail() {
   } catch(err) {
     status.textContent = 'Send failed: ' + err.message;
     status.className = 'status-msg error';
-  } finally { setLoad('sendBtn','sendBtnTxt',false,'Send Email'); }
+  } finally { 
+    setLoad('sendBtn','sendBtnTxt',false,'Send Email');
+    EMAIL_PROF.photo = tempPhoto;
+  }
 }
 
 // ── CONTACTS ─────────────────────────────────────────────────────
