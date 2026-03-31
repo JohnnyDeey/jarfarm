@@ -1058,13 +1058,15 @@ try {
     });
     const data = await res.json();
     if (data.success) {
-      status.textContent = '✓ Email sent to ' + toEmails.join(', ') + '!';
-      status.className = 'status-msg success';
-    } else throw new Error(data.error||'Unknown error');
-  } catch(err) {
-    status.textContent = 'Send failed: ' + err.message;
-    status.className = 'status-msg error';
-  } finally { 
+  status.innerHTML = '✅ <strong>Email delivered successfully</strong> to ' + toEmails.join(', ') + 
+    '<br/><span style="font-size:.78rem">Sent at ' + new Date().toLocaleTimeString() + 
+    ' — Check recipient spam folder if not received within 5 minutes.</span>';
+  status.className = 'status-msg success';
+} else {
+  status.innerHTML = '❌ <strong>Send failed:</strong> ' + (data.error || 'Unknown error') +
+    '<br/><span style="font-size:.78rem">Check your Apps Script URL in ⚙️ My Profile.</span>';
+  status.className = 'status-msg error';
+}finally { 
     setLoad('sendBtn','sendBtnTxt',false,'Send Email');
     EMAIL_PROF.photo = tempPhoto;
   }
