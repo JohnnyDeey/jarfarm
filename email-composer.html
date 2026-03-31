@@ -3,595 +3,1139 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Email Composer — JAR Farm</title>
-  <link rel="icon" type="image/png" href="../logo.png"/>
-  <link rel="stylesheet" href="../css/style.css"/>
+  <title>JAR Farm — Staff Email Composer</title>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
-    body { background:#F0F4F0; font-family:'Outfit',sans-serif; padding:24px; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--green:#1a5c2e;--dark:#0f2818;--gold:#c8961e;--green-light:#e8f5ec}
+    body{font-family:'DM Sans',sans-serif;background:#f4f6f4;min-height:100vh}
 
-    .composer-wrap { max-width:780px; margin:0 auto; }
+    /* TOP BAR */
+    .topbar{background:linear-gradient(135deg,#0f2818,#1a5c2e);padding:1rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+    .topbar-brand{display:flex;align-items:center;gap:.8rem}
+    .topbar-brand img{width:42px;height:42px;object-fit:contain;border-radius:8px;
+      background:rgba(255,255,255,.12);padding:4px}
+    .topbar-brand-text h1{font-family:'Playfair Display',serif;color:#fff;font-size:1rem;line-height:1.2}
+    .topbar-brand-text p{color:rgba(255,255,255,.5);font-size:.72rem}
+    .topbar-user{display:flex;align-items:center;gap:.8rem}
+    .user-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;
+      border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;overflow:hidden}
+    .user-avatar img{width:100%;height:100%;object-fit:cover}
+    .user-info .name{color:#fff;font-size:.85rem;font-weight:600}
+    .user-info .role{color:rgba(255,255,255,.5);font-size:.72rem}
+    .topbar-actions{display:flex;gap:.6rem}
+    .tbtn{padding:.4rem .9rem;border-radius:6px;font-family:inherit;font-size:.78rem;
+      font-weight:600;cursor:pointer;border:none;transition:all .2s}
+    .tbtn-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);
+      border:1px solid rgba(255,255,255,.15)}
+    .tbtn-ghost:hover{background:rgba(255,255,255,.2)}
+    .tbtn-gold{background:var(--gold);color:#fff}
+    .tbtn-gold:hover{opacity:.88}
 
-    .composer-card {
-      background:white; border-radius:var(--radius-lg);
-      box-shadow:var(--shadow); overflow:hidden;
-    }
+    /* LOGIN SCREEN */
+    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(145deg,#0a1f10,#1a5c2e,#0f2818);padding:1.5rem}
+    .login-card{background:#fff;border-radius:20px;width:100%;max-width:420px;
+      box-shadow:0 32px 80px rgba(0,0,0,.4);overflow:hidden}
+    .login-top{background:linear-gradient(135deg,#0f2818,#1a5c2e);padding:2rem;text-align:center}
+    .login-top .logo-wrap{width:68px;height:68px;background:rgba(255,255,255,.12);border-radius:50%;
+      margin:0 auto .8rem;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .login-top .logo-wrap img{width:54px;height:54px;object-fit:contain}
+    .login-top h2{font-family:'Playfair Display',serif;color:#fff;font-size:1.3rem;margin-bottom:.2rem}
+    .login-top p{color:rgba(255,255,255,.5);font-size:.8rem}
+    .login-body{padding:1.8rem}
 
-    /* HEADER */
-    .composer-header {
-      background:linear-gradient(135deg, var(--forest), var(--mid-green));
-      padding:20px 28px; display:flex; align-items:center; gap:14px;
-    }
-    .composer-header img { height:36px; width:auto; }
-    .composer-header h3 { color:white; margin:0; font-size:1.2rem; }
-    .composer-header p { color:rgba(255,255,255,.7); font-size:.82rem; margin:0; }
+    /* SETUP SCREEN */
+    .setup-screen{min-height:calc(100vh - 70px);display:flex;align-items:center;
+      justify-content:center;padding:2rem;background:#f4f6f4}
+    .setup-card{background:#fff;border-radius:16px;width:100%;max-width:500px;
+      box-shadow:0 8px 40px rgba(0,0,0,.1);overflow:hidden}
+    .setup-top{background:linear-gradient(135deg,#0f2818,#1a5c2e);padding:1.5rem 2rem}
+    .setup-top h2{font-family:'Playfair Display',serif;color:#fff;font-size:1.1rem;margin-bottom:.2rem}
+    .setup-top p{color:rgba(255,255,255,.55);font-size:.8rem}
+    .setup-body{padding:1.8rem}
 
-    /* FIELDS */
-    .composer-fields { padding:24px 28px 0; }
-    .field-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
-    .field-label { font-size:.82rem; font-weight:700; color:var(--text-light); text-transform:uppercase; letter-spacing:.06em; width:70px; flex-shrink:0; }
-    .field-input { flex:1; border:none; outline:none; font-family:'Outfit',sans-serif; font-size:.92rem; color:var(--text-dark); background:transparent; }
-    .field-input::placeholder { color:#C4C4BF; }
-    .to-badge { background:var(--mint); color:var(--forest); padding:4px 10px; border-radius:100px; font-size:.82rem; font-weight:600; }
+    /* PHOTO UPLOAD */
+    .photo-upload{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
+    .photo-preview{width:70px;height:70px;border-radius:50%;border:3px solid #e0e0e0;
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+      background:#f4f4f4;cursor:pointer;transition:border-color .2s;flex-shrink:0}
+    .photo-preview:hover{border-color:var(--green)}
+    .photo-preview img{width:100%;height:100%;object-fit:cover}
+    .photo-preview .ph-icon{font-size:1.8rem;color:#ccc}
+    .photo-upload-text{font-size:.82rem;color:#888;line-height:1.5}
+    .photo-upload-text strong{color:var(--dark);display:block;margin-bottom:.2rem}
 
-    /* TOOLBAR */
-    .toolbar {
-      display:flex; align-items:center; gap:2px; flex-wrap:wrap;
-      padding:10px 28px; border-bottom:1px solid var(--border);
-      background:#FAFAF8;
-    }
-    .toolbar-btn {
-      width:32px; height:32px; border:none; background:transparent;
-      border-radius:6px; cursor:pointer; display:flex; align-items:center;
-      justify-content:center; font-size:.9rem; color:var(--text-mid);
-      transition:all .15s; font-family:'Outfit',sans-serif; font-weight:700;
-    }
-    .toolbar-btn:hover { background:var(--mint); color:var(--forest); }
-    .toolbar-btn.active { background:var(--forest); color:white; }
-    .toolbar-sep { width:1px; height:20px; background:var(--border); margin:0 4px; }
-    .toolbar-select {
-      border:1px solid var(--border); border-radius:6px; padding:4px 8px;
-      font-family:'Outfit',sans-serif; font-size:.82rem; background:white;
-      color:var(--text-dark); outline:none; cursor:pointer;
-    }
-    .toolbar-color { width:20px; height:20px; border-radius:4px; border:2px solid var(--border); cursor:pointer; padding:0; }
+    /* MAIN COMPOSER */
+    .composer-page{padding:1.5rem;max-width:1200px;margin:0 auto}
+    .composer-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:1.5rem;align-items:start}
 
-    /* EDITOR */
-    .editor-area {
-      min-height:280px; padding:20px 28px;
-      font-family:'Outfit',sans-serif; font-size:.92rem;
-      line-height:1.75; color:var(--text-dark);
-      outline:none; cursor:text;
-    }
-    .editor-area:empty::before {
-      content: 'Start typing your email here... Use the toolbar above to format your text.';
-      color:#C4C4BF; pointer-events:none;
-    }
-    .editor-area ul { padding-left:20px; }
-    .editor-area ol { padding-left:20px; }
-    .editor-area blockquote { border-left:3px solid var(--leaf); padding-left:12px; color:var(--text-light); margin:8px 0; }
-    .editor-area table { border-collapse:collapse; width:100%; }
-    .editor-area td, .editor-area th { border:1px solid var(--border); padding:6px 10px; }
+    /* CARDS */
+    .card{background:#fff;border-radius:12px;border:1px solid #e5ebe5;overflow:hidden;margin-bottom:1.2rem}
+    .card-head{padding:1rem 1.4rem;border-bottom:1px solid #f0f0f0;
+      display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+    .card-head h3{font-size:.92rem;font-weight:600;color:var(--dark)}
+    .card-body{padding:1.4rem}
 
-    /* SIGNATURE */
-    .signature-area {
-      padding:0 28px 16px; border-top:1px dashed var(--border);
-      font-size:.85rem; color:var(--text-light); font-style:italic;
-    }
-    .sig-text { margin-top:12px; line-height:1.6; }
-    .sig-text strong { color:var(--forest); font-style:normal; }
-    .sig-text span { color:var(--text-light); font-style:normal; }
+    /* FORM */
+    .fg{margin-bottom:1rem}
+    label{display:block;font-size:.73rem;font-weight:700;color:#444;
+      margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.05em}
+    input,select,textarea{width:100%;padding:.65rem .9rem;border:1.5px solid #e0e0e0;
+      border-radius:8px;font-family:inherit;font-size:.88rem;color:#222;outline:none;transition:all .2s}
+    input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,92,46,.08)}
+    textarea{resize:vertical;min-height:130px;line-height:1.65}
+    .hint{font-size:.71rem;color:#aaa;margin-top:.22rem}
 
-    /* FOOTER */
-    .composer-footer { padding:16px 28px; border-top:1px solid var(--border); display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:#FAFAF8; }
-    .char-count { font-size:.78rem; color:var(--text-light); margin-left:auto; }
+    /* TYPE TABS */
+    .type-tabs{display:grid;gap:.5rem;margin-bottom:1.2rem}
+    .type-tab{padding:.55rem .8rem;border:1.5px solid #e0e0e0;border-radius:8px;
+      font-size:.78rem;font-weight:600;cursor:pointer;background:#fff;color:#666;
+      transition:all .2s;text-align:center;display:flex;align-items:center;gap:.5rem;justify-content:center}
+    .type-tab.active{background:var(--green-light);border-color:var(--green);color:var(--dark)}
+    .type-tab:hover{border-color:var(--green);background:var(--green-light)}
 
-    /* TEMPLATE PICKER */
-    .templates { padding:0 28px 20px; }
-    .templates h5 { font-size:.8rem; font-weight:700; color:var(--text-light); text-transform:uppercase; letter-spacing:.07em; margin-bottom:10px; }
-    .template-btns { display:flex; gap:8px; flex-wrap:wrap; }
-    .tpl-btn { padding:6px 14px; border:1.5px solid var(--border); border-radius:100px; background:white; font-family:'Outfit',sans-serif; font-size:.8rem; font-weight:500; cursor:pointer; color:var(--text-mid); transition:all .2s; }
-    .tpl-btn:hover { border-color:var(--leaf); color:var(--forest); background:var(--mint); }
+    /* RECIPIENT TAGS */
+    .tag-wrap{display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem;
+      border:1.5px solid #e0e0e0;border-radius:8px;min-height:42px;cursor:text;transition:border-color .2s}
+    .tag-wrap:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,92,46,.08)}
+    .tag{background:var(--green-light);color:var(--dark);padding:.2rem .7rem;
+      border-radius:20px;font-size:.78rem;display:flex;align-items:center;gap:.4rem}
+    .tag button{background:none;border:none;cursor:pointer;color:#888;font-size:.9rem;line-height:1}
+    .tag button:hover{color:#dc2626}
+    .tag-input{border:none;outline:none;font-family:inherit;font-size:.86rem;
+      color:#222;min-width:140px;flex:1;padding:.1rem .2rem;background:transparent}
 
-    /* STATUS */
-    .status-bar { padding:10px 28px; font-size:.83rem; border-top:1px solid var(--border); display:none; }
-    .status-bar.success { background:#F0FDF4; color:#166534; display:block; }
-    .status-bar.error { background:#FEF2F2; color:#991B1B; display:block; }
-    .status-bar.info { background:#EFF6FF; color:#1D4ED8; display:block; }
+    /* BUTTONS */
+    .btn{padding:.65rem 1.2rem;border-radius:8px;border:none;font-family:inherit;
+      font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;
+      display:inline-flex;align-items:center;gap:.5rem}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-green:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn-ghost{background:#f4f6f4;color:#444;border:1.5px solid #e0e0e0}
+    .btn-ghost:hover{background:var(--green-light);border-color:var(--green)}
+    .btn-gold{background:var(--gold);color:#fff}
+    .btn-gold:hover{opacity:.88}
+    .btn-row{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
+    .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);
+      border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
 
-    /* SAVED CONTACTS */
-    .contacts-card { background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:20px 24px; margin-top:16px; }
-    .contacts-card h4 { margin-bottom:14px; font-size:1rem; }
-    .contact-item { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
-    .contact-item:last-child { border-bottom:none; }
-    .contact-name { font-weight:600; font-size:.88rem; color:var(--forest); }
-    .contact-email { font-size:.8rem; color:var(--text-light); }
-    .use-btn { padding:5px 12px; background:var(--mint); color:var(--forest); border:none; border-radius:100px; font-family:'Outfit',sans-serif; font-size:.78rem; font-weight:600; cursor:pointer; transition:all .2s; }
-    .use-btn:hover { background:var(--forest); color:white; }
+    /* MESSAGES */
+    .status-msg{padding:.7rem 1rem;border-radius:8px;font-size:.82rem;
+      margin-top:1rem;display:none;line-height:1.5}
+    .status-msg.success{background:#dcfce7;border:1px solid #86efac;color:#166534;display:block}
+    .status-msg.error{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;display:block}
+    .status-msg.info{background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;display:block}
+    .err{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:.65rem 1rem;
+      border-radius:6px;font-size:.82rem;margin-bottom:1rem;display:none;line-height:1.5}
+    .err.show{display:block}
 
-    @media(max-width:600px){
-      .composer-fields, .toolbar, .editor-area, .composer-footer, .templates, .signature-area, .status-bar { padding-left:16px; padding-right:16px; }
+    /* APPS SCRIPT SETUP */
+    .aps-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;
+      padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:.8rem;color:#92400e;line-height:1.7}
+    .aps-banner strong{display:block;margin-bottom:.3rem;font-size:.85rem}
+    .aps-row{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap}
+    .aps-row input{flex:1;min-width:180px;padding:.42rem .7rem;
+      border:1px solid #fde68a;border-radius:6px;font-family:inherit;font-size:.8rem;background:#fff;outline:none}
+
+    /* TEMPLATE CHIPS */
+    .chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
+    .chip{padding:.28rem .75rem;border-radius:20px;border:1.5px solid #e0e0e0;
+      font-size:.74rem;font-weight:600;cursor:pointer;background:#fff;color:#666;transition:all .15s}
+    .chip:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+
+    /* CONTACTS */
+    .contacts-list{display:flex;flex-direction:column;gap:.35rem;max-height:150px;overflow-y:auto}
+    .contact-item{display:flex;align-items:center;justify-content:space-between;
+      padding:.45rem .8rem;border-radius:6px;background:#f9f9f9;border:1px solid #f0f0f0;
+      font-size:.8rem;cursor:pointer;transition:background .15s}
+    .contact-item:hover{background:var(--green-light);border-color:var(--green)}
+    .contact-name{font-weight:600;color:var(--dark)}
+    .contact-email{color:#888;font-size:.73rem}
+
+    /* PREVIEW IFRAME */
+    .preview-frame{border:1px solid #e5ebe5;border-radius:8px;overflow:hidden;background:#f9f9f9}
+
+    /* SCRIPT MODAL */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;
+      align-items:center;justify-content:center;padding:1rem}
+    .modal-bg.open{display:flex}
+    .modal{background:#fff;border-radius:14px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto}
+    .modal-head{padding:1.1rem 1.4rem;border-bottom:1px solid #f0f0f0;
+      display:flex;justify-content:space-between;align-items:center}
+    .modal-head h3{font-size:.95rem;font-weight:700;color:var(--dark)}
+    .modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888}
+    .modal-body{padding:1.4rem}
+    .code-block{background:#1e1e2e;border-radius:8px;padding:1.2rem;font-family:monospace;
+      font-size:.76rem;color:#cdd6f4;line-height:1.8;overflow-x:auto;white-space:pre}
+
+    @media(max-width:900px){
+      .composer-grid{grid-template-columns:1fr}
+      .topbar{padding:.8rem 1rem}
+      .composer-page{padding:1rem .7rem}
     }
   </style>
 </head>
 <body>
 
-<div class="composer-wrap">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div>
-      <h2 style="margin:0;font-size:1.4rem">📧 Email Composer</h2>
-      <p style="margin:4px 0 0;font-size:.85rem;color:var(--text-light)">Rich text email — send reports, updates and announcements</p>
-    </div>
-    <a href="dashboard.html" style="font-size:.85rem;color:var(--forest);font-weight:600">← Back to Dashboard</a>
-  </div>
-
-  <div class="composer-card">
-    <!-- HEADER -->
-    <div class="composer-header">
-      <img src="../logo.png" alt="JAR Farm"/>
-      <div>
-        <h3>New Email</h3>
-        <p>JohnnyRose Agrospring Rwanda Limited</p>
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-top">
+      <div class="logo-wrap">
+        <img src="logo.png" onerror="this.parentElement.innerHTML='🌿'"/>
       </div>
+      <h2>Staff Email Composer</h2>
+      <p>JohnyRose Agrospring Rwanda Ltd</p>
     </div>
-
-    <!-- FIELDS -->
-    <div class="composer-fields">
-      <div class="field-row">
-        <span class="field-label">To</span>
-        <div style="display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap" id="to-tags">
-          <span class="to-badge">johndamilola328@gmail.com</span>
-        </div>
-        <input type="email" id="extra-email" class="field-input" placeholder="Add another email..." style="max-width:220px" onkeypress="if(event.key==='Enter')addRecipient()"/>
+    <div class="login-body">
+      <div class="err" id="loginErr"></div>
+      <div class="fg">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="your.email@example.com"
+          autocomplete="email"/>
       </div>
-      <div class="field-row">
-        <span class="field-label">From</span>
-        <span class="field-input" id="from-field" style="color:var(--text-mid)">Staff Portal — JAR Farm</span>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="loginPw" placeholder="Your portal password"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
       </div>
-      <div class="field-row">
-        <span class="field-label">Subject</span>
-        <input type="text" id="email-subject" class="field-input" placeholder="e.g. Daily Report — 25 June 2025"/>
-      </div>
-    </div>
-
-    <!-- TEMPLATES -->
-    <div class="templates" style="padding-top:16px">
-      <h5>Quick Templates</h5>
-      <div class="template-btns">
-        <button class="tpl-btn" onclick="loadTemplate('daily')">📅 Daily Report</button>
-        <button class="tpl-btn" onclick="loadTemplate('harvest')">🌾 Harvest Log</button>
-        <button class="tpl-btn" onclick="loadTemplate('sales')">🛒 Sales Update</button>
-        <button class="tpl-btn" onclick="loadTemplate('expense')">💰 Expense Report</button>
-        <button class="tpl-btn" onclick="loadTemplate('incident')">⚠️ Incident Report</button>
-        <button class="tpl-btn" onclick="loadTemplate('blank')">📄 Blank Email</button>
-      </div>
-    </div>
-
-    <!-- TOOLBAR -->
-    <div class="toolbar" id="toolbar">
-      <!-- Font size -->
-      <select class="toolbar-select" onchange="execCmd('fontSize', this.value); this.value='3'">
-        <option value="3">Normal</option>
-        <option value="1">Small</option>
-        <option value="4">Large</option>
-        <option value="5">X-Large</option>
-        <option value="6">Heading</option>
-      </select>
-      <div class="toolbar-sep"></div>
-
-      <!-- Text style -->
-      <button class="toolbar-btn" onclick="execCmd('bold')" title="Bold"><strong>B</strong></button>
-      <button class="toolbar-btn" onclick="execCmd('italic')" title="Italic"><em>I</em></button>
-      <button class="toolbar-btn" onclick="execCmd('underline')" title="Underline"><u>U</u></button>
-      <button class="toolbar-btn" onclick="execCmd('strikeThrough')" title="Strikethrough"><s>S</s></button>
-      <div class="toolbar-sep"></div>
-
-      <!-- Color -->
-      <input type="color" class="toolbar-color" title="Text Colour" value="#1B4332" onchange="execCmd('foreColor', this.value)"/>
-      <input type="color" class="toolbar-color" title="Highlight" value="#D8F3DC" onchange="execCmd('hiliteColor', this.value)" style="margin-left:4px"/>
-      <div class="toolbar-sep"></div>
-
-      <!-- Alignment -->
-      <button class="toolbar-btn" onclick="execCmd('justifyLeft')" title="Align Left">&#8676;</button>
-      <button class="toolbar-btn" onclick="execCmd('justifyCenter')" title="Centre">&#8596;</button>
-      <button class="toolbar-btn" onclick="execCmd('justifyRight')" title="Align Right">&#8677;</button>
-      <div class="toolbar-sep"></div>
-
-      <!-- Lists -->
-      <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="Bullet List">&#8226;≡</button>
-      <button class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="Numbered List">1≡</button>
-      <button class="toolbar-btn" onclick="execCmd('outdent')" title="Outdent">&#8676;&#8193;</button>
-      <button class="toolbar-btn" onclick="execCmd('indent')" title="Indent">&#8193;&#8677;</button>
-      <div class="toolbar-sep"></div>
-
-      <!-- Insert -->
-      <button class="toolbar-btn" onclick="insertTable()" title="Insert Table">⊞</button>
-      <button class="toolbar-btn" onclick="insertDivider()" title="Insert Divider">—</button>
-      <button class="toolbar-btn" onclick="execCmd('blockquote')" title="Blockquote">"</button>
-      <div class="toolbar-sep"></div>
-
-      <!-- Clear -->
-      <button class="toolbar-btn" onclick="execCmd('removeFormat')" title="Clear Formatting" style="font-size:.7rem;width:auto;padding:0 8px">Clear</button>
-      <button class="toolbar-btn" onclick="execCmd('undo')" title="Undo">↩</button>
-      <button class="toolbar-btn" onclick="execCmd('redo')" title="Redo">↪</button>
-    </div>
-
-    <!-- EDITOR -->
-    <div class="editor-area" id="editor" contenteditable="true" spellcheck="true"
-         oninput="updateCharCount()" onkeydown="handleKey(event)">
-    </div>
-
-    <!-- SIGNATURE -->
-    <div class="signature-area">
-      <div class="sig-text">
-        <strong id="sig-name">Staff Member</strong><br/>
-        <span id="sig-role">JAR Farm Staff Portal</span><br/>
-        <span>JohnnyRose Agrospring Rwanda Limited</span><br/>
-        <span>KK711 Street, Kigarama, Kicukiro, Kigali, Rwanda</span><br/>
-        <span>📞 +250 793 594 038</span>
-      </div>
-    </div>
-
-    <!-- STATUS -->
-    <div class="status-bar" id="status-bar"></div>
-
-    <!-- FOOTER -->
-    <div class="composer-footer">
-      <button class="btn btn-primary" onclick="sendEmail()">📧 Send Email</button>
-      <button class="btn btn-secondary btn-sm" onclick="previewEmail()">👁 Preview</button>
-      <button class="btn btn-sm" style="background:var(--mint);color:var(--forest);border:none" onclick="copyEmail()">📋 Copy</button>
-      <button class="btn btn-sm" style="background:#FEF2F2;color:#991B1B;border:none" onclick="clearAll()">🗑 Clear</button>
-      <span class="char-count" id="char-count">0 characters</span>
-    </div>
-  </div>
-
-  <!-- SAVED CONTACTS -->
-  <div class="contacts-card">
-    <h4>📒 Saved Contacts</h4>
-    <div id="contacts-list"></div>
-    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-      <input type="text" id="new-contact-name" placeholder="Contact name" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:'Outfit',sans-serif;font-size:.85rem;outline:none"/>
-      <input type="email" id="new-contact-email" placeholder="Email address" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:'Outfit',sans-serif;font-size:.85rem;outline:none"/>
-      <button class="btn btn-primary btn-sm" onclick="saveContact()">+ Add</button>
+      <button class="btn btn-green" style="width:100%;padding:.8rem;font-size:.92rem"
+        id="loginBtn" onclick="doLogin()">
+        <span id="loginBtnTxt">Sign In</span>
+      </button>
+      <p style="text-align:center;font-size:.78rem;color:#aaa;margin-top:1rem">
+        Use the same login as your staff portal
+      </p>
     </div>
   </div>
 </div>
 
-<script src="../js/main.js"></script>
+<!-- ══════════════════════════════════════
+     SETUP SCREEN (first time)
+══════════════════════════════════════ -->
+<div id="setupScreen" style="display:none">
+  <div class="setup-screen">
+    <div class="setup-card">
+      <div class="setup-top">
+        <h2>⚙️ Set Up Your Email Profile</h2>
+        <p>This is used to personalise your signature on every email you send.</p>
+      </div>
+      <div class="setup-body">
+        <div class="err" id="setupErr"></div>
+
+        <div class="photo-upload">
+          <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoFile').click()">
+            <span class="ph-icon">👤</span>
+          </div>
+          <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handlePhoto(this)"/>
+          <div class="photo-upload-text">
+            <strong>Profile Photo</strong>
+            Click to upload your photo.<br/>
+            This appears in your email signature.<br/>
+            <span style="font-size:.72rem;color:#aaa">JPG or PNG, max 1MB</span>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Your Personal Gmail (to send emails from)</label>
+          <input type="email" id="setupGmail" placeholder="yourname@gmail.com"/>
+          <div class="hint">Emails will be sent from this address via your own Google account</div>
+        </div>
+        <div class="fg">
+          <label>Your Phone Number</label>
+          <input type="tel" id="setupPhone" placeholder="+250 7xx xxx xxx"/>
+          <div class="hint">Appears in your email signature</div>
+        </div>
+        <div class="fg">
+          <label>Google Apps Script URL</label>
+          <input id="setupScriptUrl" placeholder="https://script.google.com/macros/s/..."/>
+          <div class="hint">
+            You need your own Apps Script to send from your Gmail.
+            <a href="#" onclick="openScriptModal();return false"
+              style="color:var(--green);font-weight:600">Get the script →</a>
+          </div>
+        </div>
+
+        <button class="btn btn-green" style="width:100%;padding:.78rem" id="setupBtn" onclick="saveSetup()">
+          <span id="setupBtnTxt">Save & Continue</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN COMPOSER
+══════════════════════════════════════ -->
+<div id="mainScreen" style="display:none">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img src="logo.png" onerror="this.style.display='none'"/>
+      <div class="topbar-brand-text">
+        <h1>JohnyRose Agrospring Rwanda Ltd</h1>
+        <p>Staff Email Composer</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div class="topbar-user">
+        <div class="user-avatar" id="topAvatar"></div>
+        <div class="user-info">
+          <div class="name" id="topName">—</div>
+          <div class="role" id="topRole">—</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="tbtn tbtn-ghost" onclick="openScriptModal()">📋 Apps Script</button>
+        <button class="tbtn tbtn-ghost" onclick="showSetup()">⚙️ My Profile</button>
+        <button class="tbtn tbtn-ghost" onclick="doLogout()">Sign Out</button>
+        <a href="staff/index.html" class="tbtn tbtn-gold">← Portal</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="composer-page">
+
+    <!-- APPS SCRIPT BANNER (if not set up) -->
+    <div class="aps-banner" id="apsBanner" style="display:none">
+      <strong>⚙️ Connect your Gmail to send emails</strong>
+      You need a Google Apps Script web app to send from your personal Gmail. It's free and takes 3 minutes.
+      <a href="#" onclick="openScriptModal();return false" style="color:#92400e;font-weight:700">Show me how →</a>
+    </div>
+
+    <div class="composer-grid">
+
+      <!-- LEFT: COMPOSE -->
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <h3>✉️ Compose Email</h3>
+            <span style="font-size:.72rem;color:#aaa" id="sendingAs">Sending as: —</span>
+          </div>
+          <div class="card-body">
+
+            <div class="fg">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem">
+                <label style="margin-bottom:0">Email Category</label>
+                <button class="btn btn-ghost" style="padding:.2rem .65rem;font-size:.72rem;border-radius:20px"
+                  onclick="toggleAddCategory()">+ Add Category</button>
+              </div>
+              <!-- ADD CATEGORY FORM -->
+              <div id="addCatForm" style="display:none;background:#f9fdf9;border:1.5px solid #c8e6c9;border-radius:8px;padding:.8rem;margin-bottom:.7rem">
+                <div style="font-size:.75rem;font-weight:700;color:#1a5c2e;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em">New Category</div>
+                <div style="display:grid;grid-template-columns:60px 1fr;gap:.5rem;margin-bottom:.5rem">
+                  <input id="newCatIcon" placeholder="🏷️" maxlength="2"
+                    style="padding:.45rem .6rem;border:1.5px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:1.1rem;text-align:center;outline:none"/>
+                  <input id="newCatLabel" placeholder="Category name (e.g. Legal, Export)"
+                    style="padding:.45rem .7rem;border:1.5px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:.85rem;outline:none"
+                    onkeydown="if(event.key==='Enter')saveCategory()"/>
+                </div>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                  <button class="btn btn-green" style="padding:.35rem .9rem;font-size:.78rem" onclick="saveCategory()">Save</button>
+                  <button class="btn btn-ghost" style="padding:.35rem .9rem;font-size:.78rem" onclick="toggleAddCategory()">Cancel</button>
+                </div>
+              </div>
+              <div class="type-tabs" id="typeTabs"></div>
+            </div>
+
+            <div class="fg">
+              <label>Quick Templates</label>
+              <div class="chips" id="templateChips"></div>
+            </div>
+
+            <div class="fg">
+              <label>To</label>
+              <div class="tag-wrap" id="toWrap" onclick="document.getElementById('toInput').focus()">
+                <input id="toInput" class="tag-input" placeholder="Type email and press Enter…"
+                  onkeydown="handleTag(event,'to')"/>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label>CC (optional)</label>
+              <div class="tag-wrap" id="ccWrap" onclick="document.getElementById('ccInput').focus()">
+                <input id="ccInput" class="tag-input" placeholder="Type email and press Enter…"
+                  onkeydown="handleTag(event,'cc')"/>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label>Subject</label>
+              <input id="subject" placeholder="Email subject…" oninput="updatePreview()"/>
+            </div>
+
+            <div class="fg">
+              <label>Greeting</label>
+              <input id="greeting" placeholder="e.g. Dear Mr. Mugisha," oninput="updatePreview()"/>
+            </div>
+
+            <div class="fg">
+              <label>Message</label>
+              <textarea id="body" placeholder="Type your message here…" oninput="updatePreview()"></textarea>
+            </div>
+
+            <div class="fg">
+              <label>Closing</label>
+              <input id="closing" placeholder="e.g. We look forward to your response." oninput="updatePreview()"/>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-green" id="sendBtn" onclick="sendEmail()">
+                <span id="sendBtnTxt">Send Email</span>
+              </button>
+              <button class="btn btn-ghost" onclick="clearForm()">🗑 Clear</button>
+            </div>
+            <div class="status-msg" id="statusMsg"></div>
+          </div>
+        </div>
+
+        <!-- CONTACTS -->
+        <div class="card">
+          <div class="card-head">
+            <h3>📋 Saved Contacts</h3>
+            <button class="btn btn-ghost" style="padding:.28rem .7rem;font-size:.73rem"
+              onclick="toggleAddContact()">+ Add</button>
+          </div>
+          <div class="card-body">
+            <div class="contacts-list" id="contactsList"></div>
+            <div id="addContactForm" style="display:none;margin-top:.8rem">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+                <input id="cName" placeholder="Name"
+                  style="padding:.5rem .7rem;border:1.5px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:.83rem;outline:none"/>
+                <input id="cEmail" placeholder="Email"
+                  style="padding:.5rem .7rem;border:1.5px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:.83rem;outline:none"/>
+              </div>
+              <button class="btn btn-green" style="padding:.42rem 1rem;font-size:.8rem"
+                onclick="saveContact()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: PREVIEW -->
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <h3>👁 Live Preview</h3>
+            <span style="font-size:.72rem;color:#aaa">Exactly what the recipient sees</span>
+          </div>
+          <div class="preview-frame">
+            <iframe id="previewFrame" style="width:100%;height:640px;border:none" frameborder="0"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT MODAL -->
+<div class="modal-bg" id="scriptModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Google Apps Script — Copy this code</h3>
+      <button class="modal-close" onclick="closeScriptModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:#555;margin-bottom:1rem;line-height:1.6">
+        1. Go to <a href="https://script.google.com" target="_blank" style="color:var(--green);font-weight:600">script.google.com</a>
+        → New Project → delete existing code → paste this → Save<br/>
+        2. Click <strong>Deploy → New deployment → Web app</strong><br/>
+        3. Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong> → Deploy<br/>
+        4. Copy the Web App URL → paste it in your profile setup
+      </p>
+      <div class="code-block" id="scriptCode"></div>
+      <button class="btn btn-green" onclick="copyScript()" style="margin-top:1rem">📋 Copy Script</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── USER ──
-let cu = {name:'Staff', role:'field'};
-try {
-  const s = localStorage.getItem('jar_user');
-  if (s) cu = JSON.parse(s);
-} catch(e) {}
-document.getElementById('sig-name').textContent = cu.name;
-document.getElementById('sig-role').textContent = cu.role.charAt(0).toUpperCase() + cu.role.slice(1) + ' — JAR Farm';
-document.getElementById('from-field').textContent = cu.name + ' via JAR Farm Portal';
+// ── FIREBASE ──────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyCgAxvg4xfgmpdm7-LCFHO_NiDQKGGm2OQ",
+  authDomain:        "jarfarm-3a34e.firebaseapp.com",
+  projectId:         "jarfarm-3a34e",
+  storageBucket:     "jarfarm-3a34e.firebasestorage.app",
+  messagingSenderId: "505148580037",
+  appId:             "1:505148580037:web:6a198b22aa6de557c1d0ac"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
 
-// ── EXEC COMMAND ──
-function execCmd(cmd, val) {
-  document.getElementById('editor').focus();
-  document.execCommand(cmd, false, val || null);
-  updateCharCount();
-}
+// ── STATE ─────────────────────────────────────────────────────────
+let CUR_USER   = null;
+let USER_PROF  = null;  // Firestore users doc
+let EMAIL_PROF = null;  // email composer profile (gmail, phone, photo, scriptUrl)
+let toEmails   = [];
+let ccEmails   = [];
+let emailType  = '';
+let photoBase64 = '';
 
-function handleKey(e) {
-  // Tab key = indent
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    execCmd('insertHTML', '&nbsp;&nbsp;&nbsp;&nbsp;');
+// ── APPS SCRIPT CODE ──────────────────────────────────────────────
+const SCRIPT_CODE = `function doPost(e) {
+  try {
+    const data    = JSON.parse(e.postData.contents);
+    const to      = data.to;
+    const cc      = data.cc || '';
+    const subject = data.subject;
+    const html    = data.html;
+    const name    = data.senderName || 'JAR Farm Staff';
+
+    GmailApp.sendEmail(to, subject, '', {
+      htmlBody: html,
+      cc: cc,
+      name: name,
+      replyTo: Session.getActiveUser().getEmail()
+    });
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-// ── CHAR COUNT ──
-function updateCharCount() {
-  const text = document.getElementById('editor').innerText || '';
-  const count = text.length;
-  const el = document.getElementById('char-count');
-  el.textContent = count.toLocaleString() + ' characters';
-  el.style.color = count > 5000 ? '#DC2626' : 'var(--text-light)';
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'JAR Farm Email running' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+document.getElementById('scriptCode').textContent = SCRIPT_CODE;
+
+// ── AUTH ──────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { showScreen('login'); return; }
+  CUR_USER = user;
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (!snap.exists) { await auth.signOut(); showScreen('login'); return; }
+    USER_PROF = snap.data();
+
+    // Load email composer profile from Firebase
+    try {
+      const profSnap = await db.collection('email_profiles').doc(user.uid).get();
+      if (profSnap.exists) {
+        EMAIL_PROF = profSnap.data();
+        // Also cache locally for speed
+        localStorage.setItem('jar_email_prof_'+user.uid, JSON.stringify(EMAIL_PROF));
+        initComposer();
+        showScreen('main');
+      } else {
+        // Check local cache as fallback
+        const cached = localStorage.getItem('jar_email_prof_'+user.uid);
+        if (cached) {
+          EMAIL_PROF = JSON.parse(cached);
+          // Sync to Firebase
+          await db.collection('email_profiles').doc(user.uid).set(EMAIL_PROF);
+          initComposer();
+          showScreen('main');
+        } else {
+          showScreen('setup');
+        }
+      }
+    } catch(err) {
+      console.error('Profile load error:', err);
+      showScreen('setup');
+    }
+  } catch(err) { console.error(err); showScreen('login'); }
+});
+
+function showScreen(s) {
+  document.getElementById('loginScreen').style.display = s==='login' ? 'flex' : 'none';
+  document.getElementById('setupScreen').style.display = s==='setup' ? 'block' : 'none';
+  document.getElementById('mainScreen').style.display  = s==='main'  ? 'block' : 'none';
 }
 
-// ── INSERT TABLE ──
-function insertTable() {
-  const html = `<table style="border-collapse:collapse;width:100%;margin:8px 0">
-    <tr>
-      <th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Item</th>
-      <th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Details</th>
-      <th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Amount (RWF)</th>
-    </tr>
-    <tr>
-      <td style="border:1px solid #D1D5DB;padding:8px 12px">Item 1</td>
-      <td style="border:1px solid #D1D5DB;padding:8px 12px">Description</td>
-      <td style="border:1px solid #D1D5DB;padding:8px 12px">0</td>
-    </tr>
-    <tr>
-      <td style="border:1px solid #D1D5DB;padding:8px 12px">Item 2</td>
-      <td style="border:1px solid #D1D5DB;padding:8px 12px">Description</td>
-      <td style="border:1px solid #D1D5DB;padding:8px 12px">0</td>
-    </tr>
-  </table><br/>`;
-  execCmd('insertHTML', html);
-}
+// ── LOGIN ─────────────────────────────────────────────────────────
+async function doLogin() {
+  const emailVal = document.getElementById('loginEmail').value.trim();
+  const pwVal    = document.getElementById('loginPw').value;
+  const errEl    = document.getElementById('loginErr');
+  const statusEl = document.getElementById('loginStatus');
+  const btn      = document.getElementById('loginBtn');
+  const btnTxt   = document.getElementById('loginBtnTxt');
 
-function insertDivider() {
-  execCmd('insertHTML', '<hr style="border:none;border-top:2px solid #D8F3DC;margin:12px 0"/><br/>');
-}
+  // Clear previous errors
+  errEl.classList.remove('show');
+  statusEl.style.display = 'none';
 
-// ── TEMPLATES ──
-const TEMPLATES = {
-  daily: {
-    subject: 'Daily Activity Report — ' + new Date().toLocaleDateString('en-GB'),
-    body: `<p>Dear <strong>Managing Director</strong>,</p>
-<p>Please find below my daily activity report for <strong>${new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</strong>.</p>
-<br/>
-<p><strong>🌾 Farm Activities</strong></p>
-<ul>
-  <li>Activity 1 — describe here</li>
-  <li>Activity 2 — describe here</li>
-</ul>
-<br/>
-<p><strong>🛒 Sales & Deliveries</strong></p>
-<ul>
-  <li>Customer name — product, quantity, amount (RWF)</li>
-</ul>
-<br/>
-<p><strong>📦 Stock Update</strong></p>
-<ul>
-  <li>Product — current stock (kg)</li>
-</ul>
-<br/>
-<p><strong>⚠️ Issues / Alerts</strong></p>
-<ul>
-  <li>None / describe any issues</li>
-</ul>
-<br/>
-<p><strong>📋 Tomorrow's Plan</strong></p>
-<ul>
-  <li>Planned activity for tomorrow</li>
-</ul>`
-  },
-  harvest: {
-    subject: 'Harvest Log — ' + new Date().toLocaleDateString('en-GB'),
-    body: `<p>Dear <strong>Managing Director</strong>,</p>
-<p>Please find below the harvest log for <strong>${new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</strong>.</p>
-<br/>
-<p><strong>🌾 Harvest Details</strong></p>
-<table style="border-collapse:collapse;width:100%;margin:8px 0">
-  <tr><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Produce</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Plot / Farm</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Qty (kg)</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Quality</th></tr>
-  <tr><td style="border:1px solid #D1D5DB;padding:8px 12px">Produce name</td><td style="border:1px solid #D1D5DB;padding:8px 12px">Plot number</td><td style="border:1px solid #D1D5DB;padding:8px 12px">0</td><td style="border:1px solid #D1D5DB;padding:8px 12px">Good / Fair / Poor</td></tr>
-</table>
-<br/>
-<p><strong>📍 Delivered To:</strong> Packhouse / Market / Storage</p>
-<p><strong>🕐 Time of Delivery:</strong> 00:00</p>
-<br/>
-<p><strong>Notes:</strong> Any additional observations from the field.</p>`
-  },
-  sales: {
-    subject: 'Sales Update — ' + new Date().toLocaleDateString('en-GB'),
-    body: `<p>Dear <strong>Managing Director</strong>,</p>
-<p>Please find below the sales update for <strong>${new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</strong>.</p>
-<br/>
-<p><strong>🛒 Sales Made Today</strong></p>
-<table style="border-collapse:collapse;width:100%;margin:8px 0">
-  <tr><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Customer</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Produce</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Qty (kg)</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Amount (RWF)</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Payment</th></tr>
-  <tr><td style="border:1px solid #D1D5DB;padding:8px 12px">Customer name</td><td style="border:1px solid #D1D5DB;padding:8px 12px">Produce</td><td style="border:1px solid #D1D5DB;padding:8px 12px">0</td><td style="border:1px solid #D1D5DB;padding:8px 12px">0</td><td style="border:1px solid #D1D5DB;padding:8px 12px">Paid / Pending</td></tr>
-</table>
-<br/>
-<p><strong>💰 Total Revenue Today: RWF </strong>0</p>
-<p><strong>💰 Outstanding Payments: RWF </strong>0</p>`
-  },
-  expense: {
-    subject: 'Expense Report — ' + new Date().toLocaleDateString('en-GB'),
-    body: `<p>Dear <strong>Managing Director</strong>,</p>
-<p>Please find below the expense report for approval.</p>
-<br/>
-<p><strong>💰 Expenses Incurred</strong></p>
-<table style="border-collapse:collapse;width:100%;margin:8px 0">
-  <tr><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Item</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Reason</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Amount (RWF)</th><th style="border:1px solid #D1D5DB;padding:8px 12px;background:#F0F4F0;text-align:left">Receipt</th></tr>
-  <tr><td style="border:1px solid #D1D5DB;padding:8px 12px">Expense item</td><td style="border:1px solid #D1D5DB;padding:8px 12px">Reason</td><td style="border:1px solid #D1D5DB;padding:8px 12px">0</td><td style="border:1px solid #D1D5DB;padding:8px 12px">Yes / No</td></tr>
-</table>
-<br/>
-<p><strong>Total: RWF </strong>0</p>
-<p>Receipts are attached / available on request.</p>
-<br/>
-<p>Please confirm receipt and approval.</p>`
-  },
-  incident: {
-    subject: '⚠️ Incident Report — ' + new Date().toLocaleDateString('en-GB'),
-    body: `<p>Dear <strong>Managing Director</strong>,</p>
-<p>I am writing to report an incident that occurred on <strong>${new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}</strong>.</p>
-<br/>
-<p><strong>⚠️ Incident Type:</strong> [Theft / Damage / Accident / Dispute / Other]</p>
-<p><strong>📍 Location:</strong> [Where it happened]</p>
-<p><strong>🕐 Time:</strong> [Time of incident]</p>
-<br/>
-<p><strong>📋 Description:</strong></p>
-<p>Describe what happened in detail here.</p>
-<br/>
-<p><strong>👥 People Involved:</strong></p>
-<ul>
-  <li>Name and role</li>
-</ul>
-<br/>
-<p><strong>✅ Action Taken:</strong></p>
-<ul>
-  <li>What has been done so far</li>
-</ul>
-<br/>
-<p><strong>📌 Recommended Next Steps:</strong></p>
-<ul>
-  <li>What you recommend should happen next</li>
-</ul>`
-  },
-  blank: {
-    subject: '',
-    body: `<p>Dear <strong>Managing Director</strong>,</p>
-<br/>
-<p>Your message here.</p>`
+  // Validate
+  if (!emailVal) { errEl.textContent='Please enter your email address.'; errEl.classList.add('show'); return; }
+  if (!pwVal)    { errEl.textContent='Please enter your password.'; errEl.classList.add('show'); return; }
+
+  // Show loading state
+  btn.disabled      = true;
+  btnTxt.textContent = 'Signing in…';
+  statusEl.style.display = 'block';
+  statusEl.textContent   = 'Connecting to Firebase…';
+
+  try {
+    statusEl.textContent = 'Verifying credentials…';
+    const cred = await auth.signInWithEmailAndPassword(emailVal, pwVal);
+    statusEl.textContent = 'Loading your profile…';
+    // onAuthStateChanged will handle the rest
+  } catch(e) {
+    console.error('Login error:', e);
+    btn.disabled      = false;
+    btnTxt.textContent = 'Sign In';
+    statusEl.style.display = 'none';
+    const c = e.code || '';
+    if (c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-credential'||c==='auth/invalid-login-credentials') {
+      errEl.textContent = 'Incorrect email or password. Please try again.';
+    } else if (c==='auth/too-many-requests') {
+      errEl.textContent = 'Too many failed attempts. Please wait a few minutes.';
+    } else if (c==='auth/network-request-failed') {
+      errEl.textContent = 'No internet connection. Please check your network.';
+    } else {
+      errEl.textContent = 'Error: ' + (e.message || e.code || 'Unknown error');
+    }
+    errEl.classList.add('show');
   }
+}
+
+async function doLogout() { await auth.signOut(); showScreen('login'); }
+
+// ── SETUP ─────────────────────────────────────────────────────────
+function showSetup() {
+  // Pre-fill setup form with existing values
+  if (EMAIL_PROF) {
+    const g = document.getElementById('setupGmail');
+    const p = document.getElementById('setupPhone');
+    const s = document.getElementById('setupScriptUrl');
+    if (g) g.value = EMAIL_PROF.gmail || '';
+    if (p) p.value = EMAIL_PROF.phone || '';
+    if (s) s.value = EMAIL_PROF.scriptUrl || '';
+    if (EMAIL_PROF.photo) {
+      photoBase64 = EMAIL_PROF.photo;
+      const prev = document.getElementById('photoPreview');
+      if (prev) prev.innerHTML = `<img src="${EMAIL_PROF.photo}"/>`;
+    }
+  }
+  showScreen('setup');
+}
+
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 1024*1024) { alert('Photo must be under 1MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoBase64 = e.target.result;
+    document.getElementById('photoPreview').innerHTML =
+      `<img src="${photoBase64}"/>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveSetup() {
+  const gmail  = document.getElementById('setupGmail').value.trim();
+  const phone  = document.getElementById('setupPhone').value.trim();
+  const script = document.getElementById('setupScriptUrl').value.trim();
+  const err    = document.getElementById('setupErr');
+  err.classList.remove('show');
+  if (!gmail) { err.textContent='Please enter your Gmail address.'; err.classList.add('show'); return; }
+  if (!phone) { err.textContent='Please enter your phone number.'; err.classList.add('show'); return; }
+  if (!script||!script.startsWith('https://')) {
+    err.textContent='Please enter your Google Apps Script URL.'; err.classList.add('show'); return;
+  }
+  EMAIL_PROF = { gmail, phone, scriptUrl: script, photo: photoBase64 || '',
+    name: USER_PROF.name, role: USER_PROF.role, roleLabel: USER_PROF.roleLabel,
+    staffId: USER_PROF.staffId, updatedAt: new Date().toISOString() };
+
+  setLoad('setupBtn','setupBtnTxt',true,'Saving…');
+  try {
+    // Save to Firebase so it works on any device
+    await db.collection('email_profiles').doc(CUR_USER.uid).set(EMAIL_PROF);
+    // Also cache locally for speed
+    localStorage.setItem('jar_email_prof_'+CUR_USER.uid, JSON.stringify(EMAIL_PROF));
+    initComposer();
+    showScreen('main');
+  } catch(err) {
+    const errEl = document.getElementById('setupErr');
+    errEl.textContent = 'Error saving profile: ' + err.message;
+    errEl.classList.add('show');
+  } finally {
+    setLoad('setupBtn','setupBtnTxt',false,'Save & Continue');
+  }
+}
+
+// ── INIT COMPOSER ─────────────────────────────────────────────────
+function initComposer() {
+  // Top bar
+  document.getElementById('topName').textContent = USER_PROF.name;
+  document.getElementById('topRole').textContent = USER_PROF.roleLabel;
+  document.getElementById('sendingAs').textContent = 'Sending as: ' + EMAIL_PROF.gmail;
+
+  // Avatar
+  const av = document.getElementById('topAvatar');
+  if (EMAIL_PROF.photo) {
+    av.innerHTML = `<img src="${EMAIL_PROF.photo}"/>`;
+  } else {
+    av.textContent = USER_PROF.name.charAt(0).toUpperCase();
+  }
+
+  // Apps Script banner
+  document.getElementById('apsBanner').style.display =
+    EMAIL_PROF.scriptUrl ? 'none' : 'block';
+
+  // Build type tabs based on role
+  buildTypeTabs();
+  loadContacts();
+  updatePreview();
+}
+
+// ── EMAIL TYPES BY ROLE ───────────────────────────────────────────
+const ALL_TYPES = {
+  business: { icon:'🤝', label:'Business',   roles:['md','manager','admin'] },
+  invoice:  { icon:'💰', label:'Invoice',    roles:['md','manager','accountant'] },
+  farmer:   { icon:'🌾', label:'Farmer',     roles:['md','manager','field'] },
+  staff:    { icon:'👥', label:'Staff',      roles:['md','manager','admin'] },
+  ops:      { icon:'⚙️', label:'Operations', roles:['md','manager','field','packhouse','driver'] },
+  report:   { icon:'📋', label:'Report',     roles:['md','manager','field','packhouse','driver','accountant','admin'] },
 };
 
-function loadTemplate(type) {
-  const tpl = TEMPLATES[type];
-  if (!tpl) return;
-  if (document.getElementById('editor').innerText.trim().length > 5) {
-    if (!confirm('This will replace your current content. Continue?')) return;
+const TEMPLATES = {
+  business: [
+    { label:'Produce Offer', subject:'Fresh Produce Offer — {month}',
+      greeting:'Dear Sir/Madam,',
+      body:'We are pleased to offer our latest export-grade produce from JohnyRose Agrospring Rwanda Limited:\n\n• Fresh Chili Peppers — RWF 1,000/kg\n• French Beans — RWF 1,200/kg\n• Avocados (Hass & Fuerte) — RWF 2,400/kg\n\nAll produce is NAEB certified with full cold chain management.',
+      closing:'We look forward to your response.' },
+    { label:'Partnership', subject:'Partnership Opportunity — JohnyRose Agrospring Rwanda Ltd',
+      greeting:'Dear Partner,',
+      body:'I am writing on behalf of JohnyRose Agrospring Rwanda Limited, a NAEB-certified agri-export business based in Kigali, Rwanda.\n\nWe would like to explore a partnership opportunity with your organization.',
+      closing:'Please feel free to reach out to arrange a meeting.' },
+    { label:'Thank You', subject:'Thank You — JohnyRose Agrospring',
+      greeting:'Dear',
+      body:'Thank you for your continued support and partnership with JohnyRose Agrospring Rwanda Limited.\n\nWe truly value our business relationship.',
+      closing:'Warm regards,' },
+  ],
+  invoice: [
+    { label:'Invoice', subject:'Invoice #{inv} — JohnyRose Agrospring',
+      greeting:'Dear',
+      body:'Please find below the invoice details for your recent order:\n\nInvoice No: #\nOrder Date: \nProduce: \nQuantity: \nAmount Due: RWF\nDue Date: \n\nPayment: Mobile Money +250 793 594 038',
+      closing:'Thank you for your business.' },
+    { label:'Payment Reminder', subject:'Payment Reminder — Invoice #{inv}',
+      greeting:'Dear',
+      body:'This is a friendly reminder that payment for Invoice # is now due.\n\nAmount Outstanding: RWF\nDue Date: \n\nPlease arrange payment at your earliest convenience.',
+      closing:'Thank you for your prompt attention.' },
+    { label:'Payment Confirmed', subject:'Payment Received — JohnyRose Agrospring',
+      greeting:'Dear',
+      body:'We confirm receipt of your payment of RWF ______ for Invoice #______.\n\nThank you for your prompt payment. Your order will be processed immediately.',
+      closing:'We look forward to serving you again.' },
+  ],
+  farmer: [
+    { label:'Harvest Schedule', subject:'Harvest Schedule — {month}',
+      greeting:'Dear Farmer,',
+      body:'Please find the upcoming harvest schedule for {month}:\n\nHarvest Date: \nCollection Point: \nExpected Quantity: \nPrice per kg: RWF\n\nPlease ensure your produce is sorted and ready.',
+      closing:'Thank you for being part of our network.' },
+    { label:'Payment Notice', subject:'Harvest Payment — {month}',
+      greeting:'Dear Farmer,',
+      body:'Your payment for the {month} harvest has been processed:\n\nProduce: \nQuantity: kg\nPrice per kg: RWF\nTotal Payment: RWF\n\nPayment sent to your registered mobile money number.',
+      closing:'Thank you for your hard work.' },
+    { label:'Training Invite', subject:'GAP Training — {month}',
+      greeting:'Dear Farmer,',
+      body:'You are invited to our GAP training session:\n\nDate: \nTime: \nVenue: \nTopics: Crop management, quality standards, post-harvest handling',
+      closing:'We look forward to seeing you.' },
+  ],
+  staff: [
+    { label:'Announcement', subject:'Staff Announcement',
+      greeting:'Dear Team,',
+      body:'I would like to bring the following to your attention:\n\n',
+      closing:'Thank you for your commitment.' },
+    { label:'Meeting Notice', subject:'Staff Meeting — {date}',
+      greeting:'Dear Team,',
+      body:'You are invited to a staff meeting:\n\nDate: \nTime: \nVenue: \nAgenda:\n1. \n2. \n3. ',
+      closing:'Please confirm your attendance.' },
+  ],
+  ops: [
+    { label:'Delivery Update', subject:'Delivery Update — {date}',
+      greeting:'Dear',
+      body:'This is to inform you of the following delivery update:\n\nOrder: \nStatus: \nExpected Delivery: \nDriver: \nNotes: ',
+      closing:'Please contact us for any queries.' },
+    { label:'Stock Update', subject:'Stock Update — {date}',
+      greeting:'Dear Management,',
+      body:'Please find below the current stock update:\n\nProduce: \nQuantity Available: kg\nStatus: \nLocation: \nNotes: ',
+      closing:'Kindly advise on next steps.' },
+  ],
+  report: [
+    { label:'Daily Report', subject:'Daily Activity Report — {date}',
+      greeting:'Dear Management,',
+      body:'Please find my daily activity report for {date}:\n\nActivities Completed:\n1. \n2. \n3. \n\nIssues Encountered:\n\nNext Steps:',
+      closing:'Kindly acknowledge receipt.' },
+    { label:'Incident Report', subject:'Incident Report — {date}',
+      greeting:'Dear Management,',
+      body:'I wish to report the following incident:\n\nDate & Time: \nLocation: \nDescription: \nPersons Involved: \nAction Taken: \nRecommendation: ',
+      closing:'Awaiting your guidance.' },
+  ],
+};
+
+function buildTypeTabs() {
+  const role  = USER_PROF.role;
+  const tabs  = document.getElementById('typeTabs');
+
+  // Built-in types filtered by role
+  const builtIn = Object.entries(ALL_TYPES).filter(([k,v]) =>
+    v.roles.includes(role) || role === 'md'
+  );
+
+  // Custom categories (available to all roles)
+  const custom = getCustomCats().map(c => ([c.key, { icon: c.icon, label: c.label, custom: true }]));
+
+  const types = [...builtIn, ...custom];
+
+  // Grid columns based on count
+  const cols = types.length <= 2 ? '1fr 1fr' : types.length <= 4 ? '1fr 1fr' : '1fr 1fr 1fr';
+  tabs.style.gridTemplateColumns = cols;
+
+  tabs.innerHTML = types.map(([k,v],i) => {
+    const delBtn = v.custom
+      ? `<button onclick="deleteCategory('${k}',event)" title="Delete category"
+           style="background:none;border:none;cursor:pointer;color:#aaa;font-size:.85rem;margin-left:auto;line-height:1;padding:0" >✕</button>`
+      : '';
+    return `<div class="type-tab ${i===0?'active':''}" onclick="setType('${k}',this)">
+      <span style="font-size:1rem">${v.icon}</span>${v.label}${delBtn}
+    </div>`;
+  }).join('');
+
+  // Set first type active
+  if (types.length > 0) {
+    const activeKey = emailType && types.find(([k])=>k===emailType) ? emailType : types[0][0];
+    emailType = activeKey;
+    // Mark correct tab active
+    tabs.querySelectorAll('.type-tab').forEach((el,i) => {
+      el.classList.toggle('active', types[i][0] === activeKey);
+    });
+    renderChips();
   }
-  document.getElementById('email-subject').value = tpl.subject;
-  document.getElementById('editor').innerHTML = tpl.body;
-  updateCharCount();
-  showStatus('Template loaded. Click any text to start editing.', 'info');
 }
 
-// ── SEND EMAIL ──
-function sendEmail() {
-  const subject = document.getElementById('email-subject').value.trim();
-  const editorEl = document.getElementById('editor');
-  const htmlBody = editorEl.innerHTML;
-  const textBody = editorEl.innerText;
-
-  if (!subject) { showStatus('Please enter a subject line before sending.', 'error'); return; }
-  if (!textBody.trim()) { showStatus('Please write your email content before sending.', 'error'); return; }
-
-  // Get all recipients
-  const recipients = ['johndamilola328@gmail.com'];
-  document.querySelectorAll('.to-badge').forEach(b => {
-    if (b.dataset.email && !recipients.includes(b.dataset.email)) {
-      recipients.push(b.dataset.email);
-    }
-  });
-
-  // Build full email with signature
-  const sig = `\n\n--\n${cu.name}\n${cu.role} — JAR Farm\nJohnnyRose Agrospring Rwanda Limited\nKK711 Street, Kigarama, Kicukiro, Kigali, Rwanda\n+250 793 594 038`;
-
-  // Use mailto with trimmed plain text to avoid size limits
-  const shortBody = textBody.substring(0, 1500) + (textBody.length > 1500 ? '\n\n[Message truncated — see full report in staff portal]' : '') + sig;
-
-  const mailto = 'mailto:' + recipients.join(',') +
-    '?subject=' + encodeURIComponent('[JAR Farm] ' + subject) +
-    '&body=' + encodeURIComponent(shortBody);
-
-  // Open email client
-  window.open(mailto);
-
-  // Save to reports log
-  const rptLogs = JSON.parse(localStorage.getItem('jar_reports') || '[]');
-  rptLogs.unshift({
-    type: 'email',
-    date: new Date().toLocaleDateString('en-GB'),
-    name: cu.name,
-    subject: subject,
-    body: textBody,
-    htmlBody: htmlBody,
-    submitted: new Date().toISOString(),
-    unread: true
-  });
-  localStorage.setItem('jar_reports', JSON.stringify(rptLogs));
-
-  showStatus('✅ Your email client has opened with the email ready to send. It has also been saved to the Reports log.', 'success');
+function setType(type, el) {
+  emailType = type;
+  document.querySelectorAll('.type-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderChips();
+  updatePreview();
 }
 
-// ── PREVIEW ──
-function previewEmail() {
-  const subject = document.getElementById('email-subject').value || '(No subject)';
-  const body = document.getElementById('editor').innerHTML;
-  const w = window.open('', '_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Preview: ${subject}</title>
-  <style>body{font-family:'Helvetica',sans-serif;max-width:680px;margin:40px auto;padding:0 24px;color:#1C1917;line-height:1.7}
-  h1{font-size:1.1rem;color:#1B4332;border-bottom:2px solid #D8F3DC;padding-bottom:8px}
-  table{border-collapse:collapse;width:100%}td,th{border:1px solid #D1D5DB;padding:8px 12px}
-  th{background:#F0F4F0}.sig{margin-top:24px;padding-top:16px;border-top:1px solid #E7E5E4;font-size:.88rem;color:#78716C}</style>
-  </head><body>
-  <h1>📧 ${subject}</h1>
-  <p style="font-size:.85rem;color:#78716C">From: ${cu.name} — JAR Farm Portal &nbsp;·&nbsp; To: johndamilola328@gmail.com</p>
-  ${body}
-  <div class="sig"><strong>${cu.name}</strong><br/>${cu.role} — JAR Farm<br/>JohnnyRose Agrospring Rwanda Limited<br/>KK711 Street, Kigarama, Kicukiro, Kigali, Rwanda<br/>📞 +250 793 594 038</div>
-  </body></html>`);
-  w.document.close();
+// ── CUSTOM CATEGORIES ─────────────────────────────────────────────
+function getCustomCats() {
+  return JSON.parse(localStorage.getItem('jar_custom_cats') || '[]');
+}
+function saveCustomCats(cats) {
+  localStorage.setItem('jar_custom_cats', JSON.stringify(cats));
+}
+function toggleAddCategory() {
+  const f = document.getElementById('addCatForm');
+  const isOpen = f.style.display !== 'none';
+  f.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) document.getElementById('newCatLabel').focus();
+}
+function saveCategory() {
+  const icon  = document.getElementById('newCatIcon').value.trim() || '📁';
+  const label = document.getElementById('newCatLabel').value.trim();
+  if (!label) { alert('Please enter a category name.'); return; }
+  const cats = getCustomCats();
+  const key  = 'custom_' + label.toLowerCase().replace(/\s+/g,'_') + '_' + Date.now();
+  cats.push({ key, icon, label });
+  saveCustomCats(cats);
+  // Also add empty template list for this type
+  TEMPLATES[key] = [];
+  document.getElementById('newCatIcon').value  = '';
+  document.getElementById('newCatLabel').value = '';
+  document.getElementById('addCatForm').style.display = 'none';
+  buildTypeTabs();
+}
+function deleteCategory(key, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this category?')) return;
+  const cats = getCustomCats().filter(c => c.key !== key);
+  saveCustomCats(cats);
+  if (emailType === key) emailType = '';
+  buildTypeTabs();
 }
 
-// ── COPY ──
-function copyEmail() {
-  const text = document.getElementById('editor').innerText;
-  navigator.clipboard.writeText(text).then(() => showStatus('Email content copied to clipboard!', 'info'));
+function renderChips() {
+  const tpls = TEMPLATES[emailType] || [];
+  document.getElementById('templateChips').innerHTML = tpls.map((t,i) =>
+    `<div class="chip" onclick="applyTemplate(${i})">${t.label}</div>`
+  ).join('');
 }
 
-// ── CLEAR ──
-function clearAll() {
-  if (!confirm('Clear all content?')) return;
-  document.getElementById('editor').innerHTML = '';
-  document.getElementById('email-subject').value = '';
-  updateCharCount();
-  showStatus('', '');
+function applyTemplate(i) {
+  const t   = TEMPLATES[emailType][i];
+  const now = new Date();
+  const m   = now.toLocaleString('en-GB',{month:'long',year:'numeric'});
+  const d   = now.toLocaleDateString('en-GB');
+  const rep = s => (s||'').replace(/{month}/g,m).replace(/{date}/g,d).replace(/{inv}/g,'001');
+  document.getElementById('subject').value  = rep(t.subject);
+  document.getElementById('greeting').value = t.greeting||'';
+  document.getElementById('body').value     = rep(t.body);
+  document.getElementById('closing').value  = t.closing||'';
+  updatePreview();
 }
 
-// ── STATUS ──
-function showStatus(msg, type) {
-  const el = document.getElementById('status-bar');
-  el.textContent = msg;
-  el.className = 'status-bar ' + (type || '');
-  if (msg && type !== 'error') setTimeout(() => { el.className = 'status-bar'; }, 5000);
+// ── TAGS ──────────────────────────────────────────────────────────
+function handleTag(e, field) {
+  if (e.key==='Enter'||e.key===',') {
+    e.preventDefault();
+    const inp = document.getElementById(field+'Input');
+    const val = inp.value.trim().replace(/,$/,'');
+    if (val && val.includes('@')) { addTag(field,val); inp.value=''; updatePreview(); }
+  }
+}
+function addTag(field, email) {
+  const arr  = field==='to' ? toEmails : ccEmails;
+  const wrap = document.getElementById(field+'Wrap');
+  if (arr.includes(email)) return;
+  arr.push(email);
+  const tag = document.createElement('div');
+  tag.className = 'tag';
+  tag.innerHTML = `${email}<button onclick="removeTag('${field}','${email}',this.parentElement)">×</button>`;
+  wrap.insertBefore(tag, document.getElementById(field+'Input'));
+}
+function removeTag(field, email, el) {
+  const arr = field==='to' ? toEmails : ccEmails;
+  const i   = arr.indexOf(email);
+  if (i>-1) arr.splice(i,1);
+  el.remove(); updatePreview();
 }
 
-// ── RECIPIENTS ──
-function addRecipient() {
-  const inp = document.getElementById('extra-email');
-  const email = inp.value.trim();
-  if (!email || !email.includes('@')) return;
-  const badge = document.createElement('span');
-  badge.className = 'to-badge';
-  badge.dataset.email = email;
-  badge.textContent = email;
-  badge.style.cursor = 'pointer';
-  badge.title = 'Click to remove';
-  badge.onclick = () => badge.remove();
-  document.getElementById('to-tags').appendChild(badge);
-  inp.value = '';
+// ── BUILD EMAIL HTML ──────────────────────────────────────────────
+function buildEmailHTML() {
+  const subject  = document.getElementById('subject')?.value  || '';
+  const greeting = document.getElementById('greeting')?.value || '';
+  const body     = document.getElementById('body')?.value     || '';
+  const closing  = document.getElementById('closing')?.value  || '';
+
+  const name     = USER_PROF?.name      || 'JAR Farm Staff';
+  const role     = USER_PROF?.roleLabel || '';
+  const staffId  = USER_PROF?.staffId   || '';
+  const gmail    = EMAIL_PROF?.gmail    || '';
+  const phone    = EMAIL_PROF?.phone    || '';
+  const photo    = EMAIL_PROF?.photo    || '';
+
+  const typeLabels = {business:'Business Communication',invoice:'Invoice / Finance',
+    farmer:'Farmer Network',staff:'Staff Communication',ops:'Operations',report:'Activity Report'};
+  const typeColors = {business:'#1a5c2e',invoice:'#c8961e',farmer:'#2d7a45',
+    staff:'#0f2818',ops:'#2563eb',report:'#7c3aed'};
+  const color = typeColors[emailType] || '#1a5c2e';
+
+  const bodyLines = body.split('\n').map(l =>
+    l.trim()==='' ? '<br/>' :
+    l.startsWith('•') ? `<div style="margin:.3rem 0 .3rem 1rem;color:#333">${l}</div>` :
+    `<p style="margin:.35rem 0;color:#333;line-height:1.7;font-size:14px">${l}</p>`
+  ).join('');
+
+  const avatarBlock = photo
+    ? `<img src="${photo}" width="52" height="52" style="border-radius:26px;display:block;border:2px solid #e0e0e0"/>`
+    : `<table cellpadding="0" cellspacing="0"><tr><td width="52" height="52"
+        style="width:52px;height:52px;border-radius:26px;background:#0f2818;text-align:center;
+        vertical-align:middle;font-size:20px;font-weight:700;color:#f0c060;font-family:Arial">
+        ${name.charAt(0)}</td></tr></table>`;
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f6f4;font-family:Arial,sans-serif">
+<div style="max-width:620px;margin:24px auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f2818">
+    <tr>
+      <td width="66" style="padding:16px 0 16px 20px;vertical-align:middle">
+        <img src="https://jarfarm.vercel.app/logo.png" width="50" height="50"
+          style="display:block;border-radius:8px;background:rgba(255,255,255,.12)"
+          onerror="this.style.display='none'"/>
+      </td>
+      <td style="padding:16px 20px 16px 12px;vertical-align:middle">
+        <div style="color:#f0c060;font-size:16px;font-weight:700;margin-bottom:3px;font-family:Arial,sans-serif">JohnyRose Agrospring Rwanda Ltd</div>
+        <div style="color:rgba(255,255,255,.55);font-size:11px;font-family:Arial,sans-serif">Trading as JAR Farm &nbsp;&middot;&nbsp; Kigali, Rwanda</div>
+      </td>
+    </tr>
+  </table>
+
+  <div style="background:${color};padding:7px 24px">
+    <span style="color:rgba(255,255,255,.8);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700">${typeLabels[emailType]||''}</span>
+  </div>
+
+  <div style="padding:24px 24px 18px">
+    ${greeting ? `<p style="font-size:15px;color:#0f2818;font-weight:600;margin:0 0 14px">${greeting}</p>` : ''}
+    <div>${bodyLines}</div>
+    ${closing ? `<p style="margin:18px 0 0;font-size:14px;color:#444">${closing}</p>` : ''}
+  </div>
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin:0;padding:14px 24px 0;border-top:2px solid #0f2818">
+    <tr>
+      <td width="64" style="vertical-align:top;padding-top:2px">
+        ${avatarBlock}
+      </td>
+      <td style="vertical-align:top;padding-left:12px">
+        <div style="font-weight:700;color:#0f2818;font-size:14px;font-family:Arial,sans-serif">${name}</div>
+        <div style="color:${color};font-size:12px;font-weight:600;font-family:Arial,sans-serif;margin-top:2px">${role}</div>
+        <div style="color:#666;font-size:11px;font-family:Arial,sans-serif;margin-top:4px">JohnyRose Agrospring Rwanda Limited</div>
+        ${phone ? `<div style="color:#666;font-size:11px;font-family:Arial,sans-serif;margin-top:2px">Tel: ${phone}</div>` : ''}
+        ${gmail  ? `<div style="color:#666;font-size:11px;font-family:Arial,sans-serif;margin-top:2px">Email: ${gmail}</div>`  : ''}
+        ${staffId ? `<div style="color:#aaa;font-size:10px;font-family:Arial,sans-serif;margin-top:3px">Staff ID: ${staffId}</div>` : ''}
+      </td>
+    </tr>
+  </table>
+
+  <div style="background:#0f2818;padding:10px 24px;margin-top:14px">
+    <div style="color:rgba(255,255,255,.35);font-size:10px;text-align:center">
+      © ${new Date().getFullYear()} JohnyRose Agrospring Rwanda Limited &nbsp;·&nbsp; COI: 147136187
+    </div>
+  </div>
+
+</div></body></html>`;
 }
 
-// ── CONTACTS ──
-let contacts = JSON.parse(localStorage.getItem('jar_contacts') || '[]');
-if (!contacts.length) {
-  contacts = [
-    {name:'Managing Director', email:'johndamilola328@gmail.com'},
-    {name:'Operations Manager', email:'manager@jarfarm.rw'},
-  ];
+// ── PREVIEW ───────────────────────────────────────────────────────
+function updatePreview() {
+  const frame = document.getElementById('previewFrame');
+  if (!frame) return;
+  const html = buildEmailHTML();
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  frame.src  = url;
 }
-function saveContact() {
-  const n = document.getElementById('new-contact-name').value.trim();
-  const e = document.getElementById('new-contact-email').value.trim();
-  if (!n || !e) { showStatus('Please enter both name and email.','error'); return; }
-  contacts.push({name:n, email:e});
-  localStorage.setItem('jar_contacts', JSON.stringify(contacts));
-  document.getElementById('new-contact-name').value = '';
-  document.getElementById('new-contact-email').value = '';
-  renderContacts();
-  showToast(n + ' saved to contacts');
+
+// ── SEND ──────────────────────────────────────────────────────────
+async function sendEmail() {
+  const status = document.getElementById('statusMsg');
+  status.className = 'status-msg';
+
+  if (!EMAIL_PROF?.scriptUrl) {
+    status.textContent = 'Please set up your Google Apps Script URL in your profile (⚙️ My Profile).';
+    status.className = 'status-msg error'; return;
+  }
+
+  // Auto-add typed email if not Enter'd
+  const toInp = document.getElementById('toInput').value.trim();
+  if (toInp && toInp.includes('@')) { addTag('to', toInp); document.getElementById('toInput').value=''; }
+
+  if (toEmails.length === 0) {
+    status.textContent = 'Please add at least one recipient.';
+    status.className = 'status-msg error'; return;
+  }
+  if (!document.getElementById('subject').value.trim()) {
+    status.textContent = 'Please enter a subject.';
+    status.className = 'status-msg error'; return;
+  }
+  if (!document.getElementById('body').value.trim()) {
+    status.textContent = 'Please write your message.';
+    status.className = 'status-msg error'; return;
+  }
+
+  setLoad('sendBtn','sendBtnTxt',true,'Sending…');
+  status.textContent='Sending…'; status.className='status-msg info';
+
+  try {
+    const res = await fetch(EMAIL_PROF.scriptUrl, {
+      method:'POST',
+      body: JSON.stringify({
+        to:         toEmails.join(','),
+        cc:         ccEmails.join(','),
+        subject:    document.getElementById('subject').value,
+        html:       buildEmailHTML(),
+        senderName: USER_PROF.name + ' — JohnyRose Agrospring Rwanda Ltd',
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      status.textContent = '✓ Email sent to ' + toEmails.join(', ') + '!';
+      status.className = 'status-msg success';
+    } else throw new Error(data.error||'Unknown error');
+  } catch(err) {
+    status.textContent = 'Send failed: ' + err.message;
+    status.className = 'status-msg error';
+  } finally { setLoad('sendBtn','sendBtnTxt',false,'Send Email'); }
 }
-function renderContacts() {
-  document.getElementById('contacts-list').innerHTML = contacts.map((c,i) => `
-    <div class="contact-item">
+
+// ── CONTACTS ─────────────────────────────────────────────────────
+function loadContacts() {
+  const key      = 'jar_contacts_' + (CUR_USER?.uid||'guest');
+  const contacts = JSON.parse(localStorage.getItem(key)||'[]');
+  const list     = document.getElementById('contactsList');
+  if (!list) return;
+  if (contacts.length === 0) {
+    list.innerHTML = '<p style="font-size:.8rem;color:#aaa">No saved contacts yet.</p>';
+    return;
+  }
+  list.innerHTML = contacts.map((c,i) => `
+    <div class="contact-item" onclick="addTag('to','${c.email}');updatePreview()">
       <div><div class="contact-name">${c.name}</div><div class="contact-email">${c.email}</div></div>
-      <div style="display:flex;gap:6px">
-        <button class="use-btn" onclick="useTo('${c.email}')">Use</button>
-        <button class="use-btn" style="background:#FEE2E2;color:#991B1B" onclick="delContact(${i})">✕</button>
-      </div>
+      <span style="color:var(--green);font-size:.73rem;font-weight:600">+ Add</span>
     </div>`).join('');
 }
-function useTo(email) {
-  document.getElementById('extra-email').value = email;
-  addRecipient();
+function toggleAddContact() {
+  const f = document.getElementById('addContactForm');
+  f.style.display = f.style.display==='none' ? 'block' : 'none';
 }
-function delContact(i) {
-  contacts.splice(i, 1);
-  localStorage.setItem('jar_contacts', JSON.stringify(contacts));
-  renderContacts();
+function saveContact() {
+  const name  = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  if (!name||!email) { alert('Please enter both name and email.'); return; }
+  const key      = 'jar_contacts_' + CUR_USER.uid;
+  const contacts = JSON.parse(localStorage.getItem(key)||'[]');
+  contacts.push({name,email});
+  localStorage.setItem(key, JSON.stringify(contacts));
+  document.getElementById('cName').value = '';
+  document.getElementById('cEmail').value = '';
+  document.getElementById('addContactForm').style.display = 'none';
+  loadContacts();
 }
-renderContacts();
 
-// Load daily template by default
-loadTemplate('daily');
+// ── MISC ──────────────────────────────────────────────────────────
+function clearForm() {
+  toEmails=[]; ccEmails=[];
+  ['toWrap','ccWrap'].forEach(id => {
+    const wrap = document.getElementById(id);
+    const field = id.replace('Wrap','');
+    wrap.innerHTML = `<input id="${field}Input" class="tag-input"
+      placeholder="Type email and press Enter…"
+      onkeydown="handleTag(event,'${field}')"/>`;
+  });
+  ['subject','greeting','body','closing'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('statusMsg').className='status-msg';
+  updatePreview();
+}
+
+function openScriptModal()  { document.getElementById('scriptModal').classList.add('open'); }
+function closeScriptModal() { document.getElementById('scriptModal').classList.remove('open'); }
+function copyScript() {
+  navigator.clipboard.writeText(SCRIPT_CODE).then(()=>{
+    const b=document.querySelector('#scriptModal .btn-green');
+    b.textContent='✓ Copied!';setTimeout(()=>b.textContent='📋 Copy Script',2000);
+  });
+}
+
+function setLoad(btnId,txtId,on,label) {
+  const b=document.getElementById(btnId),t=document.getElementById(txtId);
+  b.disabled=on;
+  if(on){ t.style.display='none';
+    const s=document.createElement('div');s.className='spin';s.id='sendSpin';b.appendChild(s);
+  } else {
+    const s=document.getElementById('sendSpin');if(s)s.remove();
+    t.style.display='';t.textContent=label;
+  }
+}
 </script>
 </body>
 </html>
