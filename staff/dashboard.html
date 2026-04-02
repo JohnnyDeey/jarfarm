@@ -575,8 +575,8 @@ const STAFF_NAV = [
 function buildNav() {
   const nav = isMD ? MD_NAV : STAFF_NAV;
   const el  = document.getElementById('sbNav');
+  el.innerHTML = '';
   nav.forEach(item => {
-    if (item.sec) {
       const s=document.createElement('div'); s.className='nav-sec'; s.textContent=item.sec;
       el.appendChild(s);
     } else {
