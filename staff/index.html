@@ -250,7 +250,7 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 
 // Redirect if already signed in
-aauth.onAuthStateChanged(u => { if (u) location.href = 'dashboard'; });
+auth.onAuthStateChanged(u => { if (u) location.href = 'dashboard'; });
 
 // ── State ────────────────────────────────────────────────────────
 let staffRec = null;
