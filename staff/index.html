@@ -250,7 +250,7 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 
 // Redirect if already signed in
-auth.onAuthStateChanged(u => { if (u) location.href = './dashboard'; });
+auth.onAuthStateChanged(u => { if (u) location.href = '/staff/dashboard'; });
 
 // ── State ────────────────────────────────────────────────────────
 let staffRec = null;
@@ -273,7 +273,7 @@ async function doLogin() {
   load('bLogin','bLoginT',true,'Signing in…');
   try {
     await auth.signInWithEmailAndPassword(email, pw);
-    location.href = './dashboard';
+    location.href = '/staff/dashboard';
   } catch(err) {
     const c = err.code;
     if (c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-credential')
