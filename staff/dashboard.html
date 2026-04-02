@@ -500,8 +500,32 @@ auth.onAuthStateChanged(async user => {
     const firstPanel = isMD ? 'md-dash' : 's-dash';
     switchPanel(firstPanel, isMD ? 'MD Dashboard' : 'Operations Dashboard');
 
-  } catch (err) {
+} catch (err) {
     console.error('Profile load error:', err);
+    const stored = localStorage.getItem('jar_user');
+    if (stored) {
+      try {
+        const u = JSON.parse(stored);
+        USER_PROF = {
+          name: u.name || 'Staff',
+          role: u.role || 'staff',
+          roleLabel: u.role === 'md' || u.role === 'manager' ? 'Managing Director' : (u.role || 'Staff'),
+          staffId: u.staffId || '',
+          email: u.email || ''
+        };
+        isMD = USER_PROF.role === 'md' || USER_PROF.role === 'manager';
+        document.getElementById('sbName').textContent = USER_PROF.name;
+        document.getElementById('sbStaffId').textContent = USER_PROF.staffId || '';
+        const tag = document.getElementById('sbRoleTag');
+        tag.textContent = USER_PROF.roleLabel;
+        tag.className = 'role-tag ' + (isMD ? 'md-tag' : 'staff-tag');
+        buildNav();
+        const firstPanel = isMD ? 'md-dash' : 's-dash';
+        switchPanel(firstPanel, isMD ? 'MD Dashboard' : 'Operations Dashboard');
+      } catch(e2) { location.href = 'index.html'; }
+    } else {
+      location.href = 'index.html';
+    }
   }
 });
 
