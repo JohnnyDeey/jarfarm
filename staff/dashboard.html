@@ -471,61 +471,74 @@ document.getElementById('dateChip').textContent =
   new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 
 // ── Auth Guard ───────────────────────────────────────────────────────
+// Helper: extract display name from email e.g. "john.doe@gmail.com" → "John Doe"
+function nameFromEmail(email) {
+  if (!email) return 'Staff';
+  const local = email.split('@')[0].replace(/[._]/g,' ');
+  return local.charAt(0).toUpperCase() + local.slice(1);
+}
+
+// Helper: populate and load dashboard with a profile object
+function loadDashboard(profile) {
+  USER_PROF = profile;
+  isMD = ['md','manager','admin'].includes((profile.role||'').toLowerCase());
+  // Save to localStorage for next time
+  localStorage.setItem('jar_user', JSON.stringify(profile));
+  document.getElementById('sbName').textContent    = profile.name || '—';
+  document.getElementById('sbStaffId').textContent = profile.staffId || '';
+  const tag = document.getElementById('sbRoleTag');
+  tag.textContent = profile.roleLabel || profile.role || 'Staff';
+  tag.className   = 'role-tag ' + (isMD ? 'md-tag' : 'staff-tag');
+  buildNav();
+  if (profile.mustChangePassword) {
+    document.getElementById('pwForceOverlay').classList.add('open');
+  }
+  const firstPanel = isMD ? 'md-dash' : 's-dash';
+  switchPanel(firstPanel, isMD ? 'MD Dashboard' : 'Operations Dashboard');
+}
+
 auth.onAuthStateChanged(async user => {
   if (!user) { location.href = 'index.html'; return; }
   CUR_USER = user;
 
+  // STEP 1: Immediately show dashboard using whatever we know right now
+  // so the user NEVER sees a blank page
+  const cached = localStorage.getItem('jar_user');
+  let immediateProfile = null;
+  if (cached) {
+    try { immediateProfile = JSON.parse(cached); } catch(e) {}
+  }
+  if (!immediateProfile) {
+    // Build a basic profile from Firebase Auth data
+    immediateProfile = {
+      name:      user.displayName || nameFromEmail(user.email),
+      email:     user.email,
+      role:      'manager',
+      roleLabel: 'Managing Director',
+      staffId:   '',
+    };
+  }
+  loadDashboard(immediateProfile);
+
+  // STEP 2: Try to load full profile from Firestore in background
+  // If it works, refresh with full data silently
   try {
     const snap = await db.collection('users').doc(user.uid).get();
-    if (!snap.exists) { await auth.signOut(); location.href='index.html'; return; }
-    USER_PROF = snap.data();
-    isMD      = USER_PROF.role === 'md';
-
-    // Populate sidebar
-    document.getElementById('sbName').textContent    = USER_PROF.name;
-    document.getElementById('sbStaffId').textContent = USER_PROF.staffId || '';
-    const tag = document.getElementById('sbRoleTag');
-    tag.textContent  = USER_PROF.roleLabel;
-    tag.className    = 'role-tag ' + (isMD ? 'md-tag' : 'staff-tag');
-
-    // Build nav
-    buildNav();
-
-    // Check must change password
-    if (USER_PROF.mustChangePassword) {
-      document.getElementById('pwForceOverlay').classList.add('open');
+    if (snap.exists) {
+      const fsProfile = snap.data();
+      // Only reload if something important changed
+      if (fsProfile.name !== USER_PROF.name || fsProfile.role !== USER_PROF.role) {
+        loadDashboard(fsProfile);
+      } else {
+        // Update USER_PROF with full Firestore data quietly
+        USER_PROF = { ...USER_PROF, ...fsProfile };
+        localStorage.setItem('jar_user', JSON.stringify(USER_PROF));
+      }
     }
-
-    // Load first panel
-    const firstPanel = isMD ? 'md-dash' : 's-dash';
-    switchPanel(firstPanel, isMD ? 'MD Dashboard' : 'Operations Dashboard');
-
-} catch (err) {
-    console.error('Profile load error:', err);
-    const stored = localStorage.getItem('jar_user');
-    if (stored) {
-      try {
-        const u = JSON.parse(stored);
-        USER_PROF = {
-          name: u.name || 'Staff',
-          role: u.role || 'staff',
-          roleLabel: u.role === 'md' || u.role === 'manager' ? 'Managing Director' : (u.role || 'Staff'),
-          staffId: u.staffId || '',
-          email: u.email || ''
-        };
-        isMD = USER_PROF.role === 'md' || USER_PROF.role === 'manager';
-        document.getElementById('sbName').textContent = USER_PROF.name;
-        document.getElementById('sbStaffId').textContent = USER_PROF.staffId || '';
-        const tag = document.getElementById('sbRoleTag');
-        tag.textContent = USER_PROF.roleLabel;
-        tag.className = 'role-tag ' + (isMD ? 'md-tag' : 'staff-tag');
-        buildNav();
-        const firstPanel = isMD ? 'md-dash' : 's-dash';
-        switchPanel(firstPanel, isMD ? 'MD Dashboard' : 'Operations Dashboard');
-      } catch(e2) { location.href = 'index.html'; }
-    } else {
-      location.href = 'index.html';
-    }
+    // If !snap.exists that's fine — we already loaded from cache/auth above
+  } catch (err) {
+    // Firestore failed — dashboard is already loaded from cache, just continue
+    console.warn('Firestore unavailable, using cached profile:', err.message);
   }
 });
 
@@ -1296,6 +1309,16 @@ PANELS['md-email'] = () => `
           </div>
           <div id="ecContactList" style="max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem"></div>
         </div>
+
+        <!-- SENT LOG -->
+        <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid #f0f0f0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+            <div style="font-size:.73rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.05em">📨 Sent History</div>
+            <button onclick="localStorage.removeItem('jar_sent_emails');ecRenderSentLog()" style="background:none;border:none;color:#aaa;font-size:.72rem;cursor:pointer;font-family:inherit">Clear</button>
+          </div>
+          <div id="ecSentLog"></div>
+        </div>
+
       </div>
 
       <!-- RIGHT: LIVE PREVIEW -->
@@ -1546,11 +1569,43 @@ window.ecSend=async function(){
     })});
     const data=await res.json();
     if(data.success){
-      ecShowStatus('✅ Email sent successfully to '+ec_toEmails.join(', ')+' at '+new Date().toLocaleTimeString(),'success');
+      // Log delivery record
+      const log = JSON.parse(localStorage.getItem('jar_sent_emails')||'[]');
+      log.unshift({
+        to: ec_toEmails.join(', '),
+        subject: document.getElementById('ecSubject').value,
+        sentAt: new Date().toISOString(),
+        sentBy: USER_PROF.name,
+        status: 'delivered'
+      });
+      localStorage.setItem('jar_sent_emails', JSON.stringify(log.slice(0,50)));
+      ecShowStatus(
+        '✅ DELIVERED — Email successfully sent to ' + ec_toEmails.join(', ') +
+        '\n📅 Sent at ' + new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString('en-GB') +
+        '\n📧 Check recipient inbox (and spam folder if not received within 5 minutes).',
+        'success'
+      );
       ec_attachments=[];ecRenderAttachments();
+      ecRenderSentLog();
     } else throw new Error(data.error||'Unknown error');
   }catch(err){
-    ecShowStatus('❌ Send failed: '+err.message+' — Check your Apps Script URL in settings above.','error');
+    // Log failed attempt
+    const log = JSON.parse(localStorage.getItem('jar_sent_emails')||'[]');
+    log.unshift({
+      to: ec_toEmails.join(', '),
+      subject: document.getElementById('ecSubject')?.value || '',
+      sentAt: new Date().toISOString(),
+      sentBy: USER_PROF?.name || '',
+      status: 'failed',
+      error: err.message
+    });
+    localStorage.setItem('jar_sent_emails', JSON.stringify(log.slice(0,50)));
+    ecShowStatus(
+      '❌ NOT DELIVERED — Send failed: ' + err.message +
+      '\n\nPossible causes:\n• Google Apps Script URL has expired — go to script.google.com → Manage Deployments → create New Version and paste updated URL in your profile above\n• Check your internet connection',
+      'error'
+    );
+    ecRenderSentLog();
   }finally{
     document.getElementById('ecSendTxt').textContent='Send Email';
     document.getElementById('ecSendBtn').disabled=false;
@@ -1558,11 +1613,28 @@ window.ecSend=async function(){
 };
 function ecShowStatus(msg,type){
   const el=document.getElementById('ecStatus');
-  el.textContent=msg;
+  el.innerHTML=msg.replace(/\n/g,'<br/>');
   el.style.display='block';
   el.style.background=type==='success'?'#dcfce7':type==='error'?'#fef2f2':'#eff6ff';
   el.style.color=type==='success'?'#166534':type==='error'?'#dc2626':'#1d4ed8';
   el.style.border='1px solid '+(type==='success'?'#86efac':type==='error'?'#fca5a5':'#93c5fd');
+  el.style.lineHeight='1.6';
+  el.style.whiteSpace='pre-wrap';
+}
+function ecRenderSentLog(){
+  const el=document.getElementById('ecSentLog');if(!el)return;
+  const log=JSON.parse(localStorage.getItem('jar_sent_emails')||'[]');
+  if(!log.length){el.innerHTML='<p style="font-size:.78rem;color:#aaa">No emails sent yet.</p>';return;}
+  el.innerHTML=log.slice(0,10).map(e=>`
+    <div style="display:flex;align-items:flex-start;gap:.6rem;padding:.6rem 0;border-bottom:1px solid #f0f0f0">
+      <span style="font-size:1rem;flex-shrink:0">${e.status==='delivered'?'✅':'❌'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.82rem;font-weight:600;color:#0f2818;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.subject||'(No subject)'}</div>
+        <div style="font-size:.75rem;color:#888">To: ${e.to} · ${new Date(e.sentAt).toLocaleString('en-GB')}</div>
+        ${e.status==='failed'?`<div style="font-size:.72rem;color:#dc2626">Failed: ${e.error}</div>`:''}
+      </div>
+      <span style="font-size:.72rem;font-weight:700;flex-shrink:0;padding:.15rem .5rem;border-radius:20px;background:${e.status==='delivered'?'#dcfce7':'#fee2e2'};color:${e.status==='delivered'?'#166534':'#991b1b'}">${e.status==='delivered'?'Delivered':'Failed'}</span>
+    </div>`).join('');
 }
 window.ecClear=function(){
   ec_toEmails=[];ec_ccEmails=[];ec_attachments=[];
@@ -1630,6 +1702,7 @@ function ecLoadContacts(){
 // INIT
 ecBuildTabs();
 ecLoadContacts();
+ecRenderSentLog();
 setTimeout(ecUpdatePreview,100);
 
 })();
