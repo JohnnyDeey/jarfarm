@@ -522,7 +522,13 @@ document.getElementById('scriptCode').textContent = SCRIPT_CODE;
 
 // ── AUTH ──────────────────────────────────────────────────────────
 auth.onAuthStateChanged(async user => {
-  if (!user) { showScreen('login'); return; }
+  if (!user) {
+    // Wait 3 seconds before showing login in case auth is still loading
+    setTimeout(() => {
+      if (!auth.currentUser) showScreen('login');
+    }, 3000);
+    return;
+  }
   CUR_USER = user;
   try {
     const snap = await db.collection('users').doc(user.uid).get();
